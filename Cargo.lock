@@ -19586,24 +19586,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "web_search_providers"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "client",
- "cloud_api_client",
- "cloud_api_types",
- "cloud_llm_client",
- "futures 0.3.32",
- "gpui",
- "http_client",
- "language_model",
- "serde",
- "serde_json",
- "web_search",
-]
-
-[[package]]
 name = "webpki-root-certs"
 version = "0.26.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
