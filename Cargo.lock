@@ -2379,31 +2379,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ade8366b8bd5ba243f0a58f036cc0ca8a2f069cff1a2351ef1cac6b083e16fc0"
 
 [[package]]
-name = "call"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "audio",
- "client",
- "collections",
- "feature_flags",
- "fs",
- "futures 0.3.32",
- "gpui",
- "gpui_tokio",
- "language",
- "livekit_client",
- "log",
- "postage",
- "project",
- "serde",
- "settings",
- "telemetry",
- "util",
- "workspace",
-]
-
-[[package]]
 name = "calloop"
 version = "0.14.3"
 source = "git+https://github.com/zed-industries/calloop#eb6b4fd17b9af5ecc226546bdd04185391b3e265"
