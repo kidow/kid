@@ -8,8 +8,6 @@ use std::{
 
 use sysinfo::{Pid, ProcessRefreshKind, RefreshKind, System};
 
-use language::language_settings::{EditPredictionProvider, all_language_settings};
-
 use client::proto;
 use collections::HashSet;
 use editor::{Editor, EditorEvent};

@@ -46,13 +46,6 @@ struct TelemetryReporterState {
 
 impl Global for TelemetryReporterState {}
 
-/// Nanosecond boundaries for the time-range buckets used in telemetry.
-/// These match the display distribution in format_report so the two stay in sync.
-const MS4_NS: u64 = 4_000_000;
-const MS8_NS: u64 = 8_000_000;
-const MS16_NS: u64 = 16_000_000;
-const MS33_NS: u64 = 33_000_000;
-const MS100_NS: u64 = 100_000_000;
 
 /// Minimum number of frames that must be present in the delta window for the
 /// telemetry report to be sent. Avoids sending noise for windows that are
@@ -90,14 +83,6 @@ pub fn report_input_latency_telemetry(window: &Window, cx: &mut App) {
     }
 
     state.previous.insert(window_id, (now, current));
-}
-
-fn count_frames_in_range(histogram: &Histogram<u64>, low_ns: u64, high_ns: u64) -> u64 {
-    histogram
-        .iter_recorded()
-        .filter(|v| v.value_iterated_to() >= low_ns && v.value_iterated_to() < high_ns)
-        .map(|v| v.count_at_value())
-        .sum()
 }
 
 fn format_report(snapshot: &InputLatencySnapshot, previous: &ReporterState) -> String {

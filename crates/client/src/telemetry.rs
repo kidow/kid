@@ -5,7 +5,7 @@ use anyhow::{Context as _, Result};
 use clock::SystemClock;
 use fs::Fs;
 use futures::channel::mpsc;
-use futures::{Future, StreamExt};
+use futures::Future;
 use gpui::{App, AppContext as _, BackgroundExecutor, Task};
 use http_client::{self, AsyncBody, HttpClient, HttpClientWithUrl, Method, Request};
 use parking_lot::Mutex;

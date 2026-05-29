@@ -14,7 +14,6 @@ use reqwest::{
 use serde::Deserialize;
 use smol::stream::StreamExt;
 use std::{ffi::OsStr, fs, sync::Arc, thread::ThreadId, time::Duration};
-use sysinfo::{MemoryRefreshKind, RefreshKind, System};
 use util::ResultExt;
 
 use crate::STARTUP_TIME;

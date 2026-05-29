@@ -1107,13 +1107,11 @@ pub struct ActionLogTelemetry {
 struct ActionLogMetrics {
     lines_removed: u32,
     lines_added: u32,
-    language: Option<SharedString>,
 }
 
 impl ActionLogMetrics {
-    fn for_buffer(buffer: &Buffer) -> Self {
+    fn for_buffer(_buffer: &Buffer) -> Self {
         Self {
-            language: buffer.language().map(|l| l.name().0),
             lines_removed: 0,
             lines_added: 0,
         }

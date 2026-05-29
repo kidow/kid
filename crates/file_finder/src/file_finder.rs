@@ -4,11 +4,9 @@ mod file_finder_tests;
 use futures::future::join_all;
 pub use open_path_prompt::OpenPathDelegate;
 
-use client::ChannelId;
 use collections::HashMap;
 use editor::Editor;
 use file_icons::FileIcons;
-use fuzzy::StringMatch;
 use fuzzy_nucleo::{PathMatch, PathMatchCandidate};
 use gpui::{
     Action, AnyElement, App, Context, DismissEvent, Entity, EventEmitter, FocusHandle, Focusable,
@@ -48,8 +46,8 @@ use util::{
     rel_path::RelPath,
 };
 use workspace::{
-    ModalView, OpenChannelNotesById, OpenOptions, OpenVisible, SplitDirection, Workspace,
-    item::PreviewTabsSettings, notifications::NotifyResultExt, pane,
+    ModalView, OpenOptions, OpenVisible, SplitDirection, Workspace, item::PreviewTabsSettings,
+    notifications::NotifyResultExt, pane,
 };
 use zed_actions::search::ToggleIncludeIgnored;
 
@@ -337,7 +335,6 @@ impl FileFinder {
                         path: m.0.path.clone(),
                     },
                     Match::CreateNew(p) => p.clone(),
-                    Match::Channel { .. } => return,
                 };
                 let open_task = workspace.update(cx, move |workspace, cx| {
                     workspace.split_path_preview(path, false, Some(split_direction), window, cx)
@@ -461,11 +458,6 @@ enum Match {
         panel_match: Option<ProjectPanelOrdMatch>,
     },
     Search(ProjectPanelOrdMatch),
-    Channel {
-        channel_id: ChannelId,
-        channel_name: SharedString,
-        string_match: StringMatch,
-    },
     CreateNew(ProjectPath),
 }
 
@@ -474,7 +466,7 @@ impl Match {
         match self {
             Match::History { path, .. } => Some(&path.project.path),
             Match::Search(panel_match) => Some(&panel_match.0.path),
-            Match::Channel { .. } | Match::CreateNew(_) => None,
+            Match::CreateNew(_) => None,
         }
     }
 
@@ -488,7 +480,7 @@ impl Match {
                     .read(cx)
                     .absolutize(&path_match.path),
             ),
-            Match::Channel { .. } | Match::CreateNew(_) => None,
+            Match::CreateNew(_) => None,
         }
     }
 
@@ -496,7 +488,7 @@ impl Match {
         match self {
             Match::History { panel_match, .. } => panel_match.as_ref(),
             Match::Search(panel_match) => Some(panel_match),
-            Match::Channel { .. } | Match::CreateNew(_) => None,
+            Match::CreateNew(_) => None,
         }
     }
 }
@@ -676,7 +668,6 @@ impl Matches {
         match m {
             Match::History { panel_match, .. } => panel_match.as_ref().map_or(0.0, |pm| pm.0.score),
             Match::Search(pm) => pm.0.score,
-            Match::Channel { string_match, .. } => string_match.score,
             Match::CreateNew(_) => 0.0,
         }
     }
@@ -1166,16 +1157,6 @@ impl FileFinderDelegate {
                     }
                 }
                 Match::Search(path_match) => self.labels_for_path_match(&path_match.0, path_style),
-                Match::Channel {
-                    channel_name,
-                    string_match,
-                    ..
-                } => (
-                    channel_name.to_string(),
-                    string_match.positions.clone(),
-                    "Channel Notes".to_string(),
-                    vec![],
-                ),
                 Match::CreateNew(project_path) => (
                     format!("Create file: {}", project_path.path.display(path_style)),
                     vec![],
@@ -1544,16 +1525,6 @@ impl PickerDelegate for FileFinderDelegate {
         if let Some(m) = self.matches.get(self.selected_index())
             && let Some(workspace) = self.workspace.upgrade()
         {
-            // Channel matches are handled separately since they dispatch an action
-            // rather than directly opening a file path.
-            if let Match::Channel { channel_id, .. } = m {
-                let channel_id = channel_id.0;
-                let finder = self.file_finder.clone();
-                window.dispatch_action(OpenChannelNotesById { channel_id }.boxed_clone(), cx);
-                finder.update(cx, |_, cx| cx.emit(DismissEvent)).log_err();
-                return;
-            }
-
             let open_task = workspace.update(cx, |workspace, cx| {
                 let split_or_open =
                     |workspace: &mut Workspace,
@@ -1646,7 +1617,6 @@ impl PickerDelegate for FileFinderDelegate {
                         window,
                         cx,
                     ),
-                    Match::Channel { .. } => unreachable!("handled above"),
                 }
             });
 
@@ -1712,10 +1682,6 @@ impl PickerDelegate for FileFinderDelegate {
                 .flex_none()
                 .size(IconSize::Small.rems())
                 .into_any_element(),
-            Match::Channel { .. } => v_flex()
-                .flex_none()
-                .size(IconSize::Small.rems())
-                .into_any_element(),
             Match::CreateNew(_) => Icon::new(IconName::Plus)
                 .color(Color::Muted)
                 .size(IconSize::Small)
@@ -1723,18 +1689,15 @@ impl PickerDelegate for FileFinderDelegate {
         };
         let (file_name_label, full_path_label) = self.labels_for_match(path_match, window, cx);
 
-        let file_icon = match path_match {
-            Match::Channel { .. } => Some(Icon::new(IconName::Hash).color(Color::Muted)),
-            _ => maybe!({
-                if !settings.file_icons {
-                    return None;
-                }
-                let abs_path = path_match.abs_path(&self.project, cx)?;
-                let file_name = abs_path.file_name()?;
-                let icon = FileIcons::get_icon(file_name.as_ref(), cx)?;
-                Some(Icon::from_path(icon).color(Color::Muted))
-            }),
-        };
+        let file_icon = maybe!({
+            if !settings.file_icons {
+                return None;
+            }
+            let abs_path = path_match.abs_path(&self.project, cx)?;
+            let file_name = abs_path.file_name()?;
+            let icon = FileIcons::get_icon(file_name.as_ref(), cx)?;
+            Some(Icon::from_path(icon).color(Color::Muted))
+        });
 
         Some(
             ListItem::new(ix)

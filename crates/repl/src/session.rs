@@ -1,7 +1,6 @@
 use crate::components::KernelListItem;
 use crate::setup_editor_session_actions;
 use crate::{
-    KernelStatus,
     kernels::{
         Kernel, KernelSession, KernelSpecification, NativeRunningKernel, RemoteRunningKernel,
         SshRunningKernel, WslRunningKernel,
