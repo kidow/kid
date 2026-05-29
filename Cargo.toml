@@ -110,7 +110,6 @@ members = [
     "crates/notifications",
     "crates/oauth_callback_server",
     "crates/onboarding",
-    "crates/open_ai",
     "crates/open_path_prompt",
     "crates/outline",
     "crates/outline_panel",
@@ -334,7 +333,6 @@ node_runtime = { path = "crates/node_runtime" }
 notifications = { path = "crates/notifications" }
 oauth_callback_server = { path = "crates/oauth_callback_server" }
 onboarding = { path = "crates/onboarding" }
-open_ai = { path = "crates/open_ai" }
 open_path_prompt = { path = "crates/open_path_prompt" }
 outline = { path = "crates/outline" }
 outline_panel = { path = "crates/outline_panel" }

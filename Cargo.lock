@@ -10300,25 +10300,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "open_ai"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "collections",
- "futures 0.3.32",
- "http_client",
- "language_model_core",
- "log",
- "pretty_assertions",
- "rand 0.9.4",
- "schemars",
- "serde",
- "serde_json",
- "strum",
- "thiserror 2.0.17",
-]
-
-[[package]]
 name = "open_path_prompt"
 version = "0.1.0"
 dependencies = [
