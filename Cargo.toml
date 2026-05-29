@@ -4,7 +4,6 @@ members = [
     "crates/acp_thread",
     "crates/action_log",
     "crates/activity_indicator",
-    "crates/agent_settings",
     "crates/agent_skills",
     "crates/ai_onboarding",
     "crates/anthropic",
@@ -243,7 +242,6 @@ edition = "2024"
 acp_thread = { path = "crates/acp_thread" }
 action_log = { path = "crates/action_log" }
 activity_indicator = { path = "crates/activity_indicator" }
-agent_settings = { path = "crates/agent_settings" }
 agent_skills = { path = "crates/agent_skills" }
 ai_onboarding = { path = "crates/ai_onboarding" }
 anthropic = { path = "crates/anthropic" }
