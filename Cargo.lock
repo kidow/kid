@@ -2583,42 +2583,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "copilot"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-std",
- "collections",
- "command_palette_hooks",
- "copilot_chat",
- "edit_prediction_types",
- "editor",
- "fs",
- "futures 0.3.32",
- "gpui",
- "icons",
- "indoc",
- "language",
- "log",
- "lsp",
- "node_runtime",
- "parking_lot",
- "paths",
- "pretty_assertions",
- "project",
- "rpc",
- "serde",
- "serde_json",
- "settings",
- "sum_tree",
- "theme",
- "theme_settings",
- "util",
- "workspace",
- "zlog",
-]
-
-[[package]]
 name = "copilot_chat"
 version = "0.1.0"
 dependencies = [
