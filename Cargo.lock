@@ -5993,7 +5993,6 @@ name = "file_finder"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "channel",
  "client",
  "collections",
  "ctor",
@@ -7054,7 +7053,6 @@ dependencies = [
  "anyhow",
  "askpass",
  "buffer_diff",
- "call",
  "collections",
  "component",
  "ctor",
@@ -11142,17 +11140,9 @@ dependencies = [
 name = "notifications"
 version = "0.1.0"
 dependencies = [
- "anyhow",
- "channel",
- "client",
  "component",
- "futures-lite 1.13.0",
  "gpui",
- "rpc",
- "sum_tree",
- "time",
  "ui",
- "util",
  "workspace",
  "zed_actions",
 ]
@@ -22029,8 +22019,6 @@ dependencies = [
  "auto_update",
  "auto_update_ui",
  "breadcrumbs",
- "call",
- "channel",
  "chrono",
  "clap",
  "cli",
@@ -22100,7 +22088,6 @@ dependencies = [
  "mimalloc",
  "miniprofiler_ui",
  "node_runtime",
- "notifications",
  "onboarding",
  "outline",
  "outline_panel",

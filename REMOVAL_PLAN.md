@@ -125,3 +125,44 @@ VSCode keymap, browser panel (toggle, localhost render, no overlap).
 
 README (EN: intro, upstream diff, build, browser-panel usage), LICENSE-GPL +
 LICENSE-APACHE with upstream attribution.
+
+## 9. Progress log (live — for resume after context compaction)
+
+Branch `kid-slim`. Env: cmake + Xcode Metal toolchain installed → build green.
+Per-step gate = `cargo build -p zed` (test fixups deferred to Phase 3, e.g.
+`expected_namespaces` list in zed.rs and the `#[cfg(test)]` app-state builder).
+
+REMOVED + COMMITTED (in order): editor_benchmarks, fs_benchmarks, eval_cli,
+feedback, extensions_ui, collab (server), collab_ui.
+
+Adjustments vs original plan (confirmed):
+- `media` KEPT — gpui/gpui_macos depend on it (screen capture). Dropped from set.
+- `notifications` SLIM, not deleted — `status_toast` is used by 11 kept crates;
+  remove only `notification_store.rs` + its `channel` dep, keep `status_toast.rs`.
+- `vim`, `eval_utils` deferred to Stage C (agent_ui depends on them).
+- ZedLink/parse_zed_link left dormant in `client`; open_listener untouched.
+
+NEXT — finish collab stack (leaf→root), build+commit each:
+1. title_bar de-collab: delete crates/title_bar/src/collab.rs; in title_bar.rs
+   remove `pub mod collab;`, `use call::ActiveCall;`, the render_collaborator_list
+   (~281) + render_call_controls (~318) calls, and ActiveCall::global blocks
+   (~397, ~1043-1085); drop call/channel/livekit_client deps from
+   title_bar/Cargo.toml. Keep `notifications` dep IFF title_bar.rs:55
+   NotifyResultExt/NotifyTaskExt still used (they're status_toast-adjacent).
+2. git_ui: git_panel.rs potential_co_authors/local_committer (~3415/3451/6669)
+   return empty/None; drop `call` dep.
+3. file_finder: remove ChannelStore code path (keep client::ChannelId); drop `channel` dep.
+4. workspace: remove AnyActiveCall trait + GlobalAnyActiveCall + join_channel(_internal)
+   fns + active_call field (workspace.rs ~1381/8057/9229/9370); pane_group.rs active_call field.
+5. zed main.rs: remove channel::init (~745), call::init (~766), notifications::init (~767);
+   zed.rs test builder (~5449-5451).
+6. Remove crates one at a time: call → channel → livekit_client → livekit_api;
+   slim notifications (rm notification_store.rs + channel/rpc deps).
+
+THEN Stage C — AI stack (~30 crates): agent, agent_ui, agent_servers, agent_skills,
+acp_thread, acp_tools, ai_onboarding, providers (anthropic/open_ai/google_ai/ollama/
+bedrock/codestral/deepseek/lmstudio/mistral/open_router/x_ai), opencode, copilot(_chat),
+language_model(_core/s/_cloud), edit_prediction(_*), prompt_store, skill_creator, sidebar,
+web_search(_providers), zeta_prompt, eval_utils; main.rs AI wiring ~675-721; then vim.
+Then agent_settings (relocate sidebar_side/WindowLayout/PanelLayout into workspace).
+Then telemetry force-remove. Then assets (themes/keymaps). Then wry panel. Then docs.
