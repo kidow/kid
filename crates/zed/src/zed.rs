@@ -1931,18 +1931,29 @@ pub fn load_default_keymap(cx: &mut App) {
         return;
     }
 
-    cx.bind_keys(
-        KeymapFile::load_asset(DEFAULT_KEYMAP_PATH, Some(KeybindSource::Default), cx).unwrap(),
-    );
+    // The bundled keymaps still contain bindings for actions provided by crates
+    // that were removed from this fork (e.g. agent, edit prediction, and
+    // collaboration features). Those actions are no longer registered, so load
+    // the built-in keymaps tolerantly: bind every action that still exists and
+    // skip the unknown ones rather than panicking on the first one.
+    let load = |asset_path: &str, source: KeybindSource, cx: &App| {
+        let mut key_bindings = KeymapFile::load_asset_allow_partial_failure(asset_path, cx)
+            .log_err()
+            .unwrap_or_default();
+        for key_binding in &mut key_bindings {
+            key_binding.set_meta(source.meta());
+        }
+        key_bindings
+    };
+
+    cx.bind_keys(load(DEFAULT_KEYMAP_PATH, KeybindSource::Default, cx));
 
     if let Some(asset_path) = base_keymap.asset_path() {
-        cx.bind_keys(KeymapFile::load_asset(asset_path, Some(KeybindSource::Base), cx).unwrap());
+        cx.bind_keys(load(asset_path, KeybindSource::Base, cx));
     }
 
     if VimModeSetting::get_global(cx).0 || vim_mode_setting::HelixModeSetting::get_global(cx).0 {
-        cx.bind_keys(
-            KeymapFile::load_asset(VIM_KEYMAP_PATH, Some(KeybindSource::Vim), cx).unwrap(),
-        );
+        cx.bind_keys(load(VIM_KEYMAP_PATH, KeybindSource::Vim, cx));
     }
 }
 
@@ -4730,16 +4741,14 @@ mod tests {
             .read_with(cx, |mw, _| mw.workspace().clone())
             .unwrap();
 
-        // From the Atom keymap
-        use workspace::ActivatePreviousPane;
-        // From the JetBrains keymap
-        use workspace::ActivatePreviousItem;
-
+        // VSCode is the only remaining base keymap and it has no dedicated asset
+        // (its bindings are the default keymap), so this exercises user-keymap
+        // loading and live reloading rather than switching between base keymaps.
         app_state
             .fs
             .save(
                 paths::settings_file(),
-                &r#"{"base_keymap": "Atom"}"#.into(),
+                &r#"{"base_keymap": "VSCode"}"#.into(),
                 Default::default(),
             )
             .await
@@ -4769,22 +4778,15 @@ mod tests {
                 workspace.update(cx, |workspace, cx| {
                     workspace.register_action(|_, _: &ActionA, _window, _cx| {});
                     workspace.register_action(|_, _: &ActionB, _window, _cx| {});
-                    workspace.register_action(|_, _: &ActivatePreviousPane, _window, _cx| {});
-                    workspace.register_action(|_, _: &ActivatePreviousItem, _window, _cx| {});
                     cx.notify();
                 });
             })
             .unwrap();
         executor.run_until_parked();
-        // Test loading the keymap base at all
-        assert_key_bindings_for(
-            window.into(),
-            cx,
-            vec![("backspace", &ActionA), ("k", &ActivatePreviousPane)],
-            line!(),
-        );
+        // Test loading the user keymap at all
+        assert_key_bindings_for(window.into(), cx, vec![("backspace", &ActionA)], line!());
 
-        // Test modifying the users keymap, while retaining the base keymap
+        // Test modifying the user keymap and reloading it live
         app_state
             .fs
             .save(
@@ -4797,35 +4799,7 @@ mod tests {
 
         executor.run_until_parked();
 
-        assert_key_bindings_for(
-            window.into(),
-            cx,
-            vec![("backspace", &ActionB), ("k", &ActivatePreviousPane)],
-            line!(),
-        );
-
-        // Test modifying the base, while retaining the users keymap
-        app_state
-            .fs
-            .save(
-                paths::settings_file(),
-                &r#"{"base_keymap": "JetBrains"}"#.into(),
-                Default::default(),
-            )
-            .await
-            .unwrap();
-
-        executor.run_until_parked();
-
-        assert_key_bindings_for(
-            window.into(),
-            cx,
-            vec![
-                ("backspace", &ActionB),
-                ("{", &ActivatePreviousItem::default()),
-            ],
-            line!(),
-        );
+        assert_key_bindings_for(window.into(), cx, vec![("backspace", &ActionB)], line!());
     }
 
     #[gpui::test]
@@ -4839,17 +4813,11 @@ mod tests {
             .read_with(cx, |mw, _| mw.workspace().clone())
             .unwrap();
 
-        // From the Atom keymap
-        use workspace::ActivatePreviousPane;
-        // From the JetBrains keymap
-        use diagnostics::Deploy;
-
         window
             .update(cx, |_, _, cx| {
                 workspace.update(cx, |workspace, cx| {
                     workspace.register_action(|_, _: &ActionA, _window, _cx| {});
                     workspace.register_action(|_, _: &ActionB, _window, _cx| {});
-                    workspace.register_action(|_, _: &Deploy, _window, _cx| {});
                     cx.notify();
                 });
             })
@@ -4858,7 +4826,7 @@ mod tests {
             .fs
             .save(
                 paths::settings_file(),
-                &r#"{"base_keymap": "Atom"}"#.into(),
+                &r#"{"base_keymap": "VSCode"}"#.into(),
                 Default::default(),
             )
             .await
@@ -4887,15 +4855,10 @@ mod tests {
         cx.background_executor.run_until_parked();
 
         cx.background_executor.run_until_parked();
-        // Test loading the keymap base at all
-        assert_key_bindings_for(
-            window.into(),
-            cx,
-            vec![("backspace", &ActionA), ("k", &ActivatePreviousPane)],
-            line!(),
-        );
+        // Test loading the user keymap binding at all
+        assert_key_bindings_for(window.into(), cx, vec![("backspace", &ActionA)], line!());
 
-        // Test disabling the key binding for the base keymap
+        // Test disabling the key binding
         app_state
             .fs
             .save(
@@ -4908,27 +4871,7 @@ mod tests {
 
         cx.background_executor.run_until_parked();
 
-        assert_key_bindings_for(
-            window.into(),
-            cx,
-            vec![("k", &ActivatePreviousPane)],
-            line!(),
-        );
-
-        // Test modifying the base, while retaining the users keymap
-        app_state
-            .fs
-            .save(
-                paths::settings_file(),
-                &r#"{"base_keymap": "JetBrains"}"#.into(),
-                Default::default(),
-            )
-            .await
-            .unwrap();
-
-        cx.background_executor.run_until_parked();
-
-        assert_key_bindings_for(window.into(), cx, vec![("6", &Deploy)], line!());
+        assert_key_bindings_for(window.into(), cx, vec![], line!());
     }
 
     #[gpui::test]
@@ -4985,15 +4928,15 @@ mod tests {
                 "agents_sidebar",
                 "app_menu",
                 "assistant",
+                "assistant2",
                 "auto_update",
                 "branch_picker",
                 "branches",
+                "browser_panel",
                 "buffer_search",
-                "channel_modal",
                 "cli",
                 "client",
                 "collab",
-                "collab_panel",
                 "command_palette",
                 "console",
                 "context_server",
@@ -5062,6 +5005,7 @@ mod tests {
                 "worktree_picker",
                 "zed",
                 "zed_actions",
+                "zed_predict_onboarding",
             ];
             assert_eq!(
                 all_namespaces,
@@ -5096,7 +5040,7 @@ mod tests {
         for theme_name in themes.list().into_iter().map(|meta| meta.name) {
             let theme = themes.get(&theme_name).unwrap();
             assert_eq!(theme.name, theme_name);
-            if theme.name.as_ref() == "One Dark" {
+            if theme.name.as_ref() == "Ayu Dark" {
                 has_default_theme = true;
             }
         }
