@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/acp_thread",
     "crates/action_log",
     "crates/activity_indicator",
     "crates/agent_skills",
@@ -238,7 +237,6 @@ edition = "2024"
 # Workspace member crates
 #
 
-acp_thread = { path = "crates/acp_thread" }
 action_log = { path = "crates/action_log" }
 activity_indicator = { path = "crates/activity_indicator" }
 agent_skills = { path = "crates/agent_skills" }
