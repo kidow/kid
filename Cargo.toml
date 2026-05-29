@@ -227,6 +227,7 @@ auto_update = { path = "crates/auto_update" }
 auto_update_ui = { path = "crates/auto_update_ui" }
 aws_http_client = { path = "crates/aws_http_client" }
 breadcrumbs = { path = "crates/breadcrumbs" }
+browser_panel = { path = "crates/browser_panel" }
 buffer_diff = { path = "crates/buffer_diff" }
 cli = { path = "crates/cli" }
 client = { path = "crates/client" }
@@ -720,6 +721,7 @@ wasmtime = { version = "36", default-features = false, features = [
 wasmtime-wasi = "36"
 wax = "0.7"
 which = "6.0.0"
+wry = "0.55"
 wasm-bindgen = "0.2.120"
 web-time = "1.1.0"
 webrtc-sys = "0.3.23"

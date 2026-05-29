@@ -48,6 +48,7 @@ use migrate::{MigrationBanner, MigrationEvent, MigrationNotification, MigrationT
 use migrator::migrate_keymap;
 use onboarding::multibuffer_hint::MultibufferHint;
 pub use open_listener::*;
+use browser_panel::BrowserPanel;
 use outline_panel::OutlinePanel;
 use paths::{
     local_debug_file_relative_path, local_settings_file_relative_path,
@@ -659,6 +660,7 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
         let outline_panel = OutlinePanel::load(workspace_handle.clone(), cx.clone());
         let terminal_panel = TerminalPanel::load(workspace_handle.clone(), cx.clone());
         let git_panel = GitPanel::load(workspace_handle.clone(), cx.clone());
+        let browser_panel = BrowserPanel::load(workspace_handle.clone(), cx.clone());
         let debug_panel = DebugPanel::load(workspace_handle.clone(), cx);
 
         async fn add_panel_when_ready(
@@ -682,6 +684,7 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
             add_panel_when_ready(terminal_panel, workspace_handle.clone(), cx.clone()),
             add_panel_when_ready(git_panel, workspace_handle.clone(), cx.clone()),
             add_panel_when_ready(debug_panel, workspace_handle.clone(), cx.clone()),
+            add_panel_when_ready(browser_panel, workspace_handle.clone(), cx.clone()),
         );
 
         anyhow::Ok(())
