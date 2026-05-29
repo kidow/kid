@@ -2907,27 +2907,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "codestral"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "edit_prediction",
- "edit_prediction_types",
- "futures 0.3.32",
- "gpui",
- "http_client",
- "icons",
- "language",
- "language_model",
- "log",
- "serde",
- "serde_json",
- "text",
- "zed_credentials_provider",
- "zeta_prompt",
-]
-
-[[package]]
 name = "collections"
 version = "0.1.0"
 dependencies = [

@@ -26,7 +26,6 @@ members = [
     "crates/cloud_api_client",
     "crates/cloud_api_types",
     "crates/cloud_llm_client",
-    "crates/codestral",
     "crates/collections",
     "crates/command_palette",
     "crates/command_palette_hooks",
@@ -421,7 +420,6 @@ sqlez = { path = "crates/sqlez" }
 sqlez_macros = { path = "crates/sqlez_macros" }
 streaming_diff = { path = "crates/streaming_diff" }
 sum_tree = { path = "crates/sum_tree" }
-codestral = { path = "crates/codestral" }
 system_specs = { path = "crates/system_specs" }
 syntax_theme = { path = "crates/syntax_theme" }
 tab_switcher = { path = "crates/tab_switcher" }
