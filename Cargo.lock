@@ -6200,50 +6200,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "eval_cli"
-version = "0.1.0"
-dependencies = [
- "acp_thread",
- "agent",
- "agent-client-protocol",
- "agent_ui",
- "anyhow",
- "clap",
- "client",
- "ctrlc",
- "db",
- "debug_adapter_extension",
- "env_logger 0.11.8",
- "extension",
- "feature_flags",
- "fs",
- "futures 0.3.32",
- "gpui",
- "gpui_platform",
- "gpui_tokio",
- "language",
- "language_extension",
- "language_model",
- "language_models",
- "languages",
- "node_runtime",
- "paths",
- "project",
- "prompt_store",
- "release_channel",
- "reqwest_client",
- "serde",
- "serde_json",
- "settings",
- "shellexpand",
- "terminal_view",
- "theme",
- "theme_settings",
- "util",
- "watch",
-]
-
-[[package]]
 name = "eval_utils"
 version = "0.1.0"
 dependencies = [
