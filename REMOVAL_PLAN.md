@@ -194,6 +194,34 @@ REMAINING:
   in root Cargo.toml, stale typos.toml livekit path, unused icon variants (EditorAtom/etc),
   textmate.json keymap.
 
+## 12. FINAL STATUS — goal complete
+
+All phases done on branch `kid-slim` (~60 commits from baseline 81f818aa86):
+- Phase 0 analysis ✅; Phase 1 removals (~50 crates) + assets ✅; Phase 2 wry browser panel ✅;
+  Phase 3 verification ✅; Phase 4 docs ✅.
+
+Verification results:
+- `cargo build -p zed` (debug) ✅ green throughout.
+- `cargo build --release -p zed` ✅ (10m35s, distributable binary).
+- `cargo build --workspace --all-targets` ✅ green.
+- `./script/clippy` (clippy --workspace --release --all-targets --all-features --deny warnings) ✅
+  green (cargo-machete/typos/buf not installed → skipped, as in CI).
+- `cargo test --workspace`: slimming-related tests fixed/aligned; remaining failures
+  (editor code_lens x1, zed multi-workspace/session x7, workspace MultiWorkspace x6) are
+  PRE-EXISTING at baseline 81f818aa86 (verified via base worktree), unrelated to this work.
+
+Notable correctness fix during Phase 3: bundled keymaps referenced ~66 removed-crate actions and
+`load_default_keymap` used `.unwrap()` on the asset → the app would have panicked at startup.
+Fixed by `load_asset_allow_partial_failure` (unknown bindings skipped + logged). Pruning the dead
+JSON bindings is a flagged follow-up (spawned task).
+
+Needs RUNTIME verification by the owner (cannot be tested headless): app launch, file edit,
+TS/Rust LSP, terminal claude/codex, Git/GitHub, Ayu Dark, VSCode keymap, and the browser panel
+(Cmd+Shift+B, localhost:3000 render, no overlap with popups).
+
+Remaining optional cleanup (non-blocking): prune ~66 dead keymap bindings (spawned task), remove
+the now-unused `Match::Channel` file-finder variant if desired.
+
 ## 11. (original Stage C plan — superseded by §10)
 THEN Stage C — AI stack (~30 crates): agent, agent_ui, agent_servers, agent_skills,
 acp_thread, acp_tools, ai_onboarding, providers (anthropic/open_ai/google_ai/ollama/
