@@ -1131,7 +1131,6 @@ pub struct PreviousWorkspaceState {
 
 pub struct WorkspaceStore {
     workspaces: HashSet<(gpui::AnyWindowHandle, WeakEntity<Workspace>)>,
-    client: Arc<Client>,
     _subscriptions: Vec<client::Subscription>,
 }
 
@@ -1438,7 +1437,6 @@ impl AutoWatch {
 
 struct FollowerView {
     view: Box<dyn FollowableItemHandle>,
-    location: Option<proto::PanelId>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -4794,54 +4792,6 @@ impl Workspace {
         cx.notify();
     }
 
-    fn handle_auto_watch_video_tracks_changed(
-        &mut self,
-        peer_id: PeerId,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let AutoWatch::Active { watched_peer } = self.auto_watch else {
-            return;
-        };
-
-        let peer_is_sharing = false;
-        let should_watch_peer = peer_is_sharing && watched_peer.is_none();
-        let watched_peer_stopped_sharing = watched_peer == Some(peer_id) && !peer_is_sharing;
-
-        if should_watch_peer || watched_peer_stopped_sharing {
-            let next_watched_peer = if should_watch_peer {
-                Some(peer_id)
-            } else {
-                self.next_watched_peer(cx)
-            };
-
-            self.auto_watch = AutoWatch::Active {
-                watched_peer: next_watched_peer,
-            };
-
-            if let Some(next_watched_peer) = next_watched_peer {
-                self.open_shared_screen(next_watched_peer, window, cx);
-            }
-        }
-    }
-
-    fn handle_auto_watch_local_share_stopped(
-        &mut self,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) {
-        let AutoWatch::Paused = self.auto_watch else {
-            return;
-        };
-
-        let watched_peer = self.next_watched_peer(cx);
-        self.auto_watch = AutoWatch::Active { watched_peer };
-
-        if let Some(peer_id) = watched_peer {
-            self.open_shared_screen(peer_id, window, cx);
-        }
-    }
-
     pub fn activate_item(
         &mut self,
         item: &dyn ItemHandle,
@@ -6086,7 +6036,6 @@ impl Workspace {
             anyhow::bail!("no id for view");
         };
         let id = ViewId::from_proto(id)?;
-        let panel_id = view.panel_id.and_then(proto::PanelId::from_i32);
 
         let pane = this.update(cx, |this, _cx| {
             let state = this
@@ -6156,10 +6105,7 @@ impl Workspace {
             item.set_leader_id(Some(leader_id.into()), window, cx);
             state.items_by_leader_view_id.insert(
                 id,
-                FollowerView {
-                    view: item,
-                    location: panel_id,
-                },
+                FollowerView { view: item },
             );
 
             Some(())
@@ -6210,12 +6156,7 @@ impl Workspace {
                         })
                     });
 
-                    view.map(|view| {
-                        entry.insert(FollowerView {
-                            view,
-                            location: None,
-                        })
-                    })
+                    view.map(|view| entry.insert(FollowerView { view }))
                 }
             };
 
@@ -8530,7 +8471,6 @@ impl WorkspaceStore {
                 client.add_request_handler(cx.weak_entity(), Self::handle_follow),
                 client.add_message_handler(cx.weak_entity(), Self::handle_update_followers),
             ],
-            client,
         }
     }
 

@@ -764,7 +764,6 @@ pub struct SettingsWindow {
     search_index: Option<Arc<SearchIndex>>,
     list_state: ListState,
     shown_errors: HashSet<String>,
-    pub(crate) hidden_deleted_skill_directory_paths: HashSet<PathBuf>,
     pub(crate) regex_validation_error: Option<String>,
     last_copied_link_path: Option<&'static str>,
     /// Directory path of the skill whose share link was most recently copied,
@@ -1687,9 +1686,7 @@ impl SettingsWindow {
                 .tab_index(HEADER_CONTAINER_TAB_INDEX)
                 .tab_stop(false),
             search_index: None,
-            shown_errors: HashSet::default(),
-            hidden_deleted_skill_directory_paths: HashSet::default(),
-            regex_validation_error: None,
+            shown_errors: HashSet::default(),            regex_validation_error: None,
             list_state,
             last_copied_link_path: None,
             last_copied_skill_directory_path: None,
@@ -3141,20 +3138,6 @@ impl SettingsWindow {
         self.render_sub_page_items_in(page_content, items, false, window, cx)
     }
 
-    fn render_sub_page_items_section<'a, Items>(
-        &self,
-        items: Items,
-        is_inline_section: bool,
-        window: &mut Window,
-        cx: &mut Context<SettingsWindow>,
-    ) -> impl IntoElement
-    where
-        Items: Iterator<Item = (usize, &'a SettingsPageItem)>,
-    {
-        let page_content = v_flex().id("settings-ui-sub-page-section").size_full();
-        self.render_sub_page_items_in(page_content, items, is_inline_section, window, cx)
-    }
-
     fn render_sub_page_items_in<'a, Items>(
         &self,
         page_content: Stateful<Div>,
@@ -4531,9 +4514,7 @@ pub mod test {
                 files_focus_handle: cx.focus_handle(),
                 search_index: None,
                 list_state: ListState::new(0, gpui::ListAlignment::Top, px(0.0)),
-                shown_errors: HashSet::default(),
-                hidden_deleted_skill_directory_paths: HashSet::default(),
-                regex_validation_error: None,
+                shown_errors: HashSet::default(),                regex_validation_error: None,
                 last_copied_link_path: None,
                 last_copied_skill_directory_path: None,
             }
@@ -4659,9 +4640,7 @@ pub mod test {
             files_focus_handle: cx.focus_handle(),
             search_index: None,
             list_state: ListState::new(0, gpui::ListAlignment::Top, px(0.0)),
-            shown_errors: HashSet::default(),
-            hidden_deleted_skill_directory_paths: HashSet::default(),
-            regex_validation_error: None,
+            shown_errors: HashSet::default(),            regex_validation_error: None,
             last_copied_link_path: None,
             last_copied_skill_directory_path: None,
         };

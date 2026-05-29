@@ -37,6 +37,8 @@ use worktree::{UpdatedEntriesSet, WorktreeId};
 use self::event_coalescer::EventCoalescer;
 
 pub struct Telemetry {
+    // Read only from `report_event`, which is currently exercised solely by tests.
+    #[cfg_attr(not(test), allow(dead_code))]
     clock: Arc<dyn SystemClock>,
     http_client: Arc<HttpClientWithUrl>,
     executor: BackgroundExecutor,
@@ -58,6 +60,8 @@ struct TelemetryState {
     is_staff: Option<bool>,
     first_event_date_time: Option<Instant>,
     event_coalescer: EventCoalescer,
+    // Read only from `report_event`, which is currently exercised solely by tests.
+    #[cfg_attr(not(test), allow(dead_code))]
     max_queue_size: usize,
     worktrees_with_project_type_events_sent: HashSet<WorktreeId>,
 
@@ -74,10 +78,13 @@ const MAX_QUEUE_LEN: usize = 5;
 #[cfg(not(debug_assertions))]
 const MAX_QUEUE_LEN: usize = 50;
 
+// Referenced only from `report_event` and the tests, both currently test-only.
 #[cfg(debug_assertions)]
+#[cfg_attr(not(test), allow(dead_code))]
 const FLUSH_INTERVAL: Duration = Duration::from_secs(1);
 
 #[cfg(not(debug_assertions))]
+#[cfg_attr(not(test), allow(dead_code))]
 const FLUSH_INTERVAL: Duration = Duration::from_secs(60 * 5);
 static ZED_CLIENT_CHECKSUM_SEED: LazyLock<Option<Vec<u8>>> = LazyLock::new(|| {
     option_env!("ZED_CLIENT_CHECKSUM_SEED")
@@ -441,6 +448,8 @@ impl Telemetry {
         Some(project_types)
     }
 
+    // Currently only invoked from tests; kept for the telemetry event-queue logic they cover.
+    #[cfg_attr(not(test), allow(dead_code))]
     fn report_event(self: &Arc<Self>, mut event: Event) {
         let mut state = self.state.lock();
         // RUST_LOG=telemetry=trace to debug telemetry events

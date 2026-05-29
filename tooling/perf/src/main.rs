@@ -46,10 +46,6 @@
 //! This should probably not be called manually unless you're working on the profiler
 //! itself; use the `cargo perf-test` alias (after building this crate) instead.
 
-// This is a synchronous command-line profiler that drives `cargo` and `hyperfine`
-// subprocesses, so blocking `std::process::Command` calls are intentional here.
-#![allow(clippy::disallowed_methods)]
-
 mod implementation;
 
 use implementation::{FailKind, Importance, Output, TestMdata, Timings, consts};

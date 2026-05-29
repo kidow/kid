@@ -396,7 +396,10 @@ async fn upload_minidump(
     Ok(())
 }
 
+// Fields are populated by `Deserialize` and exist to validate the on-disk
+// build-timing JSON before the file is deleted; they are not read directly.
 #[derive(Debug, Deserialize)]
+#[allow(dead_code)]
 struct BuildTiming {
     started_at: chrono::DateTime<chrono::Utc>,
     duration_ms: f32,
