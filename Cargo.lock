@@ -8048,29 +8048,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "language_model"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "base64 0.22.1",
- "collections",
- "credentials_provider",
- "env_var",
- "futures 0.3.32",
- "gpui",
- "http_client",
- "icons",
- "image",
- "language_model_core",
- "log",
- "parking_lot",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
- "util",
-]
-
-[[package]]
 name = "language_model_core"
 version = "0.1.0"
 dependencies = [
