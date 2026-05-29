@@ -159,6 +159,42 @@ NEXT — finish collab stack (leaf→root), build+commit each:
 6. Remove crates one at a time: call → channel → livekit_client → livekit_api;
    slim notifications (rm notification_store.rs + channel/rpc deps).
 
+## 10. STATUS (live)
+
+DONE (all build-green, branch kid-slim):
+- Stage A: editor_benchmarks, fs_benchmarks, eval_cli, feedback, extensions_ui.
+- Stage B (collab): collab, collab_ui, call, channel, livekit_client, livekit_api +
+  title_bar/workspace/git_ui/file_finder decouple + notifications slimmed. media KEPT (gpui).
+- Stage C (AI): all 38 AI crates removed (agent*, copilot*, providers, language_model(s),
+  edit_prediction*, prompt_store, web_search*, sidebar, acp*, ai_onboarding, skill_creator,
+  zeta_prompt, eval_utils, agent_settings) + agent-client-protocol dep. sidebar_side/WindowLayout
+  relocated to workspace; DisableAiSettings removed. KEPT: cloud_*, language_model_core,
+  edit_prediction_types, denoise, repl, media.
+- vim removed (vim_mode_setting kept — editor dep, toggle inert).
+- Themes: Ayu Dark only (gruvbox/one deleted, ayu.json trimmed, DEFAULT_DARK_THEME="Ayu Dark").
+- Keymaps: VSCode only (BaseKeymap reduced to VSCode+None; overlay keymaps + vim.json deleted).
+- ~50 `remove:` commits since baseline 81f818aa86.
+
+REMAINING:
+- TELEMETRY force-remove (Stage D): still depended on by editor/workspace/fs/git_ui/
+  extension_host/client/command_palette/project_panel/onboarding + ~more via `telemetry::event!`.
+  Core-invasive — do carefully or stub. (User chose force-remove.)
+- PHASE 2 wry browser panel: FEASIBLE — gpui::Window impls raw_window_handle::HasWindowHandle
+  (window.rs:5919), raw-window-handle 0.6. Plan: crates/browser_panel/ GPUI dock Panel; native
+  wry WebView attached as child of the window's NSView, positioned BELOW a GPUI toolbar (URL +
+  reload) so the toolbar isn't occluded; hide WebView when panel closed. Cmd+Shift+B, default
+  http://localhost:3000. Caveat: native WebView renders above the Metal layer, so GPUI
+  tooltips/popups over the webview region can be occluded — inherent to native webviews; mitigated
+  by confining the webview to the panel content rect.
+- PHASE 3 verify: cargo build --release, cargo test --workspace (fix expected_namespaces test in
+  zed.rs, visual_test_runner.rs dead refs behind visual-tests feature, base_keymap test strings),
+  ./script/clippy.
+- PHASE 4 docs: README (EN), LICENSE attribution.
+- CLEANUP: delete AI_REMOVAL_PLAYBOOK.md (scratch), ollama/lmstudio [profile.dev.package] leftovers
+  in root Cargo.toml, stale typos.toml livekit path, unused icon variants (EditorAtom/etc),
+  textmate.json keymap.
+
+## 11. (original Stage C plan — superseded by §10)
 THEN Stage C — AI stack (~30 crates): agent, agent_ui, agent_servers, agent_skills,
 acp_thread, acp_tools, ai_onboarding, providers (anthropic/open_ai/google_ai/ollama/
 bedrock/codestral/deepseek/lmstudio/mistral/open_router/x_ai), opencode, copilot(_chat),
