@@ -2701,29 +2701,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "channel"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "client",
- "clock",
- "collections",
- "futures 0.3.32",
- "gpui",
- "http_client",
- "language",
- "log",
- "postage",
- "release_channel",
- "rpc",
- "semver",
- "settings",
- "text",
- "time",
- "util",
-]
-
-[[package]]
 name = "chardetng"
 version = "0.1.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
