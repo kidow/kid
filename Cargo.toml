@@ -5,7 +5,6 @@ members = [
     "crates/action_log",
     "crates/activity_indicator",
     "crates/agent_skills",
-    "crates/ai_onboarding",
     "crates/anthropic",
     "crates/askpass",
     "crates/assets",
@@ -243,7 +242,6 @@ acp_thread = { path = "crates/acp_thread" }
 action_log = { path = "crates/action_log" }
 activity_indicator = { path = "crates/activity_indicator" }
 agent_skills = { path = "crates/agent_skills" }
-ai_onboarding = { path = "crates/ai_onboarding" }
 anthropic = { path = "crates/anthropic" }
 askpass = { path = "crates/askpass" }
 assets = { path = "crates/assets" }

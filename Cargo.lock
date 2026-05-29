@@ -296,22 +296,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ai_onboarding"
-version = "0.1.0"
-dependencies = [
- "client",
- "cloud_api_types",
- "component",
- "gpui",
- "language_model",
- "serde",
- "smallvec",
- "telemetry",
- "ui",
- "zed_actions",
-]
-
-[[package]]
 name = "alacritty_terminal"
 version = "0.26.1-dev"
 source = "git+https://github.com/zed-industries/alacritty?rev=fcf32feacb367b75ec84dd40f041e4fd411d3cc1#fcf32feacb367b75ec84dd40f041e4fd411d3cc1"
