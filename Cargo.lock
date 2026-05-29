@@ -15398,8 +15398,6 @@ name = "syntax_theme"
 version = "0.1.0"
 dependencies = [
  "gpui",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -20942,8 +20940,3 @@ dependencies = [
  "syn 2.0.117",
  "winnow 1.0.2",
 ]
-
-[[patch.unused]]
-name = "livekit"
-version = "0.7.32"
-source = "git+https://github.com/zed-industries/livekit-rust-sdks?rev=147fbca3d4b592d96d33f5e6a84b59fc0b5d9bf1#147fbca3d4b592d96d33f5e6a84b59fc0b5d9bf1"
