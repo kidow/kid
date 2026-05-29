@@ -1,48 +1,70 @@
-# Zed
+# kid
 
-[![Zed](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zed-industries/zed/main/assets/badge/v0.json)](https://zed.dev)
-[![CI](https://github.com/zed-industries/zed/actions/workflows/run_tests.yml/badge.svg)](https://github.com/zed-industries/zed/actions/workflows/run_tests.yml)
+A lightweight, single-player fork of [Zed](https://github.com/zed-industries/zed) focused on
+fast local editing with **terminal-based AI** (Claude Code, Codex CLI) and a built-in
+**browser side panel**.
 
-Welcome to Zed, a high-performance, multiplayer code editor from the creators of [Atom](https://github.com/atom/atom) and [Tree-sitter](https://github.com/tree-sitter/tree-sitter).
+kid strips Zed's in-editor AI, collaboration, and telemetry stacks down to a lean editor core,
+and adds a native browser panel for live-previewing a local app right next to your code.
 
----
+## Differences from upstream Zed
 
-### Installation
+**Removed**
 
-On macOS, Linux, and Windows you can [download Zed directly](https://zed.dev/download) or install Zed via your local package manager ([macOS](https://zed.dev/docs/installation#macos)/[Linux](https://zed.dev/docs/linux#installing-via-a-package-manager)/[Windows](https://zed.dev/docs/windows#package-managers)).
+- **In-editor AI / LLM** — the agent panel, inline edit prediction, Copilot, and every model
+  provider (Anthropic, OpenAI, Google, Ollama, Bedrock, Mistral, …). Run `claude` or `codex`
+  in the integrated terminal instead.
+- **Collaboration / multiplayer** — channels, calls, screen-sharing, the collab panel, the
+  LiveKit client, and the collab server.
+- **Telemetry** — all usage-analytics event collection (no usage data is gathered or sent).
+- **Vim/Helix modal editing**, the in-editor **extensions browser UI**, and the benchmark crates.
 
-Other platforms are not yet available:
+**Kept** — the editor, language & LSP support, project/file management, Git & GitHub integration,
+terminal, tasks, debugger, the **extension host** (so language servers and extensions still load),
+file finder, and the REPL.
 
-- Web ([tracking discussion](https://github.com/zed-industries/zed/discussions/26195))
+**Added**
 
-### Developing Zed
+- **Browser side panel** — a native WebView (via [wry](https://github.com/tauri-apps/wry)) docked
+  beside the editor. See [Browser panel](#browser-panel).
 
-- [Building Zed for macOS](./docs/src/development/macos.md)
-- [Building Zed for Linux](./docs/src/development/linux.md)
-- [Building Zed for Windows](./docs/src/development/windows.md)
+**Defaults** — only the **Ayu Dark** theme and the **VS Code** base keymap are bundled.
 
-### Contributing
+## Building (macOS, Apple Silicon)
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for ways you can contribute to Zed.
+Prerequisites:
 
-Also... we're hiring! Check out our [jobs](https://zed.dev/jobs) page for open roles.
+- **Rust** — the repo pins a toolchain via `rust-toolchain.toml`.
+- **CMake** — `brew install cmake` (required to build the wasmtime/extension runtime).
+- **Full Xcode + the Metal toolchain** — Command Line Tools alone are *not* enough, because gpui
+  compiles Metal shaders at build time:
 
-### Licensing
+  ```sh
+  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+  sudo xcodebuild -license accept
+  # On macOS 15+/Xcode 16.3+ the Metal compiler is a separate component:
+  xcodebuild -downloadComponent MetalToolchain
+  xcrun metal --version   # should print a version
+  ```
 
-Zed source code is licensed primarily under GPL-3.0-or-later, with Apache-2.0 components where marked.
+Build and run:
 
-License information for third party dependencies must be correctly provided for CI to pass.
+```sh
+cargo run --release -p zed
+```
 
-We use [`cargo-about`](https://github.com/EmbarkStudios/cargo-about) to automatically comply with open source licenses. If CI is failing, check the following:
+## Browser panel
 
-- Is it showing a `no license specified` error for a crate you've created? If so, add `publish = false` under `[package]` in your crate's Cargo.toml.
-- Is the error `failed to satisfy license requirements` for a dependency? If so, first determine what license the project has and whether this system is sufficient to comply with this license's requirements. If you're unsure, ask a lawyer. Once you've verified that this system is acceptable add the license's SPDX identifier to the `accepted` array in `script/licenses/zed-licenses.toml`.
-- Is `cargo-about` unable to find the license for a dependency? If so, add a clarification field at the end of `script/licenses/zed-licenses.toml`, as specified in the [cargo-about book](https://embarkstudios.github.io/cargo-about/cli/generate/config.html#crate-configuration).
+- **Toggle:** `Cmd+Shift+B` opens/focuses the Browser panel in the right dock.
+- **Default URL:** `http://localhost:3000`. Type a URL in the bar and press <kbd>Enter</kbd> to
+  navigate; click the reload button to refresh.
+- The panel hosts a **native WebView**, positioned to match the panel's bounds and hidden when the
+  panel is closed, so it stays out of the editor's own rendering.
 
-## Sponsorship
+## Licensing & attribution
 
-Zed is developed by **Zed Industries, Inc.**, a for-profit company.
-
-If you’d like to financially support the project, you can do so via GitHub Sponsors.
-Sponsorships go directly to Zed Industries and are used as general company revenue.
-There are no perks or entitlements associated with sponsorship.
+kid is a fork of **[zed-industries/zed](https://github.com/zed-industries/zed)** and remains
+licensed under **GPL-3.0-or-later**, with Apache-2.0 components where marked upstream. The original
+license texts are preserved verbatim in [LICENSE-GPL](./LICENSE-GPL) and
+[LICENSE-APACHE](./LICENSE-APACHE). Per the GPL, the complete corresponding source is this
+repository. All credit for the underlying editor goes to Zed Industries and the Zed contributors.

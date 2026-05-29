@@ -1,5 +1,8 @@
 Copyright 2022 - 2025 Zed Industries, Inc.
 
+kid is a fork of Zed (https://github.com/zed-industries/zed); Apache-2.0
+components retain the upstream copyright above.
+
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
