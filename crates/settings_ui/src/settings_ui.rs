@@ -573,8 +573,6 @@ pub fn open_settings_editor(
     workspace_handle: Option<WindowHandle<MultiWorkspace>>,
     cx: &mut App,
 ) {
-    telemetry::event!("Settings Viewed");
-
     /// Assumes a settings GUI window is already open
     fn open_path(
         path: &str,
@@ -1556,8 +1554,6 @@ impl SettingsWindow {
                     window.remove_window();
                 })
                 .ok();
-
-                telemetry::event!("Settings Closed")
             }
         })
         .detach();
@@ -2036,7 +2032,6 @@ impl SettingsWindow {
             .ok();
 
             cx.background_executor().timer(Duration::from_secs(1)).await;
-            telemetry::event!("Settings Searched", query = query)
         }));
     }
 
@@ -2394,10 +2389,6 @@ impl SettingsWindow {
             return;
         }
         self.current_file = self.files[ix].0.clone();
-
-        if let SettingsUiFile::Project((_, _)) = &self.current_file {
-            telemetry::event!("Setting Project Clicked");
-        }
 
         self.build_ui(window, cx);
 
@@ -2797,10 +2788,6 @@ impl SettingsWindow {
                                                 ))
                                         })
                                         .on_click({
-                                            let category = this.pages[entry.page_index].title;
-                                            let subcategory =
-                                                (!entry.is_root).then_some(entry.title);
-
                                             cx.listener(move |this, event: &gpui::ClickEvent, window, cx| {
                                                 if this.toggle_navbar_entry_on_double_click(
                                                         entry_index,
@@ -2811,12 +2798,6 @@ impl SettingsWindow {
                                                 {
                                                     return;
                                                 }
-
-                                                telemetry::event!(
-                                                    "Settings Navigation Clicked",
-                                                    category = category,
-                                                    subcategory = subcategory
-                                                );
 
                                                 this.open_and_scroll_to_navbar_entry(
                                                     entry_index,
@@ -3311,9 +3292,7 @@ impl SettingsWindow {
                 shown_errors: &mut HashSet<String>,
                 cx: &mut Context<SettingsWindow>,
             ) -> impl IntoElement {
-                if shown_errors.insert(error.clone()) {
-                    telemetry::event!("Settings Error Shown", label = label, error = &error);
-                }
+                shown_errors.insert(error.clone());
                 Banner::new()
                     .severity(Severity::Warning)
                     .child(
@@ -4017,8 +3996,6 @@ fn update_settings_file(
     cx: &mut App,
     update: impl 'static + Send + FnOnce(&mut SettingsContent, &App),
 ) -> Result<()> {
-    telemetry::event!("Settings Change", setting = file_name, type = file.setting_type());
-
     match file {
         SettingsUiFile::Project((worktree_id, rel_path)) => {
             let rel_path = rel_path.join(paths::local_settings_file_relative_path());
@@ -4243,8 +4220,6 @@ fn render_toggle_button<B: Into<bool> + From<bool> + Copy>(
         .tab_index(0_isize)
         .on_click({
             move |state, window, cx| {
-                telemetry::event!("Settings Change", setting = field.json_path, type = file.setting_type());
-
                 let state = *state == ui::ToggleState::Selected;
                 update_settings_file(file.clone(), field.json_path, window, cx, move |settings, app| {
                     (field.write)(settings, Some(state.into()), app);

@@ -1131,27 +1131,9 @@ impl ActionLogMetrics {
     }
 }
 
-fn telemetry_report_accepted_edits(telemetry: &ActionLogTelemetry, metrics: ActionLogMetrics) {
-    telemetry::event!(
-        "Agent Edits Accepted",
-        agent = telemetry.agent_telemetry_id,
-        session = telemetry.session_id,
-        language = metrics.language,
-        lines_added = metrics.lines_added,
-        lines_removed = metrics.lines_removed
-    );
-}
+fn telemetry_report_accepted_edits(_telemetry: &ActionLogTelemetry, _metrics: ActionLogMetrics) {}
 
-fn telemetry_report_rejected_edits(telemetry: &ActionLogTelemetry, metrics: ActionLogMetrics) {
-    telemetry::event!(
-        "Agent Edits Rejected",
-        agent = telemetry.agent_telemetry_id,
-        session = telemetry.session_id,
-        language = metrics.language,
-        lines_added = metrics.lines_added,
-        lines_removed = metrics.lines_removed
-    );
-}
+fn telemetry_report_rejected_edits(_telemetry: &ActionLogTelemetry, _metrics: ActionLogMetrics) {}
 
 fn apply_non_conflicting_edits(
     patch: &Patch<u32>,

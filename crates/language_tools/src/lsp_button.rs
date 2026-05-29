@@ -1321,11 +1321,6 @@ impl Render for LspButton {
         }
 
         let state = self.server_state.read(cx);
-        let is_via_ssh = state
-            .workspace
-            .upgrade()
-            .map(|workspace| workspace.read(cx).project().read(cx).is_via_remote_server())
-            .unwrap_or(false);
 
         let mut has_errors = false;
         let mut has_warnings = false;
@@ -1374,16 +1369,6 @@ impl Render for LspButton {
 
         div().child(
             PopoverMenu::new("lsp-tool")
-                .on_open(Rc::new(move |_window, cx| {
-                    let copilot_enabled = all_language_settings(None, cx).edit_predictions.provider
-                        == EditPredictionProvider::Copilot;
-                    telemetry::event!(
-                        "Toolbar Menu Opened",
-                        name = "Language Servers",
-                        copilot_enabled,
-                        is_via_ssh,
-                    );
-                }))
                 .menu(move |_, cx| {
                     lsp_button
                         .read_with(cx, |lsp_button, _| lsp_button.lsp_menu.clone())

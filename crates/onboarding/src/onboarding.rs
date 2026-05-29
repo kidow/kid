@@ -181,7 +181,6 @@ pub fn init(cx: &mut App) {
 }
 
 pub fn show_onboarding_view(app_state: Arc<AppState>, cx: &mut App) -> Task<anyhow::Result<()>> {
-    telemetry::event!("Onboarding Page Opened");
     open_new(
         Default::default(),
         app_state,
@@ -217,41 +216,6 @@ impl Onboarding {
     fn new(workspace: &Workspace, cx: &mut App) -> Entity<Self> {
         let font_family_cache = theme::FontFamilyCache::global(cx);
 
-        let installed_agents = cx
-            .global::<SettingsStore>()
-            .get::<AllAgentServersSettings>(None)
-            .clone();
-        let client = Client::global(cx);
-        let status = *client.status().borrow();
-        let plan = workspace.user_store().read(cx).plan();
-        let zed_agent_state = if status.is_signed_out()
-            || matches!(
-                status,
-                client::Status::AuthenticationError | client::Status::ConnectionError
-            ) {
-            "signed_out"
-        } else if status.is_signing_in() {
-            "signing_in"
-        } else {
-            match plan {
-                Some(Plan::ZedPro) => "pro",
-                Some(Plan::ZedProTrial) => "trial",
-                Some(Plan::ZedBusiness) => "business",
-                Some(Plan::ZedStudent) => "student",
-                Some(Plan::ZedFree) | None => "free",
-            }
-        };
-        let agents_installed = basics_page::FEATURED_AGENT_IDS
-            .iter()
-            .filter(|id| installed_agents.contains_key(**id))
-            .copied()
-            .collect::<Vec<_>>();
-        telemetry::event!(
-            "Welcome Agent Setup Viewed",
-            zed_agent = zed_agent_state,
-            agents_installed = agents_installed,
-        );
-
         cx.new(|cx| {
             cx.spawn(async move |this, cx| {
                 font_family_cache.prefetch(cx).await;
@@ -273,7 +237,6 @@ impl Onboarding {
     }
 
     fn on_finish(_: &Finish, _: &mut Window, cx: &mut App) {
-        telemetry::event!("Finish Setup");
         go_to_welcome_page(cx);
     }
 

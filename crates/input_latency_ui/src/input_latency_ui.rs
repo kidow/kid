@@ -72,29 +72,17 @@ pub fn report_input_latency_telemetry(window: &Window, cx: &mut App) {
     let state = cx.default_global::<TelemetryReporterState>();
     let now = Instant::now();
 
-    let (delta_latency, delta_coalesce, report_window_seconds) =
-        if let Some((prev_instant, prev_snapshot)) = state.previous.get(&window_id) {
-            let mut delta_latency = current.latency_histogram.clone();
-            delta_latency
-                .subtract(&prev_snapshot.latency_histogram)
-                .ok();
-            let mut delta_coalesce = current.events_per_frame_histogram.clone();
-            delta_coalesce
-                .subtract(&prev_snapshot.events_per_frame_histogram)
-                .ok();
-            let elapsed = now.duration_since(*prev_instant).as_secs();
-            (delta_latency, delta_coalesce, elapsed)
-        } else {
-            // First report for this window: the full cumulative histogram is the
-            // delta from the empty starting state. We don't know how long the
-            // window has been open, so record 0 to signal that this is the
-            // initial accumulation period rather than a fixed-width window.
-            (
-                current.latency_histogram.clone(),
-                current.events_per_frame_histogram.clone(),
-                0u64,
-            )
-        };
+    let delta_latency = if let Some((_prev_instant, prev_snapshot)) =
+        state.previous.get(&window_id)
+    {
+        let mut delta_latency = current.latency_histogram.clone();
+        delta_latency
+            .subtract(&prev_snapshot.latency_histogram)
+            .ok();
+        delta_latency
+    } else {
+        current.latency_histogram.clone()
+    };
 
     let total_frames = delta_latency.len();
     if total_frames < MIN_FRAMES_TO_REPORT {
@@ -102,32 +90,6 @@ pub fn report_input_latency_telemetry(window: &Window, cx: &mut App) {
     }
 
     state.previous.insert(window_id, (now, current));
-
-    let frames_sub4 = count_frames_in_range(&delta_latency, 0, MS4_NS);
-    let frames_4to8 = count_frames_in_range(&delta_latency, MS4_NS, MS8_NS);
-    let frames_8to16 = count_frames_in_range(&delta_latency, MS8_NS, MS16_NS);
-    let frames_16to33 = count_frames_in_range(&delta_latency, MS16_NS, MS33_NS);
-    let frames_33to100 = count_frames_in_range(&delta_latency, MS33_NS, MS100_NS);
-    // frames > 100 ms are implicitly total_frames - (sub4 + 4to8 + 8to16 + 16to33 + 33to100)
-
-    let frames_with_1_event = count_frames_in_range(&delta_coalesce, 1, 2);
-    let frames_with_2_events = count_frames_in_range(&delta_coalesce, 2, 3);
-    let frames_with_3_events = count_frames_in_range(&delta_coalesce, 3, 4);
-    // frames with 4+ events are implicitly total_frames - (1 + 2 + 3)
-
-    telemetry::event!(
-        "Latency Report",
-        frames_sub4 = frames_sub4,
-        frames_4to8 = frames_4to8,
-        frames_8to16 = frames_8to16,
-        frames_16to33 = frames_16to33,
-        frames_33to100 = frames_33to100,
-        total_frames = total_frames,
-        frames_with_1_event = frames_with_1_event,
-        frames_with_2_events = frames_with_2_events,
-        frames_with_3_events = frames_with_3_events,
-        report_window_seconds = report_window_seconds,
-    );
 }
 
 fn count_frames_in_range(histogram: &Histogram<u64>, low_ns: u64, high_ns: u64) -> u64 {

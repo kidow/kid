@@ -19,7 +19,7 @@ use std::io::Write;
 use std::sync::LazyLock;
 use std::time::Instant;
 use std::{env, mem, path::PathBuf, sync::Arc, time::Duration};
-use telemetry_events::{AssistantEventData, AssistantPhase, Event, EventRequestBody, EventWrapper};
+use telemetry_events::{AssistantEventData, Event, EventRequestBody, EventWrapper};
 
 pub struct TelemetrySubscription {
     pub historical_events: Result<HistoricalEvents>,
@@ -244,23 +244,6 @@ impl Telemetry {
             state,
         });
 
-        let (tx, mut rx) = mpsc::unbounded();
-        ::telemetry::init(tx);
-
-        cx.background_spawn({
-            let this = Arc::downgrade(&this);
-            async move {
-                if cfg!(feature = "test-support") {
-                    return;
-                }
-                while let Some(event) = rx.next().await {
-                    let Some(state) = this.upgrade() else { break };
-                    state.report_event(Event::Flexible(event))
-                }
-            }
-        })
-        .detach();
-
         // We should only ever have one instance of Telemetry, leak the subscription to keep it alive
         // rather than store in TelemetryState, complicating spawn as subscriptions are not Send
         std::mem::forget(cx.on_app_quit({
@@ -280,7 +263,6 @@ impl Telemetry {
     // TestAppContext ends up calling this function on shutdown and it panics when trying to find the TelemetrySettings
     #[cfg(not(any(test, feature = "test-support")))]
     fn shutdown_telemetry(self: &Arc<Self>) -> impl Future<Output = ()> + use<> {
-        telemetry::event!("App Closed");
         // TODO: close final edit period and make sure it's sent
         Task::ready(())
     }
@@ -397,59 +379,13 @@ impl Telemetry {
         drop(state);
     }
 
-    pub fn report_assistant_event(self: &Arc<Self>, event: AssistantEventData) {
-        let event_type = match event.phase {
-            AssistantPhase::Response => "Assistant Responded",
-            AssistantPhase::Invoked => "Assistant Invoked",
-            AssistantPhase::Accepted => "Assistant Response Accepted",
-            AssistantPhase::Rejected => "Assistant Response Rejected",
-        };
-
-        telemetry::event!(
-            event_type,
-            conversation_id = event.conversation_id,
-            kind = event.kind,
-            phase = event.phase,
-            message_id = event.message_id,
-            model = event.model,
-            model_provider = event.model_provider,
-            response_latency = event.response_latency,
-            error_message = event.error_message,
-            language_name = event.language_name,
-        );
-    }
+    pub fn report_assistant_event(self: &Arc<Self>, _event: AssistantEventData) {}
 
     pub fn log_edit_event(self: &Arc<Self>, environment: &'static str, is_via_ssh: bool) {
-        static LAST_EVENT_TIME: Mutex<Option<Instant>> = Mutex::new(None);
-
         let mut state = self.state.lock();
-        let period_data = state.event_coalescer.log_event(environment);
+        state.event_coalescer.log_event(environment);
         drop(state);
-
-        if let Some(mut last_event) = LAST_EVENT_TIME.try_lock() {
-            let current_time = std::time::Instant::now();
-            let last_time = last_event.get_or_insert(current_time);
-
-            if current_time.duration_since(*last_time) > Duration::from_secs(60 * 10) {
-                *last_time = current_time;
-            } else {
-                return;
-            }
-
-            if let Some((start, end, environment)) = period_data {
-                let duration = end
-                    .saturating_duration_since(start)
-                    .min(Duration::from_secs(60 * 60 * 24))
-                    .as_millis() as i64;
-
-                telemetry::event!(
-                    "Editor Edited",
-                    duration = duration,
-                    environment = environment,
-                    is_via_ssh = is_via_ssh
-                );
-            }
-        }
+        let _ = is_via_ssh;
     }
 
     pub fn report_discovered_project_type_events(
@@ -457,14 +393,7 @@ impl Telemetry {
         worktree_id: WorktreeId,
         updated_entries_set: &UpdatedEntriesSet,
     ) {
-        let Some(project_types) = self.detect_project_types(worktree_id, updated_entries_set)
-        else {
-            return;
-        };
-
-        for project_type in project_types {
-            telemetry::event!("Project Opened", project_type = project_type);
-        }
+        self.detect_project_types(worktree_id, updated_entries_set);
     }
 
     fn detect_project_types(

@@ -618,21 +618,6 @@ fn main() {
 
         let _is_new_install = matches!(&installation_id, Some(IdType::New(_)));
 
-        // We should rename these in the future to `first app open`, `first app open for release channel`, and `app open`
-        if let (Some(system_id), Some(installation_id)) = (&system_id, &installation_id) {
-            match (&system_id, &installation_id) {
-                (IdType::New(_), IdType::New(_)) => {
-                    telemetry::event!("App First Opened");
-                    telemetry::event!("App First Opened For Release Channel");
-                }
-                (IdType::Existing(_), IdType::New(_)) => {
-                    telemetry::event!("App First Opened For Release Channel");
-                }
-                (_, IdType::Existing(_)) => {
-                    telemetry::event!("App Opened");
-                }
-            }
-        }
         let app_session = cx.new(|cx| AppSession::new(session, cx));
 
         let app_state = Arc::new(AppState {
@@ -773,16 +758,6 @@ fn main() {
             }
         })
         .detach();
-        telemetry::event!(
-            "Settings Changed",
-            setting = "theme",
-            value = cx.theme().name.to_string()
-        );
-        telemetry::event!(
-            "Settings Changed",
-            setting = "keymap",
-            value = BaseKeymap::get_global(cx).to_string()
-        );
         telemetry.flush_events().detach();
 
         let fs = app_state.fs.clone();

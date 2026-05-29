@@ -102,7 +102,6 @@ dependencies = [
  "rand 0.9.4",
  "serde_json",
  "settings",
- "telemetry",
  "text",
  "util",
  "watch",
@@ -983,7 +982,6 @@ dependencies = [
  "serde",
  "serde_json",
  "smol",
- "telemetry",
  "ui",
  "util",
  "workspace",
@@ -2142,7 +2140,6 @@ dependencies = [
  "settings",
  "sha2",
  "smol",
- "telemetry",
  "telemetry_events",
  "text",
  "thiserror 2.0.17",
@@ -2360,7 +2357,6 @@ dependencies = [
  "project",
  "serde",
  "settings",
- "telemetry",
  "theme",
  "theme_settings",
  "time",
@@ -3327,7 +3323,6 @@ dependencies = [
  "smallvec",
  "smol",
  "task",
- "telemetry",
  "util",
  "zlog",
 ]
@@ -4214,7 +4209,6 @@ dependencies = [
  "snippet",
  "sum_tree",
  "task",
- "telemetry",
  "text",
  "theme",
  "theme_settings",
@@ -4710,7 +4704,6 @@ dependencies = [
  "serde_json_lenient",
  "settings",
  "task",
- "telemetry",
  "tempfile",
  "theme",
  "theme_extension",
@@ -5170,7 +5163,6 @@ dependencies = [
  "serde",
  "serde_json",
  "smol",
- "telemetry",
  "tempfile",
  "text",
  "thiserror 2.0.17",
@@ -6034,7 +6026,6 @@ dependencies = [
  "strum",
  "sysinfo 0.37.2",
  "task",
- "telemetry",
  "theme",
  "theme_settings",
  "time",
@@ -7646,7 +7637,6 @@ dependencies = [
  "collections",
  "gpui",
  "hdrhistogram",
- "telemetry",
 ]
 
 [[package]]
@@ -8111,7 +8101,6 @@ dependencies = [
  "serde",
  "serde_json",
  "settings",
- "telemetry",
  "tempfile",
  "theme",
  "theme_settings",
@@ -8401,7 +8390,6 @@ dependencies = [
  "serde_json",
  "settings",
  "sysinfo 0.37.2",
- "telemetry",
  "theme",
  "theme_settings",
  "tree-sitter",
@@ -10503,7 +10491,6 @@ dependencies = [
  "schemars",
  "serde",
  "settings",
- "telemetry",
  "theme",
  "theme_settings",
  "ui",
@@ -12270,7 +12257,6 @@ dependencies = [
  "serde_json",
  "settings",
  "smallvec",
- "telemetry",
  "tempfile",
  "theme",
  "theme_settings",
@@ -12989,7 +12975,6 @@ dependencies = [
  "serde_json",
  "settings",
  "task",
- "telemetry",
  "ui",
  "ui_input",
  "util",
@@ -13307,7 +13292,6 @@ dependencies = [
  "shlex",
  "smol",
  "task",
- "telemetry",
  "terminal",
  "terminal_view",
  "theme",
@@ -14447,7 +14431,6 @@ dependencies = [
  "settings",
  "shell_command_parser",
  "strum",
- "telemetry",
  "theme",
  "theme_settings",
  "title_bar",
@@ -15694,16 +15677,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "telemetry"
-version = "0.1.0"
-dependencies = [
- "futures",
- "serde",
- "serde_json",
- "telemetry_events",
-]
-
-[[package]]
 name = "telemetry_events"
 version = "0.1.0"
 dependencies = [
@@ -15937,7 +15910,6 @@ dependencies = [
  "serde",
  "serde_json",
  "settings",
- "telemetry",
  "theme",
  "theme_settings",
  "ui",
@@ -16183,7 +16155,6 @@ dependencies = [
  "serde",
  "settings",
  "smallvec",
- "telemetry",
  "theme",
  "ui",
  "util",
@@ -19830,7 +19801,6 @@ dependencies = [
  "sqlez",
  "strum",
  "task",
- "telemetry",
  "tempfile",
  "theme",
  "theme_settings",
@@ -20438,7 +20408,6 @@ dependencies = [
  "tab_switcher",
  "task",
  "tasks_ui",
- "telemetry",
  "telemetry_events",
  "tempfile",
  "terminal_view",
