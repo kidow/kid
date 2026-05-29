@@ -4654,7 +4654,6 @@ dependencies = [
 name = "diagnostics"
 version = "0.1.0"
 dependencies = [
- "agent_settings",
  "anyhow",
  "collections",
  "component",
@@ -6952,7 +6951,6 @@ dependencies = [
 name = "git_ui"
 version = "0.1.0"
 dependencies = [
- "agent_settings",
  "alacritty_terminal",
  "anyhow",
  "askpass",
@@ -6973,7 +6971,6 @@ dependencies = [
  "indoc",
  "itertools 0.14.0",
  "language",
- "language_model",
  "linkify",
  "log",
  "markdown",
@@ -6984,7 +6981,6 @@ dependencies = [
  "picker",
  "pretty_assertions",
  "project",
- "prompt_store",
  "proto",
  "rand 0.9.4",
  "remote",
@@ -17587,7 +17583,6 @@ checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 name = "title_bar"
 version = "0.1.0"
 dependencies = [
- "agent_settings",
  "anyhow",
  "arrayvec",
  "auto_update",
@@ -21213,7 +21208,6 @@ dependencies = [
 name = "workspace"
 version = "0.1.0"
 dependencies = [
- "agent_settings",
  "any_vec",
  "anyhow",
  "async-recursion",
@@ -21712,16 +21706,7 @@ dependencies = [
 name = "zed"
 version = "1.6.0"
 dependencies = [
- "acp_thread",
- "acp_tools",
- "action_log",
  "activity_indicator",
- "agent",
- "agent-client-protocol",
- "agent_servers",
- "agent_settings",
- "agent_skills",
- "agent_ui",
  "anyhow",
  "ashpd",
  "askpass",
@@ -21735,14 +21720,10 @@ dependencies = [
  "cli",
  "client",
  "clock",
- "codestral",
  "collections",
  "command_palette",
  "component",
  "component_preview",
- "copilot",
- "copilot_chat",
- "copilot_ui",
  "crashes",
  "csv_preview",
  "dap_adapters",
@@ -21752,8 +21733,6 @@ dependencies = [
  "debugger_ui",
  "dev_container",
  "diagnostics",
- "edit_prediction",
- "edit_prediction_ui",
  "editor",
  "encoding_selector",
  "env_logger 0.11.8",
@@ -21784,8 +21763,6 @@ dependencies = [
  "keymap_editor",
  "language",
  "language_extension",
- "language_model",
- "language_models",
  "language_onboarding",
  "language_selector",
  "language_tools",
@@ -21811,7 +21788,6 @@ dependencies = [
  "project",
  "project_panel",
  "project_symbols",
- "prompt_store",
  "proto",
  "rayon",
  "recent_projects",
@@ -21829,7 +21805,6 @@ dependencies = [
  "settings_profile_selector",
  "settings_ui",
  "shellexpand",
- "sidebar",
  "smol",
  "snippet_provider",
  "snippets_ui",
@@ -21861,8 +21836,6 @@ dependencies = [
  "vim",
  "vim_mode_setting",
  "watch",
- "web_search",
- "web_search_providers",
  "which_key",
  "windows 0.61.3",
  "windows_resources",

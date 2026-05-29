@@ -4,7 +4,6 @@ use crate::{
     git_panel::{GitPanel, GitPanelAddon, GitStatusEntry},
     git_panel_settings::GitPanelSettings,
 };
-use agent_settings::AgentSettings;
 use anyhow::{Context as _, Result, anyhow};
 use buffer_diff::{BufferDiff, DiffHunkSecondaryStatus};
 use collections::HashMap;
@@ -1719,9 +1718,8 @@ impl Render for BranchDiffToolbar {
         let project_diff_for_picker = project_diff.downgrade();
 
         let is_multibuffer_empty = project_diff.read(cx).multibuffer.read(cx).is_empty();
-        let is_ai_enabled = AgentSettings::get_global(cx).enabled(cx);
 
-        let show_review_button = !is_multibuffer_empty && is_ai_enabled;
+        let show_review_button = false;
 
         h_group_xl()
             .my_neg_1()
