@@ -8202,27 +8202,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "language_models_cloud"
-version = "0.1.0"
-dependencies = [
- "anthropic",
- "anyhow",
- "cloud_llm_client",
- "futures 0.3.32",
- "google_ai",
- "gpui",
- "http_client",
- "language_model",
- "log",
- "open_ai",
- "schemars",
- "semver",
- "serde",
- "serde_json",
- "thiserror 2.0.17",
-]
-
-[[package]]
 name = "language_onboarding"
 version = "0.1.0"
 dependencies = [
