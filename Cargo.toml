@@ -98,7 +98,6 @@ members = [
     "crates/language_tools",
     "crates/languages",
     "crates/line_ending_selector",
-    "crates/lmstudio",
     "crates/lsp",
     "crates/markdown",
     "crates/markdown_preview",
@@ -330,7 +329,6 @@ language_selector = { path = "crates/language_selector" }
 language_tools = { path = "crates/language_tools" }
 languages = { path = "crates/languages" }
 line_ending_selector = { path = "crates/line_ending_selector" }
-lmstudio = { path = "crates/lmstudio" }
 lsp = { path = "crates/lsp" }
 markdown = { path = "crates/markdown" }
 markdown_preview = { path = "crates/markdown_preview" }

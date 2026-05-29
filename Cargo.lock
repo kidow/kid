@@ -8630,18 +8630,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "lmstudio"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "futures 0.3.32",
- "http_client",
- "schemars",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "lock_api"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
