@@ -128,27 +128,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "acp_tools"
-version = "0.1.0"
-dependencies = [
- "agent-client-protocol",
- "agent_servers",
- "agent_ui",
- "collections",
- "gpui",
- "language",
- "markdown",
- "project",
- "serde",
- "serde_json",
- "settings",
- "theme_settings",
- "ui",
- "util",
- "workspace",
-]
-
-[[package]]
 name = "action_log"
 version = "0.1.0"
 dependencies = [
