@@ -10471,21 +10471,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "opencode"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "futures 0.3.32",
- "google_ai",
- "http_client",
- "language_model_core",
- "schemars",
- "serde",
- "serde_json",
- "strum",
-]
-
-[[package]]
 name = "opener"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
