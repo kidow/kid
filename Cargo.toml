@@ -3,7 +3,6 @@ resolver = "2"
 members = [
     "crates/action_log",
     "crates/activity_indicator",
-    "crates/anthropic",
     "crates/askpass",
     "crates/assets",
     "crates/audio",
@@ -222,7 +221,6 @@ edition = "2024"
 
 action_log = { path = "crates/action_log" }
 activity_indicator = { path = "crates/activity_indicator" }
-anthropic = { path = "crates/anthropic" }
 askpass = { path = "crates/askpass" }
 assets = { path = "crates/assets" }
 audio = { path = "crates/audio" }
