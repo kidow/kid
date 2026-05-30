@@ -4204,7 +4204,7 @@ fn version_control_page() -> SettingsPage {
         ]
     }
 
-    fn git_gutter_section() -> [SettingsPageItem; 3] {
+    fn git_gutter_section() -> [SettingsPageItem; 2] {
         [
             SettingsPageItem::SectionHeader("Git Gutter"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -4220,26 +4220,10 @@ fn version_control_page() -> SettingsPage {
                 metadata: None,
                 files: USER,
             }),
-            // todo(settings_ui): Figure out the right default for this value in default.json
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Debounce",
-                description: "Debounce threshold in milliseconds after which changes are reflected in the Git gutter.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.gutter_debounce"),
-                    pick: |settings_content| {
-                        settings_content.git.as_ref()?.gutter_debounce.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content.git.get_or_insert_default().gutter_debounce = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
         ]
     }
 
-    fn inline_git_blame_section() -> [SettingsPageItem; 6] {
+    fn inline_git_blame_section() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::SectionHeader("Inline Git Blame"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -4263,84 +4247,6 @@ fn version_control_page() -> SettingsPage {
                             .inline_blame
                             .get_or_insert_default()
                             .enabled = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Delay",
-                description: "The delay after which the inline blame information is shown.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.inline_blame.delay_ms"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git
-                            .as_ref()?
-                            .inline_blame
-                            .as_ref()?
-                            .delay_ms
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git
-                            .get_or_insert_default()
-                            .inline_blame
-                            .get_or_insert_default()
-                            .delay_ms = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Padding",
-                description: "Padding between the end of the source line and the start of the inline blame in columns.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.inline_blame.padding"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git
-                            .as_ref()?
-                            .inline_blame
-                            .as_ref()?
-                            .padding
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git
-                            .get_or_insert_default()
-                            .inline_blame
-                            .get_or_insert_default()
-                            .padding = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Column",
-                description: "The minimum column number at which to show the inline blame information.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.inline_blame.min_column"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git
-                            .as_ref()?
-                            .inline_blame
-                            .as_ref()?
-                            .min_column
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git
-                            .get_or_insert_default()
-                            .inline_blame
-                            .get_or_insert_default()
-                            .min_column = value;
                     },
                 }),
                 metadata: None,
@@ -4375,71 +4281,7 @@ fn version_control_page() -> SettingsPage {
         ]
     }
 
-    fn git_blame_view_section() -> [SettingsPageItem; 2] {
-        [
-            SettingsPageItem::SectionHeader("Git Blame View"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Avatar",
-                description: "Show the avatar of the author of the commit.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.blame.show_avatar"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git
-                            .as_ref()?
-                            .blame
-                            .as_ref()?
-                            .show_avatar
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git
-                            .get_or_insert_default()
-                            .blame
-                            .get_or_insert_default()
-                            .show_avatar = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    fn branch_picker_section() -> [SettingsPageItem; 2] {
-        [
-            SettingsPageItem::SectionHeader("Branch Picker"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Author Name",
-                description: "Show author name as part of the commit information in branch picker.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.branch_picker.show_author_name"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git
-                            .as_ref()?
-                            .branch_picker
-                            .as_ref()?
-                            .show_author_name
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git
-                            .get_or_insert_default()
-                            .branch_picker
-                            .get_or_insert_default()
-                            .show_author_name = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    fn git_hunks_section() -> [SettingsPageItem; 4] {
+    fn git_hunks_section() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::SectionHeader("Git Hunks"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -4450,19 +4292,6 @@ fn version_control_page() -> SettingsPage {
                     pick: |settings_content| settings_content.git.as_ref()?.hunk_style.as_ref(),
                     write: |settings_content, value, _| {
                         settings_content.git.get_or_insert_default().hunk_style = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Path Style",
-                description: "Should the name or path be displayed first in the git view.",
-                field: Box::new(SettingField {
-                    json_path: Some("git.path_style"),
-                    pick: |settings_content| settings_content.git.as_ref()?.path_style.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.git.get_or_insert_default().path_style = value;
                     },
                 }),
                 metadata: None,
@@ -4499,8 +4328,6 @@ fn version_control_page() -> SettingsPage {
             git_integration_section(),
             git_gutter_section(),
             inline_git_blame_section(),
-            git_blame_view_section(),
-            branch_picker_section(),
             git_hunks_section(),
         ],
     }
