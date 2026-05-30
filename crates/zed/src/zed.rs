@@ -8,6 +8,7 @@ mod open_listener;
 mod open_url_modal;
 mod quick_action_bar;
 pub mod remote_debug;
+mod restart_button;
 pub mod telemetry_log;
 #[cfg(all(target_os = "macos", feature = "visual-tests"))]
 pub mod visual_tests;
@@ -565,6 +566,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
             cx.new(|_| line_ending_selector::LineEndingIndicator::default());
         let merge_conflict_indicator =
             cx.new(|cx| git_ui::MergeConflictIndicator::new(workspace, cx));
+        let restart_button = cx.new(|_| restart_button::RestartButton::new());
         workspace.status_bar().update(cx, |status_bar, cx| {
             status_bar.add_left_item(search_button, window, cx);
             status_bar.add_left_item(lsp_button, window, cx);
@@ -572,6 +574,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
             status_bar.add_left_item(active_file_name, window, cx);
             status_bar.add_left_item(merge_conflict_indicator, window, cx);
             status_bar.add_left_item(activity_indicator, window, cx);
+            status_bar.add_right_item(restart_button, window, cx);
             status_bar.add_right_item(active_buffer_encoding, window, cx);
             status_bar.add_right_item(active_buffer_language, window, cx);
             status_bar.add_right_item(active_toolchain_language, window, cx);
@@ -599,15 +602,15 @@ fn initialize_file_watcher(window: &mut Window, cx: &mut Context<Workspace>) {
             db::indoc! {r#"
             inotify_init returned {}
 
-            This may be due to system-wide limits on inotify instances.
+            시스템 전체의 inotify 인스턴스 제한 때문일 수 있습니다.
             "#},
             e
         );
         let prompt = window.prompt(
             PromptLevel::Critical,
-            "Could not start inotify",
+            "inotify를 시작할 수 없습니다",
             Some(&message),
-            &["Quit"],
+            &["종료"],
             cx,
         );
         cx.spawn(async move |_, cx| {
@@ -629,15 +632,15 @@ fn initialize_file_watcher(window: &mut Window, cx: &mut Context<Workspace>) {
             db::indoc! {r#"
             ReadDirectoryChangesW initialization failed: {}
 
-            This may occur on network filesystems and WSL paths.
+            네트워크 파일 시스템이나 WSL 경로에서 발생할 수 있습니다.
             "#},
             e
         );
         let prompt = window.prompt(
             PromptLevel::Critical,
-            "Could not start ReadDirectoryChangesW",
+            "ReadDirectoryChangesW를 시작할 수 없습니다",
             Some(&message),
-            &["Quit"],
+            &["종료"],
             cx,
         );
         cx.spawn(async move |_, cx| {
@@ -664,20 +667,20 @@ fn show_software_emulation_warning_if_needed(
         };
         let message = format!(
             db::indoc! {r#"
-            Kid uses {} for rendering and requires a compatible GPU.
+            Kid는 렌더링에 {}을(를) 사용하며 호환되는 GPU가 필요합니다.
 
-            Currently you are using a software emulated GPU ({}) which
-            will result in awful performance.
+            현재 소프트웨어 에뮬레이션 GPU({})를 사용하고 있어
+            성능이 매우 떨어집니다.
 
-            Set ZED_ALLOW_EMULATED_GPU=1 env var to permanently override.
+            영구적으로 무시하려면 ZED_ALLOW_EMULATED_GPU=1 환경 변수를 설정하세요.
             "#},
             graphics_api, specs.device_name
         );
         let prompt = window.prompt(
             PromptLevel::Critical,
-            "Unsupported GPU",
+            "지원되지 않는 GPU",
             Some(&message),
-            &["Skip", "Quit"],
+            &["건너뛰기", "종료"],
             cx,
         );
         cx.spawn(async move |_, cx| {
@@ -1070,7 +1073,7 @@ fn register_actions(
                         Toast::new(
                             NotificationId::unique::<RegisterZedScheme>(),
                             format!(
-                                "kid:// links will now open in {}.",
+                                "이제 kid:// 링크가 {}에서 열립니다.",
                                 ReleaseChannel::global(cx).display_name()
                             ),
                         ),
@@ -1414,14 +1417,14 @@ fn open_about_window(cx: &mut App) {
                             .child(Headline::new(self.message.clone()))
                             .when_some(self.commit.clone(), |this, commit| {
                                 this.child(
-                                    Label::new("Commit")
+                                    Label::new("커밋")
                                         .color(Color::Muted)
                                         .size(LabelSize::XSmall),
                                 )
                                 .child(Label::new(commit).size(LabelSize::Small))
                             })
                             .child(
-                                Label::new("Version")
+                                Label::new("버전")
                                     .color(Color::Muted)
                                     .size(LabelSize::XSmall),
                             )
@@ -1439,7 +1442,7 @@ fn open_about_window(cx: &mut App) {
                                         window.remove_window();
                                     }))
                                     .child(
-                                        Button::new("ok", "Ok")
+                                        Button::new("ok", "확인")
                                             .full_width()
                                             .style(ButtonStyle::OutlinedGhost)
                                             .toggle_state(ok_is_focused)
@@ -1459,7 +1462,7 @@ fn open_about_window(cx: &mut App) {
                                         },
                                     ))
                                     .child(
-                                        Button::new("copy", "Copy")
+                                        Button::new("copy", "복사")
                                             .full_width()
                                             .style(ButtonStyle::Tinted(TintColor::Accent))
                                             .toggle_state(copy_is_focused)
@@ -1564,9 +1567,9 @@ fn quit(_: &Quit, cx: &mut App) {
                 .update(cx, |_, window, cx| {
                     window.prompt(
                         PromptLevel::Info,
-                        "Are you sure you want to quit?",
+                        "정말 종료하시겠습니까?",
                         None,
-                        &["Quit", "Cancel"],
+                        &["종료", "취소"],
                         cx,
                     )
                 })
@@ -1769,8 +1772,8 @@ fn notify_settings_errors(result: settings::SettingsParseResult, is_user: bool, 
             } else {
                 show_app_notification(id, cx, move |cx| {
                     cx.new(|cx| {
-                        MessageNotification::new(format!("Invalid user settings file\n{error}"), cx)
-                            .primary_message("Open Settings File")
+                        MessageNotification::new(format!("사용자 설정 파일이 올바르지 않습니다\n{error}"), cx)
+                            .primary_message("설정 파일 열기")
                             .primary_icon(IconName::Settings)
                             .primary_on_click(|window, cx| {
                                 window.dispatch_action(
@@ -1801,12 +1804,12 @@ fn notify_settings_errors(result: settings::SettingsParseResult, is_user: bool, 
                     cx.new(|cx| {
                         MessageNotification::new(
                             format!(
-                                "Failed to migrate settings\n\
+                                "설정 마이그레이션에 실패했습니다\n\
                                 {err}"
                             ),
                             cx,
                         )
-                        .primary_message("Open Settings File")
+                        .primary_message("설정 파일 열기")
                         .primary_icon(IconName::Settings)
                         .primary_on_click(|window, cx| {
                             window.dispatch_action(zed_actions::OpenSettingsFile.boxed_clone(), cx);
@@ -1854,7 +1857,7 @@ pub fn watch_user_agents_md(fs: Arc<dyn fs::Fs>, cx: &mut App) {
         UserAgentsMdState::Error(message) => {
             let path = paths::agents_file().display().to_string();
             log::error!("Failed to load user AGENTS.md from {path}: {message}");
-            let body = format!("Failed to load {path}\n{message}");
+            let body = format!("{path}을(를) 불러오는 데 실패했습니다\n{message}");
             let notification_id = notification_id.clone();
             show_app_notification(notification_id, cx, move |cx| {
                 let body = body.clone();
@@ -2005,11 +2008,11 @@ fn show_keymap_file_json_error(
     cx: &mut App,
 ) {
     let message: SharedString =
-        format!("JSON parse error in keymap file. Bindings not reloaded.\n\n{error}").into();
+        format!("키맵 파일에서 JSON 파싱 오류가 발생했습니다. 바인딩이 다시 로드되지 않았습니다.\n\n{error}").into();
     show_app_notification(notification_id, cx, move |cx| {
         cx.new(|cx| {
             MessageNotification::new(message.clone(), cx)
-                .primary_message("Open Keymap File")
+                .primary_message("키맵 파일 열기")
                 .primary_icon(IconName::Settings)
                 .primary_on_click(|window, cx| {
                     window.dispatch_action(zed_actions::OpenKeymapFile.boxed_clone(), cx);
@@ -2276,7 +2279,7 @@ fn open_local_file(
         struct NoOpenFolders;
 
         workspace.show_notification(NotificationId::unique::<NoOpenFolders>(), cx, |cx| {
-            cx.new(|cx| MessageNotification::new("This project has no folders open.", cx))
+            cx.new(|cx| MessageNotification::new("이 프로젝트에 열린 폴더가 없습니다.", cx))
         })
     }
 }
