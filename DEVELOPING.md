@@ -46,13 +46,13 @@ cargo run --release -p zed
 cargo build --release -p zed && ./target/release/zed
 ```
 
-언제 오래 걸리나:
-- `editor` / `gpui` / `workspace` 같은 **core crate** 수정 → 의존하는 crate 전부 재빌드.
-- `browser_panel` 같은 **leaf crate** 수정 → 그 crate만 + `zed` 재링크(254MB 링크라 release는 1–3분).
+빌드 속도 (lld 링커 + debug 기준, `.cargo/config.toml`에 설정됨):
+- `browser_panel` / `title_bar` 같은 **leaf crate** 수정 → 그 crate만 컴파일 + `zed` 재링크 ≈ **~10초** (lld 덕분에 254MB 링크가 빠름).
+- `editor` / `gpui` / `workspace` 같은 **core crate** 수정 → 의존 crate 전부 재컴파일 → 수 분 (불가피).
 - **에셋(테마/키맵 JSON)** 수정도 바이너리에 임베드되므로 재빌드 필요.
-- core 안 건드린 증분은 보통 수십 초~1분.
+- 전체 재컴파일(수 분)은 첫 빌드 또는 `.cargo/config.toml`·toolchain 변경 시에만.
 
-> 팁: `cargo run --release`가 매번 느린 건 코드를 안 바꿔도 254MB 바이너리를 재링크하기 때문. 코드 안 바꿨으면 1번(바이너리 직접 실행)을 써라.
+> 팁: `--release`는 최적화라 컴파일·링크 둘 다 더 느림. UI 반복 수정은 무조건 debug(`cargo run -p zed`). 코드 안 바꿨으면 1번(바이너리 직접 실행).
 
 ---
 
@@ -103,7 +103,8 @@ git log --oneline -10
 
 | 증상 | 원인 / 해결 |
 |------|------------|
-| `cargo run`이 너무 느림 | 코드 안 바꿨으면 `./target/release/zed` 직접 실행 |
+| `cargo run`이 너무 느림 | `--release` 말고 `cargo run -p zed`(debug). 코드 안 바꿨으면 `./target/release/zed` 또는 `./target/debug/zed` 직접 실행 |
+| 링크 에러 `ld64.lld ... No such file` 등 | lld 미설치 → `brew install lld` (`.cargo/config.toml`이 lld 경로 참조) |
 | `unable to find utility "metal"` | Metal 툴체인 미설치 → `xcodebuild -downloadComponent MetalToolchain` |
 | `failed to spawn cmake` | `brew install cmake` |
 | 빌드는 되는데 앱이 느림 | debug 바이너리임 → 체감 성능 보려면 `--release` |
