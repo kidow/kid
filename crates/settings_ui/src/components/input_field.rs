@@ -38,6 +38,11 @@ impl SettingsInputField {
         }
     }
 
+    pub fn with_id(mut self, id: impl Into<ElementId>) -> Self {
+        self.id = Some(id.into());
+        self
+    }
+
     pub fn with_initial_text(mut self, initial_text: String) -> Self {
         self.initial_text = Some(initial_text);
         self
