@@ -12,6 +12,22 @@ use crate::{
     update_settings_file,
 };
 
+fn ollama_fetch_models(cx: &mut App) -> Vec<SharedString> {
+    use language_model::{LanguageModelProviderId, LanguageModelRegistry};
+    const OLLAMA_PROVIDER_ID: LanguageModelProviderId = LanguageModelProviderId::new("ollama");
+    let Some(provider) = LanguageModelRegistry::read_global(cx).provider(&OLLAMA_PROVIDER_ID) else {
+        return Vec::new();
+    };
+    provider.authenticate(cx).detach_and_log_err(cx);
+    let mut models: Vec<SharedString> = provider
+        .provided_models(cx)
+        .into_iter()
+        .map(|model| model.id().0)
+        .collect();
+    models.sort();
+    models
+}
+
 type OllamaModelPicker = Picker<OllamaModelPickerDelegate>;
 
 struct OllamaModelPickerDelegate {
@@ -27,7 +43,7 @@ impl OllamaModelPickerDelegate {
         on_model_changed: impl Fn(SharedString, &mut Window, &mut App) + 'static,
         cx: &mut Context<OllamaModelPicker>,
     ) -> Self {
-        let mut models = edit_prediction::ollama::fetch_models(cx);
+        let mut models = ollama_fetch_models(cx);
 
         let current_in_list = models.contains(&current_model);
         if !current_model.is_empty() && !current_in_list {

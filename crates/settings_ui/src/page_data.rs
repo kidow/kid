@@ -13,8 +13,7 @@ use crate::{
     ActionLink, DynamicItem, PROJECT, SettingField, SettingItem, SettingsFieldMetadata,
     SettingsPage, SettingsPageItem, SubPageLink, USER, active_language, all_language_names,
     pages::{
-        open_audio_test_window, render_edit_prediction_setup_page, render_skills_setup_page,
-        render_tool_permissions_setup_page,
+        open_audio_test_window, render_skills_setup_page, render_tool_permissions_setup_page,
     },
 };
 
@@ -9559,18 +9558,9 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
     )
 }
 
-fn edit_prediction_language_settings_section() -> [SettingsPageItem; 5] {
+fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
     [
         SettingsPageItem::SectionHeader("Edit Predictions"),
-        SettingsPageItem::SubPageLink(SubPageLink {
-            title: "Configure Providers".into(),
-            r#type: Default::default(),
-            json_path: Some("edit_predictions.providers"),
-            description: Some("Set up different edit prediction providers in complement to Zed's built-in Zeta model.".into()),
-            in_json: false,
-            files: USER,
-            render: render_edit_prediction_setup_page
-        }),
         SettingsPageItem::SettingItem(SettingItem {
             title: "Data Collection",
             description: "Controls whether Zed may collect training data when using Zed's Edit Predictions. Data is only collected for files in projects detected as open source. The default value uses the preference previously set via the status-bar toggle, or false if no preference has been stored.",
