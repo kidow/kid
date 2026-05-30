@@ -1258,19 +1258,15 @@ impl ThreadView {
     }
 
     fn emit_token_limit_telemetry_if_needed(&mut self, cx: &App) {
-        let (ratio, agent_telemetry_id, session_id) = {
+        let ratio = {
             let thread_data = self.thread.read(cx);
             let Some(token_usage) = thread_data.token_usage() else {
                 return;
             };
-            (
-                token_usage.ratio(),
-                thread_data.connection().telemetry_id(),
-                thread_data.session_id().clone(),
-            )
+            token_usage.ratio()
         };
 
-        let kind = match ratio {
+        match ratio {
             acp_thread::TokenUsageRatio::Normal => {
                 self.last_token_limit_telemetry = None;
                 return;
@@ -1415,24 +1411,17 @@ impl ThreadView {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) {
-        let session_id = self.thread.read(cx).session_id().clone();
-        let parent_session_id = self.thread.read(cx).parent_session_id().cloned();
-        let agent_telemetry_id = self.thread.read(cx).connection().telemetry_id();
         let is_first_message = self.thread.read(cx).entries().is_empty();
         let thread = self.thread.downgrade();
 
         self.is_loading_contents = true;
 
-        let model_id = self.current_model_id(cx);
-        let mode_id = self.current_mode_id(cx);
         let guard = cx.new(|_| ());
         cx.observe_release(&guard, |this, _guard, cx| {
             this.is_loading_contents = false;
             cx.notify();
         })
         .detach();
-
-        let side = crate::agent_sidebar_side(cx);
 
         let task = cx.spawn_in(window, async move |this, cx| {
             let Some((contents, tracked_buffers)) = contents_task.await? else {
@@ -1487,7 +1476,6 @@ impl ThreadView {
                 }
             }
 
-            let turn_start_time = Instant::now();
             let send = thread.update(cx, |thread, cx| {
                 thread.action_log().update(cx, |action_log, cx| {
                     for buffer in tracked_buffers {
@@ -1506,14 +1494,10 @@ impl ThreadView {
             });
 
             let res = send.await;
-            let turn_time_ms = turn_start_time.elapsed().as_millis();
             drop(_stop_turn);
-            let status = if res.is_ok() {
-                let _ = this.update(cx, |this, _| this.in_flight_prompt.take());
-                "success"
-            } else {
-                "failure"
-            };
+            if res.is_ok() {
+                this.update(cx, |this, _| this.in_flight_prompt.take()).ok();
+            }
             res.map(|_| ())
         });
 
@@ -1591,97 +1575,7 @@ impl ThreadView {
         cx.notify();
     }
 
-    fn emit_thread_error_telemetry(&self, error: &ThreadError, cx: &mut Context<Self>) {
-        let (error_kind, acp_error_code, message): (&str, Option<SharedString>, SharedString) =
-            match error {
-                ThreadError::PaymentRequired => (
-                    "payment_required",
-                    None,
-                    "You reached your free usage limit. Upgrade to Zed Pro for more prompts."
-                        .into(),
-                ),
-                ThreadError::Refusal => {
-                    let model_or_agent_name = self.current_model_name(cx);
-                    let message = format!(
-                        "{} refused to respond to this prompt. This can happen when a model believes the prompt violates its content policy or safety guidelines, so rephrasing it can sometimes address the issue.",
-                        model_or_agent_name
-                    );
-                    ("refusal", None, message.into())
-                }
-                ThreadError::AuthenticationRequired(message) => {
-                    ("authentication_required", None, message.clone())
-                }
-                ThreadError::RateLimitExceeded { provider } => (
-                    "rate_limit_exceeded",
-                    None,
-                    format!("{provider}'s rate limit was reached.").into(),
-                ),
-                ThreadError::ServerOverloaded { provider } => (
-                    "server_overloaded",
-                    None,
-                    format!("{provider}'s servers are temporarily unavailable.").into(),
-                ),
-                ThreadError::PromptTooLarge => (
-                    "prompt_too_large",
-                    None,
-                    "Context too large for the model's context window.".into(),
-                ),
-                ThreadError::NoApiKey { provider } => (
-                    "no_api_key",
-                    None,
-                    format!("No API key configured for {provider}.").into(),
-                ),
-                ThreadError::StreamError { provider } => (
-                    "stream_error",
-                    None,
-                    format!("Connection to {provider}'s API was interrupted.").into(),
-                ),
-                ThreadError::InvalidApiKey { provider } => (
-                    "invalid_api_key",
-                    None,
-                    format!("Invalid or expired API key for {provider}.").into(),
-                ),
-                ThreadError::PermissionDenied { provider } => (
-                    "permission_denied",
-                    None,
-                    format!(
-                        "{provider}'s API rejected the request due to insufficient permissions."
-                    )
-                    .into(),
-                ),
-                ThreadError::RequestFailed => (
-                    "request_failed",
-                    None,
-                    "Request could not be completed after multiple attempts.".into(),
-                ),
-                ThreadError::MaxOutputTokens => (
-                    "max_output_tokens",
-                    None,
-                    "Model reached its maximum output length.".into(),
-                ),
-                ThreadError::NoModelSelected => {
-                    ("no_model_selected", None, "No model selected.".into())
-                }
-                ThreadError::ApiError { provider } => (
-                    "api_error",
-                    None,
-                    format!("{provider}'s API returned an unexpected error.").into(),
-                ),
-                ThreadError::Other {
-                    acp_error_code,
-                    message,
-                } => ("other", acp_error_code.clone(), message.clone()),
-            };
-
-        let agent_telemetry_id = self.thread.read(cx).connection().telemetry_id();
-        let session_id = self.thread.read(cx).session_id().clone();
-        let parent_session_id = self
-            .thread
-            .read(cx)
-            .parent_session_id()
-            .map(|id| id.to_string());
-
-    }
+    fn emit_thread_error_telemetry(&self, _error: &ThreadError, _cx: &mut Context<Self>) {}
 
     pub fn cancel_generation(&mut self, cx: &mut Context<Self>) {
         self.thread_retry_status.take();
@@ -8668,8 +8562,6 @@ impl ThreadView {
                                                 this.expanded_tool_calls
                                                     .insert(tool_call_id.clone());
                                             }
-                                            let expanded =
-                                                this.expanded_tool_calls.contains(&tool_call_id);
                                             cx.notify();
                                         }
                                     }))

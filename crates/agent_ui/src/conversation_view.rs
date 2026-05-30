@@ -154,7 +154,6 @@ pub(crate) enum ThreadError {
     },
     Other {
         message: SharedString,
-        acp_error_code: Option<SharedString>,
     },
 }
 
@@ -205,24 +204,12 @@ impl From<anyhow::Error> for ThreadError {
                 },
                 _ => {
                     let message: SharedString = format!("{:#}", error).into();
-                    Self::Other {
-                        message,
-                        acp_error_code: None,
-                    }
+                    Self::Other { message }
                 }
             }
         } else {
             let message: SharedString = format!("{:#}", error).into();
-
-            // Extract ACP error code if available
-            let acp_error_code = error
-                .downcast_ref::<acp::Error>()
-                .map(|acp_error| SharedString::from(acp_error.code.to_string()));
-
-            Self::Other {
-                message,
-                acp_error_code,
-            }
+            Self::Other { message }
         }
     }
 }
@@ -426,9 +413,6 @@ impl Conversation {
         let Some(thread) = self.threads.get(&session_id) else {
             return;
         };
-        let agent_telemetry_id = thread.read(cx).connection().telemetry_id();
-        let session_id = thread.read(cx).session_id().clone();
-
 
         thread.update(cx, |thread, cx| {
             thread.authorize_tool_call(tool_call_id, outcome, cx);
@@ -888,7 +872,7 @@ impl ConversationView {
         title: Option<SharedString>,
         project: Entity<Project>,
         initial_content: Option<AgentInitialContent>,
-        source: AgentThreadSource,
+        _source: AgentThreadSource,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> ServerState {
@@ -920,9 +904,6 @@ impl ConversationView {
             });
 
         let connect_result = connection_entry.read(cx).wait_for_connection();
-
-        let side = crate::agent_sidebar_side(cx);
-        let thread_location = "current_worktree";
 
         let load_task = cx.spawn_in(window, async move |this, cx| {
             let connection = match connect_result.await {
@@ -1811,8 +1792,6 @@ impl ConversationView {
             return;
         };
 
-        let agent_telemetry_id = connection.telemetry_id();
-
         if let Some(login_task) = connection.terminal_auth_task(&method, cx) {
             configuration_view.take();
             pending_auth_method.replace(method.clone());
@@ -2144,7 +2123,6 @@ impl ConversationView {
                     .rev()
                     .map(|(ix, method)| {
                         let (method_id, name) = (method.id().0.clone(), method.name().to_string());
-                        let agent_telemetry_id = connection.telemetry_id();
 
                         Button::new(method_id.clone(), name)
                             .label_size(LabelSize::Small)
@@ -2224,17 +2202,7 @@ impl ConversationView {
             .into_any_element()
     }
 
-    fn emit_load_error_telemetry(&self, error: &LoadError) {
-        let error_kind = match error {
-            LoadError::Unsupported { .. } => "unsupported",
-            LoadError::FailedToInstall(_) => "failed_to_install",
-            LoadError::Exited { .. } => "exited",
-            LoadError::Other(_) => "other",
-        };
-
-        let agent_name = self.agent.agent_id();
-
-    }
+    fn emit_load_error_telemetry(&self, _error: &LoadError) {}
 
     fn render_load_error(
         &self,

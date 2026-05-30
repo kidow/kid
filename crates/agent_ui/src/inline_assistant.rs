@@ -458,7 +458,6 @@ impl InlineAssistant {
                     editor.read(cx).buffer().clone(),
                     range.clone(),
                     initial_transaction_id,
-                    session_id,
                     self.prompt_builder.clone(),
                     cx,
                 )
@@ -986,26 +985,13 @@ impl InlineAssistant {
                         .map(|language| language.name().0.to_string())
                 });
 
-                let codegen = assist.codegen.read(cx);
-                let session_id = codegen.session_id();
                 let message_id = active_alternative.read(cx).message_id.clone();
-                let model_telemetry_id = model.model.telemetry_id();
-                let model_provider_id = model.model.provider_id().to_string();
 
-                let (phase, event_type, anthropic_event_type) = if undo {
-                    (
-                        "rejected",
-                        "Assistant Response Rejected",
-                        AnthropicEventType::Reject,
-                    )
+                let anthropic_event_type = if undo {
+                    AnthropicEventType::Reject
                 } else {
-                    (
-                        "accepted",
-                        "Assistant Response Accepted",
-                        AnthropicEventType::Accept,
-                    )
+                    AnthropicEventType::Accept
                 };
-
 
                 report_anthropic_event(
                     &model.model,

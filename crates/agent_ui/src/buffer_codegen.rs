@@ -74,7 +74,6 @@ pub struct BufferCodegen {
     initial_transaction_id: Option<TransactionId>,
     builder: Arc<PromptBuilder>,
     pub is_insertion: bool,
-    session_id: Uuid,
 }
 
 pub const REWRITE_SECTION_TOOL_NAME: &str = "rewrite_section";
@@ -85,19 +84,11 @@ impl BufferCodegen {
         buffer: Entity<MultiBuffer>,
         range: Range<Anchor>,
         initial_transaction_id: Option<TransactionId>,
-        session_id: Uuid,
         builder: Arc<PromptBuilder>,
         cx: &mut Context<Self>,
     ) -> Self {
         let codegen = cx.new(|cx| {
-            CodegenAlternative::new(
-                buffer.clone(),
-                range.clone(),
-                false,
-                builder.clone(),
-                session_id,
-                cx,
-            )
+            CodegenAlternative::new(buffer.clone(), range.clone(), false, builder.clone(), cx)
         });
         let mut this = Self {
             is_insertion: range.to_offset(&buffer.read(cx).snapshot(cx)).is_empty(),
@@ -109,7 +100,6 @@ impl BufferCodegen {
             range,
             initial_transaction_id,
             builder,
-            session_id,
         };
         this.activate(0, cx);
         this
@@ -130,10 +120,6 @@ impl BufferCodegen {
 
     pub fn active_alternative(&self) -> &Entity<CodegenAlternative> {
         &self.alternatives[self.active_alternative]
-    }
-
-    pub fn language_name(&self, cx: &App) -> Option<LanguageName> {
-        self.active_alternative().read(cx).language_name(cx)
     }
 
     pub fn status<'a>(&self, cx: &'a App) -> &'a CodegenStatus {
@@ -195,7 +181,6 @@ impl BufferCodegen {
                     self.range.clone(),
                     false,
                     self.builder.clone(),
-                    self.session_id,
                     cx,
                 )
             }));
@@ -255,13 +240,6 @@ impl BufferCodegen {
         self.active_alternative().read(cx).last_equal_ranges()
     }
 
-    pub fn selected_text<'a>(&self, cx: &'a App) -> Option<&'a str> {
-        self.active_alternative().read(cx).selected_text()
-    }
-
-    pub fn session_id(&self) -> Uuid {
-        self.session_id
-    }
 }
 
 impl EventEmitter<CodegenEvent> for BufferCodegen {}
@@ -286,7 +264,6 @@ pub struct CodegenAlternative {
     completion: Option<String>,
     selected_text: Option<String>,
     pub message_id: Option<String>,
-    session_id: Uuid,
     pub description: Option<String>,
     pub failure: Option<String>,
 }
@@ -299,7 +276,6 @@ impl CodegenAlternative {
         range: Range<Anchor>,
         active: bool,
         builder: Arc<PromptBuilder>,
-        session_id: Uuid,
         cx: &mut Context<Self>,
     ) -> Self {
         let snapshot = buffer.read(cx).snapshot(cx);
@@ -346,7 +322,6 @@ impl CodegenAlternative {
             elapsed_time: None,
             completion: None,
             selected_text: None,
-            session_id,
             description: None,
             failure: None,
             _subscription: cx.subscribe(&buffer, Self::handle_buffer_event),
@@ -643,9 +618,6 @@ impl CodegenAlternative {
         cx: &mut Context<Self>,
     ) -> Task<()> {
         let anthropic_reporter = AnthropicEventReporter::new(&model, cx);
-        let session_id = self.session_id;
-        let model_telemetry_id = model.telemetry_id();
-        let model_provider_id = model.provider_id().to_string();
         let start_time = Instant::now();
 
         // Make a new snapshot and re-resolve anchor in case the document was modified.
@@ -703,17 +675,11 @@ impl CodegenAlternative {
         cx.spawn(async move |codegen, cx| {
             let stream = stream.await;
 
-            let token_usage = stream
-                .as_ref()
-                .ok()
-                .map(|stream| stream.last_token_usage.clone());
             let message_id = stream
                 .as_ref()
                 .ok()
                 .and_then(|stream| stream.message_id.clone());
             let generate = async {
-                let model_telemetry_id = model_telemetry_id.clone();
-                let model_provider_id = model_provider_id.clone();
                 let (mut diff_tx, mut diff_rx) = mpsc::channel(1);
                 let message_id = message_id.clone();
                 let line_based_stream_diff: Task<anyhow::Result<()>> = cx.background_spawn({
@@ -821,8 +787,6 @@ impl CodegenAlternative {
 
                         let result = diff.await;
 
-                        let error_message = result.as_ref().err().map(|error| error.to_string());
-
                         anthropic_reporter.report(AnthropicEventData {
                             completion_type: AnthropicCompletionType::Editor,
                             event: AnthropicEventType::Response,
@@ -901,10 +865,6 @@ impl CodegenAlternative {
                     }
                     this.elapsed_time = Some(elapsed_time);
                     this.completion = Some(completion.lock().clone());
-                    if let Some(usage) = token_usage {
-                        let usage = usage.lock();
-                        ()
-                    }
 
                     cx.emit(CodegenEvent::Finished);
                     cx.notify();

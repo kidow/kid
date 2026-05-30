@@ -2547,9 +2547,6 @@ impl NativeThreadEnvironment {
                 Ok(agent.register_session(subagent_thread.clone(), project_id, 1, cx))
             })??;
 
-        let depth = current_depth + 1;
-
-
         self.prompt_subagent(session_id, subagent_thread, acp_thread)
     }
 
@@ -2565,11 +2562,6 @@ impl NativeThreadEnvironment {
                 .ok_or_else(|| anyhow!("No subagent session found with id {session_id}"))?;
             anyhow::Ok((session.thread.clone(), session.acp_thread.clone()))
         })??;
-
-        let depth = subagent_thread.read(cx).depth();
-
-        if let Some(parent_thread_entity) = self.thread.upgrade() {
-        }
 
         self.prompt_subagent(session_id, subagent_thread, acp_thread)
     }

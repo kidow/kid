@@ -78,7 +78,7 @@ impl TerminalInlineAssistant {
                 cx,
             )
         });
-        let codegen = cx.new(|_| TerminalCodegen::new(terminal, session_id));
+        let codegen = cx.new(|_| TerminalCodegen::new(terminal));
 
         let prompt_editor = cx.new(|cx| {
             PromptEditor::new_terminal(
@@ -303,26 +303,13 @@ impl TerminalInlineAssistant {
                 LanguageModelRegistry::read_global(cx).inline_assistant_model()
             {
                 let codegen = assist.codegen.read(cx);
-                let session_id = codegen.session_id();
                 let message_id = codegen.message_id.clone();
-                let model_telemetry_id = model.telemetry_id();
-                let model_provider_id = model.provider_id().to_string();
 
-                let (phase, event_type, anthropic_event_type) = if undo {
-                    (
-                        "rejected",
-                        "Assistant Response Rejected",
-                        AnthropicEventType::Reject,
-                    )
+                let anthropic_event_type = if undo {
+                    AnthropicEventType::Reject
                 } else {
-                    (
-                        "accepted",
-                        "Assistant Response Accepted",
-                        AnthropicEventType::Accept,
-                    )
+                    AnthropicEventType::Accept
                 };
-
-                // Fire Zed telemetry
 
                 report_anthropic_event(
                     &model,

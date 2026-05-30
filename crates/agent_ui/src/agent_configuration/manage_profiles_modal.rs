@@ -401,7 +401,7 @@ impl ManageProfilesModal {
                 let base_profile_id = mode.base_profile_id.clone();
 
                 let profile_id =
-                    AgentProfile::create(name, base_profile_id.clone(), self.fs.clone(), cx);
+                    AgentProfile::create(name, base_profile_id, self.fs.clone(), cx);
                 self.view_profile(profile_id, window, cx);
             }
             Mode::ViewProfile(_) => {}

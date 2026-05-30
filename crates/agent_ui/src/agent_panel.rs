@@ -101,46 +101,6 @@ const AGENT_PANEL_KEY: &str = "agent_panel";
 const MIN_PANEL_WIDTH: Pixels = px(300.);
 const LAST_USED_AGENT_KEY: &str = "agent_panel__last_used_external_agent";
 const LAST_CREATED_ENTRY_KIND_KEY: &str = "agent_panel__last_created_entry_kind";
-const TERMINAL_AGENT_TELEMETRY_ID: &str = "terminal";
-const KNOWN_TERMINAL_AGENT_COMMANDS: &[&str] = &[
-    "agent", // Unfortunately, both Cursor cli + grok
-    "agy",
-    "aider",
-    "amp",
-    "claude",
-    "codex",
-    "copilot",
-    "crush",
-    "devin",
-    "droid",
-    "gemini",
-    "goose",
-    "grok",
-    "openhands",
-    "opencode",
-    "pi",
-    "qwen",
-];
-
-fn is_known_terminal_agent_command(command: &str) -> bool {
-    KNOWN_TERMINAL_AGENT_COMMANDS.contains(&command)
-}
-
-fn terminal_program_to_report(
-    last_observed_program: &mut Option<String>,
-    current_program: Option<String>,
-) -> Option<String> {
-    let current_program =
-        current_program.filter(|program| is_known_terminal_agent_command(program));
-    let program_to_report =
-        if current_program.is_some() && current_program != *last_observed_program {
-            current_program.clone()
-        } else {
-            None
-        };
-    *last_observed_program = current_program;
-    program_to_report
-}
 
 /// Maximum number of idle threads kept in the agent panel's retained list.
 /// Set as a GPUI global to override; otherwise defaults to 5.
@@ -874,7 +834,6 @@ struct AgentTerminal {
     title_editor_subscription: Option<Subscription>,
     last_known_title: String,
     last_known_terminal_title: String,
-    last_observed_program: Option<String>,
     working_directory: Option<PathBuf>,
     created_at: DateTime<Utc>,
     has_notification: bool,
@@ -962,21 +921,10 @@ impl AgentTerminal {
 
     fn report_started_terminal_program(
         &mut self,
-        terminal_id: TerminalId,
-        source: AgentThreadSource,
-        cx: &App,
+        _terminal_id: TerminalId,
+        _source: AgentThreadSource,
+        _cx: &App,
     ) {
-        let current_program = self
-            .view
-            .read(cx)
-            .terminal()
-            .read(cx)
-            .foreground_process_command_name();
-
-        if let Some(program) =
-            terminal_program_to_report(&mut self.last_observed_program, current_program)
-        {
-        }
     }
 }
 
@@ -2012,7 +1960,6 @@ impl AgentPanel {
             title_editor_subscription: None,
             last_known_title: last_known_terminal_title.clone(),
             last_known_terminal_title,
-            last_observed_program: None,
             working_directory,
             created_at: created_at.unwrap_or_else(Utc::now),
             has_notification: false,
@@ -2124,9 +2071,9 @@ impl AgentPanel {
 
     fn emit_terminal_thread_started(
         &self,
-        terminal_id: TerminalId,
-        source: AgentThreadSource,
-        cx: &App,
+        _terminal_id: TerminalId,
+        _source: AgentThreadSource,
+        _cx: &App,
     ) {
     }
 
@@ -4476,10 +4423,6 @@ impl Panel for AgentPanel {
     }
 
     fn set_position(&mut self, position: DockPosition, _: &mut Window, cx: &mut Context<Self>) {
-        let side = match position {
-            DockPosition::Left => "left",
-            DockPosition::Right | DockPosition::Bottom => "right",
-        };
         settings::update_settings_file(self.fs.clone(), cx, move |settings, _| {
             settings
                 .agent
@@ -6341,51 +6284,6 @@ mod tests {
     use std::path::{Path, PathBuf};
     use std::sync::Arc;
     use std::time::Instant;
-
-    #[test]
-    fn test_is_known_terminal_agent_command() {
-        assert!(is_known_terminal_agent_command("claude"));
-        assert!(is_known_terminal_agent_command("codex"));
-        assert!(!is_known_terminal_agent_command("cargo"));
-        assert!(!is_known_terminal_agent_command("internal-agent"));
-    }
-
-    #[test]
-    fn test_terminal_program_reports_known_agent_transitions() {
-        let mut last_observed_program = None;
-
-        assert_eq!(
-            terminal_program_to_report(&mut last_observed_program, Some("codex".to_string())),
-            Some("codex".to_string())
-        );
-        assert_eq!(
-            terminal_program_to_report(&mut last_observed_program, Some("codex".to_string())),
-            None
-        );
-        assert_eq!(
-            terminal_program_to_report(&mut last_observed_program, Some("zsh".to_string())),
-            None
-        );
-        assert_eq!(
-            terminal_program_to_report(
-                &mut last_observed_program,
-                Some("customer-data-export".to_string())
-            ),
-            None
-        );
-        assert_eq!(
-            terminal_program_to_report(&mut last_observed_program, Some("codex".to_string())),
-            Some("codex".to_string())
-        );
-        assert_eq!(
-            terminal_program_to_report(&mut last_observed_program, None),
-            None
-        );
-        assert_eq!(
-            terminal_program_to_report(&mut last_observed_program, Some("codex".to_string())),
-            Some("codex".to_string())
-        );
-    }
 
     #[derive(Clone, Default)]
     struct SessionTrackingConnection {
@@ -11976,7 +11874,6 @@ mod tests {
                     view.handle_thread_error(
                         crate::conversation_view::ThreadError::Other {
                             message: "simulated error".into(),
-                            acp_error_code: None,
                         },
                         cx,
                     );
