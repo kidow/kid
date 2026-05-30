@@ -30,6 +30,23 @@ Rust 툴체인은 `rust-toolchain.toml`로 자동 고정됨(별도 설치 불필
 
 ---
 
+## 1-A. 응용 프로그램으로 등록 (Kid.app)
+
+`/Applications/Kid.app`을 만들어 Launchpad / Spotlight / Dock에서 실행:
+
+```sh
+script/install-mac-app.sh                # release 빌드 + Kid.app 설치
+SKIP_BUILD=1 script/install-mac-app.sh   # 이미 빌드돼 있으면 (재빌드 생략)
+```
+
+- Spotlight에서 "Kid" 검색 / Launchpad / Applications에서 더블클릭으로 실행.
+- **첫 실행**: 서명 안 된 dev 빌드라 Gatekeeper 경고 → Kid.app 우클릭 > 열기 (1회만).
+- 번들 ID `dev.kid.Kid` (공식 Zed.app `dev.zed.Zed`와 분리) → Dock/Launchpad 충돌 없음.
+- release 코드 바꾼 뒤 갱신: 스크립트 다시 실행 (또는 `cp target/release/zed /Applications/Kid.app/Contents/MacOS/zed`).
+- ⚠️ `APP_NAME`이 아직 "Zed"라 공식 Zed.app과 데이터 폴더·단일 인스턴스 소켓 공유 → **둘 다 동시에 켜지 말 것**. (zed→kid 이름변경 완료하면 해소.)
+
+---
+
 ## 2. 코드 수정 후 — 증분 재빌드
 
 바꾼 crate + 그걸 의존하는 crate만 다시 컴파일됨(전체 재빌드 아님).
