@@ -347,6 +347,7 @@ fn render_conflict_buttons(
                     let conflict = conflict.clone();
                     let ours = conflict.ours.clone();
                     let theirs = conflict.theirs.clone();
+                    let editor = editor.clone();
                     move |_, window, cx| {
                         resolve_conflict(
                             editor.clone(),

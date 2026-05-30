@@ -21,11 +21,12 @@ use editor::{
 };
 use editor::{EditorStyle, RewrapOptions};
 use file_icons::FileIcons;
+use futures::StreamExt as _;
 use futures::channel::oneshot::Canceled;
 use git::Oid;
 use git::commit::ParsedCommitMessage;
 use git::repository::{
-    Branch, CommitData, CommitDetails, CommitOptions, CommitSummary, FetchOptions,
+    Branch, CommitData, CommitDetails, CommitOptions, CommitSummary, DiffType, FetchOptions,
     GitCommitTemplate, GitCommitter, LogOrder, LogSource, PushOptions, Remote, RemoteCommandOutput,
     ResetMode, Upstream, UpstreamTracking, UpstreamTrackingStatus, get_git_committer,
 };
@@ -38,7 +39,7 @@ use git::{
     parse_git_remote_url,
 };
 use gpui::{
-    AbsoluteLength, Action, Anchor, AsyncWindowContext, Bounds, ClickEvent, DismissEvent,
+    AbsoluteLength, Action, Anchor, AsyncApp, AsyncWindowContext, Bounds, ClickEvent, DismissEvent,
     Empty, Entity, EventEmitter, FocusHandle, Focusable, KeyContext, MouseButton, MouseDownEvent,
     Point, PromptLevel, ScrollStrategy, Subscription, Task, TaskExt, TextStyle,
     UniformListScrollHandle, WeakEntity, actions, anchored, deferred, point, size, uniform_list,
@@ -76,10 +77,10 @@ use time::OffsetDateTime;
 use ui::{
     ButtonLike, Checkbox, ContextMenu, Divider, ElevationIndex, IndentGuideColors, KeyBinding,
     PopoverMenu, ProjectEmptyState, RenderedIndentGuide, ScrollAxes, Scrollbars, SplitButton, Tab,
-    Tooltip, WithScrollbar, prelude::*,
+    TintColor, Tooltip, WithScrollbar, prelude::*,
 };
 use util::paths::PathStyle;
-use util::{ResultExt, TryFutureExt, markdown::MarkdownInlineCode, maybe};
+use util::{ResultExt, TryFutureExt, markdown::MarkdownInlineCode, maybe, rel_path::RelPath};
 use workspace::SERIALIZATION_THROTTLE_TIME;
 use workspace::{
     Item, Workspace,
