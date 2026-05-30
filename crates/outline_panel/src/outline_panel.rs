@@ -67,39 +67,39 @@ use crate::outline_panel_settings::OutlinePanelSettingsScrollbarProxy;
 actions!(
     outline_panel,
     [
-        /// Collapses all entries in the outline tree.
+        /// 개요 트리의 모든 항목 접기
         CollapseAllEntries,
-        /// Collapses the currently selected entry.
+        /// 현재 선택한 항목 접기
         CollapseSelectedEntry,
-        /// Expands all entries in the outline tree.
+        /// 개요 트리의 모든 항목 펼치기
         ExpandAllEntries,
-        /// Expands the currently selected entry.
+        /// 현재 선택한 항목 펼치기
         ExpandSelectedEntry,
-        /// Folds the selected directory.
+        /// 선택한 디렉터리 접기
         FoldDirectory,
-        /// Opens the selected entry in the editor.
+        /// 선택한 항목을 편집기에서 열기
         OpenSelectedEntry,
-        /// Reveals the selected item in the system file manager.
+        /// 시스템 파일 관리자에서 선택한 항목 표시
         RevealInFileManager,
-        /// Scroll half a page upwards
+        /// 반 페이지 위로 스크롤
         ScrollUp,
-        /// Scroll half a page downwards
+        /// 반 페이지 아래로 스크롤
         ScrollDown,
-        /// Scroll until the cursor displays at the center
+        /// 커서가 가운데 표시되도록 스크롤
         ScrollCursorCenter,
-        /// Scroll until the cursor displays at the top
+        /// 커서가 위에 표시되도록 스크롤
         ScrollCursorTop,
-        /// Scroll until the cursor displays at the bottom
+        /// 커서가 아래에 표시되도록 스크롤
         ScrollCursorBottom,
-        /// Selects the parent of the current entry.
+        /// 현재 항목의 상위 항목 선택
         SelectParent,
-        /// Toggles the pin status of the active editor.
+        /// 활성 편집기 고정 표시 전환
         ToggleActiveEditorPin,
-        /// Unfolds the selected directory.
+        /// 선택한 디렉터리 펼치기
         UnfoldDirectory,
-        /// Toggles the outline panel.
+        /// 개요 패널 표시 전환
         Toggle,
-        /// Toggles focus on the outline panel.
+        /// 개요 패널 포커스 표시 전환
         ToggleFocus,
     ]
 );
@@ -710,7 +710,7 @@ impl OutlinePanel {
         cx.new(|cx| {
             let filter_editor = cx.new(|cx| {
                 let mut editor = Editor::single_line(window, cx);
-                editor.set_placeholder_text("Search buffer symbols…", window, cx);
+                editor.set_placeholder_text("버퍼 심볼 검색…", window, cx);
                 editor
             });
             let filter_update_subscription = cx.subscribe_in(
@@ -1455,17 +1455,17 @@ impl OutlinePanel {
                     ui::utils::reveal_in_file_manager_label(false),
                     Box::new(RevealInFileManager),
                 )
-                .action("Open in Terminal", Box::new(OpenInTerminal))
+                .action("터미널에서 열기", Box::new(OpenInTerminal))
                 .when(is_unfoldable, |menu| {
-                    menu.action("Unfold Directory", Box::new(UnfoldDirectory))
+                    menu.action("디렉터리 펼치기", Box::new(UnfoldDirectory))
                 })
                 .when(is_foldable, |menu| {
-                    menu.action("Fold Directory", Box::new(FoldDirectory))
+                    menu.action("디렉터리 접기", Box::new(FoldDirectory))
                 })
                 .separator()
-                .action("Copy Path", Box::new(zed_actions::workspace::CopyPath))
+                .action("경로 복사", Box::new(zed_actions::workspace::CopyPath))
                 .action(
-                    "Copy Relative Path",
+                    "상대 경로 복사",
                     Box::new(zed_actions::workspace::CopyRelativePath),
                 )
         });
@@ -2266,7 +2266,7 @@ impl OutlinePanel {
         let buffer_snapshot = self.buffer_snapshot_for_id(range.context.start.buffer_id, cx)?;
         let excerpt_range = range.context.to_point(&buffer_snapshot);
         Some(format!(
-            "Lines {}- {}",
+            "{}- {}번째 줄",
             excerpt_range.start.row + 1,
             excerpt_range.end.row + 1,
         ))
@@ -2422,9 +2422,9 @@ impl OutlinePanel {
                             .map(|icon| icon.color(color).into_any_element());
                             (icon, file_name(path.as_std_path()))
                         }
-                        None => (None, "Untitled".to_string()),
+                        None => (None, "제목 없음".to_string()),
                     },
-                    None => (None, "Unknown buffer".to_string()),
+                    None => (None, "알 수 없는 버퍼".to_string()),
                 };
                 (
                     ElementId::from(external_file.buffer_id.to_proto() as usize),
@@ -4621,9 +4621,9 @@ impl OutlinePanel {
     ) -> impl IntoElement {
         let contents = if self.cached_entries.is_empty() {
             let header = if query.is_some() {
-                "No matches for query"
+                "검색 결과 없음"
             } else {
-                "No outlines available"
+                "표시할 개요 없음"
             };
 
             v_flex()
@@ -4646,7 +4646,7 @@ impl OutlinePanel {
                     h_flex()
                         .gap_1()
                         .justify_center()
-                        .child(Label::new("Toggle Panel With").color(Color::Muted))
+                        .child(Label::new("패널 표시 전환").color(Color::Muted))
                         .child({
                             let key_binding = match self.position(window, cx) {
                                 DockPosition::Left => {
@@ -4816,9 +4816,9 @@ impl OutlinePanel {
 
     fn render_filter_footer(&mut self, pinned: bool, cx: &mut Context<Self>) -> Div {
         let (pin_button_id, icon, icon_tooltip) = if pinned {
-            ("unpin_button", IconName::Unpin, "Unpin Outline")
+            ("unpin_button", IconName::Unpin, "개요 고정 해제")
         } else {
-            ("pin_button", IconName::Pin, "Pin Active Outline")
+            ("pin_button", IconName::Pin, "활성 개요 고정")
         };
 
         let has_query = self.query(cx).is_some();
@@ -4846,7 +4846,7 @@ impl OutlinePanel {
                         this.child(
                             IconButton::new("clear_filter", IconName::Close)
                                 .shape(IconButtonShape::Square)
-                                .tooltip(Tooltip::text("Clear Filter"))
+                                .tooltip(Tooltip::text("필터 지우기"))
                                 .on_click(cx.listener(|outline_panel, _, window, cx| {
                                     outline_panel.filter_editor.update(cx, |editor, cx| {
                                         editor.set_text("", window, cx);
@@ -4993,7 +4993,7 @@ impl Panel for OutlinePanel {
     }
 
     fn icon_tooltip(&self, _window: &Window, _: &App) -> Option<&'static str> {
-        Some("Outline Panel")
+        Some("개요 패널")
     }
 
     fn toggle_action(&self) -> Box<dyn Action> {
@@ -5141,7 +5141,7 @@ impl Render for OutlinePanel {
                         .gap_0p5()
                         .border_b_1()
                         .border_color(cx.theme().colors().border_variant)
-                        .child(Label::new("Searching:").color(Color::Muted))
+                        .child(Label::new("검색 중:").color(Color::Muted))
                         .child(Label::new(query_text)),
                 )
             })

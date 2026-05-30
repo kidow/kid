@@ -145,7 +145,7 @@ impl Render for QuickActionBar {
                 !self.buffer_search_bar.read(cx).is_dismissed(),
                 Box::new(buffer_search::Deploy::find()),
                 focus_handle.clone(),
-                "Buffer Search",
+                "버퍼 검색",
                 {
                     let buffer_search_bar = self.buffer_search_bar.clone();
                     move |_, window, cx| {
@@ -163,7 +163,7 @@ impl Render for QuickActionBar {
             false,
             Box::new(InlineAssist::default()),
             focus_handle,
-            "Inline Assist",
+            "인라인 어시스트",
             move |_, window, cx| {
                 window.dispatch_action(Box::new(InlineAssist::default()), cx);
             },
@@ -196,7 +196,7 @@ impl Render for QuickActionBar {
                         .when(!is_deployed, |this| {
                             this.when(has_available_code_actions, |this| {
                                 this.tooltip(Tooltip::for_action_title(
-                                    "Code Actions",
+                                    "코드 액션",
                                     &ToggleCodeActions::default(),
                                 ))
                             })
@@ -204,7 +204,7 @@ impl Render for QuickActionBar {
                                 !has_available_code_actions,
                                 |this| {
                                     this.tooltip(Tooltip::for_action_title(
-                                        "No Code Actions Available",
+                                        "사용 가능한 코드 액션 없음",
                                         &ToggleCodeActions::default(),
                                     ))
                                 },
@@ -258,7 +258,7 @@ impl Render for QuickActionBar {
                         .icon_size(IconSize::Small)
                         .style(ButtonStyle::Subtle)
                         .toggle_state(self.toggle_selections_handle.is_deployed()),
-                    Tooltip::text("Selection Controls"),
+                    Tooltip::text("선택 컨트롤"),
                 )
                 .with_handle(self.toggle_selections_handle.clone())
                 .anchor(Anchor::TopRight)
@@ -266,23 +266,23 @@ impl Render for QuickActionBar {
                     let focus = focus.clone();
                     let menu = ContextMenu::build(window, cx, move |menu, _, _| {
                         menu.context(focus.clone())
-                            .action("Select All", Box::new(SelectAll))
+                            .action("모두 선택", Box::new(SelectAll))
                             .action(
-                                "Select Next Occurrence",
+                                "다음 항목 선택",
                                 Box::new(SelectNext {
                                     replace_newest: false,
                                 }),
                             )
-                            .action("Expand Selection", Box::new(SelectLargerSyntaxNode))
-                            .action("Shrink Selection", Box::new(SelectSmallerSyntaxNode))
+                            .action("선택 영역 확장", Box::new(SelectLargerSyntaxNode))
+                            .action("선택 영역 축소", Box::new(SelectSmallerSyntaxNode))
                             .action(
-                                "Add Cursor Above",
+                                "위에 커서 추가",
                                 Box::new(AddSelectionAbove {
                                     skip_soft_wrap: true,
                                 }),
                             )
                             .action(
-                                "Add Cursor Below",
+                                "아래에 커서 추가",
                                 Box::new(AddSelectionBelow {
                                     skip_soft_wrap: true,
                                 }),
@@ -290,30 +290,30 @@ impl Render for QuickActionBar {
                             .when(!disable_ai, |this| {
                                 this.separator().action_disabled_when(
                                     !has_selection,
-                                    "Add to Agent Thread",
+                                    "에이전트 스레드에 추가",
                                     Box::new(AddSelectionToThread),
                                 )
                             })
                             .separator()
-                            .action("Go to Symbol", Box::new(ToggleOutline))
-                            .action("Go to Line/Column", Box::new(ToggleGoToLine))
+                            .action("심볼로 이동", Box::new(ToggleOutline))
+                            .action("줄/열로 이동", Box::new(ToggleGoToLine))
                             .separator()
-                            .action("Next Problem", Box::new(GoToDiagnostic::default()))
+                            .action("다음 문제", Box::new(GoToDiagnostic::default()))
                             .action(
-                                "Previous Problem",
+                                "이전 문제",
                                 Box::new(GoToPreviousDiagnostic::default()),
                             )
                             .separator()
-                            .action_disabled_when(!has_diff_hunks, "Next Hunk", Box::new(GoToHunk))
+                            .action_disabled_when(!has_diff_hunks, "다음 헝크", Box::new(GoToHunk))
                             .action_disabled_when(
                                 !has_diff_hunks,
-                                "Previous Hunk",
+                                "이전 헝크",
                                 Box::new(GoToPreviousHunk),
                             )
                             .separator()
-                            .action("Move Line Up", Box::new(MoveLineUp))
-                            .action("Move Line Down", Box::new(MoveLineDown))
-                            .action("Duplicate Selection", Box::new(DuplicateLineDown))
+                            .action("줄 위로 이동", Box::new(MoveLineUp))
+                            .action("줄 아래로 이동", Box::new(MoveLineDown))
+                            .action("선택 영역 복제", Box::new(DuplicateLineDown))
                     });
                     Some(menu)
                 })
@@ -331,7 +331,7 @@ impl Render for QuickActionBar {
                         .icon_size(IconSize::Small)
                         .style(ButtonStyle::Subtle)
                         .toggle_state(self.toggle_settings_handle.is_deployed()),
-                    Tooltip::text("Editor Controls"),
+                    Tooltip::text("편집기 컨트롤"),
                 )
                 .anchor(Anchor::TopRight)
                 .with_handle(self.toggle_settings_handle.clone())
@@ -343,7 +343,7 @@ impl Render for QuickActionBar {
 
                             if supports_inlay_hints {
                                 menu = menu.toggleable_entry(
-                                    "Inlay Hints",
+                                    "인레이 힌트",
                                     inlay_hints_enabled,
                                     IconPosition::Start,
                                     Some(editor::actions::ToggleInlayHints.boxed_clone()),
@@ -364,7 +364,7 @@ impl Render for QuickActionBar {
                                 );
 
                                 menu = menu.toggleable_entry(
-                                    "Inline Values",
+                                    "인라인 값",
                                     inline_values_enabled,
                                     IconPosition::Start,
                                     Some(editor::actions::ToggleInlineValues.boxed_clone()),
@@ -387,7 +387,7 @@ impl Render for QuickActionBar {
 
                             if supports_semantic_tokens {
                                 menu = menu.toggleable_entry(
-                                    "Semantic Highlights",
+                                    "시맨틱 하이라이트",
                                     semantic_highlights_enabled,
                                     IconPosition::Start,
                                     Some(editor::actions::ToggleSemanticHighlights.boxed_clone()),
@@ -410,7 +410,7 @@ impl Render for QuickActionBar {
 
                             if supports_code_lens {
                                 menu = menu.toggleable_entry(
-                                    "Code Lens",
+                                    "코드 렌즈",
                                     code_lens_enabled,
                                     IconPosition::Start,
                                     Some(editor::actions::ToggleCodeLens.boxed_clone()),
@@ -432,7 +432,7 @@ impl Render for QuickActionBar {
                             }
 
                             if supports_minimap {
-                                menu = menu.toggleable_entry("Minimap", minimap_enabled, IconPosition::Start, Some(editor::actions::ToggleMinimap.boxed_clone()), {
+                                menu = menu.toggleable_entry("미니맵", minimap_enabled, IconPosition::Start, Some(editor::actions::ToggleMinimap.boxed_clone()), {
                                     let editor = editor.clone();
                                     move |window, cx| {
                                         editor
@@ -449,7 +449,7 @@ impl Render for QuickActionBar {
                             }
 
                             if has_edit_prediction_provider {
-                                let mut edit_prediction_entry = ContextMenuEntry::new("Edit Predictions")
+                                let mut edit_prediction_entry = ContextMenuEntry::new("편집 예측")
                                     .toggleable(IconPosition::Start, edit_predictions_enabled_at_cursor && show_edit_predictions)
                                     .disabled(!edit_predictions_enabled_at_cursor)
                                     .action(
@@ -470,7 +470,7 @@ impl Render for QuickActionBar {
                                     });
                                 if !edit_predictions_enabled_at_cursor {
                                     edit_prediction_entry = edit_prediction_entry.documentation_aside(DocumentationSide::Left, |_| {
-                                        Label::new("You can't toggle edit predictions for this file as it is within the excluded files list.").into_any_element()
+                                        Label::new("이 파일은 제외 파일 목록에 포함되어 있어 편집 예측을 전환할 수 없습니다.").into_any_element()
                                     });
                                 }
 
@@ -481,7 +481,7 @@ impl Render for QuickActionBar {
 
                             if is_full {
                                 menu = menu.toggleable_entry(
-                                    "Diagnostics",
+                                    "진단",
                                     diagnostics_enabled,
                                     IconPosition::Start,
                                     Some(ToggleDiagnostics.boxed_clone()),
@@ -502,7 +502,7 @@ impl Render for QuickActionBar {
                                 );
 
                                 if supports_inline_diagnostics {
-                                    let mut inline_diagnostics_item = ContextMenuEntry::new("Inline Diagnostics")
+                                    let mut inline_diagnostics_item = ContextMenuEntry::new("인라인 진단")
                                         .toggleable(IconPosition::Start, diagnostics_enabled && inline_diagnostics_enabled)
                                         .action(ToggleInlineDiagnostics.boxed_clone())
                                         .handler({
@@ -520,7 +520,7 @@ impl Render for QuickActionBar {
                                             }
                                         });
                                     if !diagnostics_enabled {
-                                        inline_diagnostics_item = inline_diagnostics_item.disabled(true).documentation_aside(DocumentationSide::Left, |_|  Label::new("Inline diagnostics are not available until regular diagnostics are enabled.").into_any_element());
+                                        inline_diagnostics_item = inline_diagnostics_item.disabled(true).documentation_aside(DocumentationSide::Left, |_|  Label::new("일반 진단을 사용하기 전까지는 인라인 진단을 사용할 수 없습니다.").into_any_element());
                                     }
                                     menu = menu.item(inline_diagnostics_item)
                                 }
@@ -529,7 +529,7 @@ impl Render for QuickActionBar {
                             }
 
                             menu = menu.toggleable_entry(
-                                "Line Numbers",
+                                "줄 번호",
                                 show_line_numbers,
                                 IconPosition::Start,
                                 Some(editor::actions::ToggleLineNumbers.boxed_clone()),
@@ -550,7 +550,7 @@ impl Render for QuickActionBar {
                             );
 
                             menu = menu.toggleable_entry(
-                                "Selection Menu",
+                                "선택 메뉴",
                                 selection_menu_enabled,
                                 IconPosition::Start,
                                 Some(editor::actions::ToggleSelectionMenu.boxed_clone()),
@@ -571,7 +571,7 @@ impl Render for QuickActionBar {
                             );
 
                             menu = menu.toggleable_entry(
-                                "Auto Signature Help",
+                                "자동 시그니처 도움말",
                                 auto_signature_help_enabled,
                                 IconPosition::Start,
                                 Some(editor::actions::ToggleAutoSignatureHelp.boxed_clone()),
@@ -594,7 +594,7 @@ impl Render for QuickActionBar {
                             menu = menu.separator();
 
                             menu = menu.toggleable_entry(
-                                "Inline Git Blame",
+                                "인라인 Git Blame",
                                 git_blame_inline_enabled,
                                 IconPosition::Start,
                                 Some(editor::actions::ToggleGitBlameInline.boxed_clone()),
@@ -615,7 +615,7 @@ impl Render for QuickActionBar {
                             );
 
                             menu = menu.toggleable_entry(
-                                "Column Git Blame",
+                                "열 Git Blame",
                                 show_git_blame_gutter,
                                 IconPosition::Start,
                                 Some(git::Blame.boxed_clone()),
@@ -638,7 +638,7 @@ impl Render for QuickActionBar {
                             menu = menu.separator();
 
                             menu = menu.toggleable_entry(
-                                "Vim Mode",
+                                "Vim 모드",
                                 vim_mode_enabled,
                                 IconPosition::Start,
                                 None,
@@ -652,7 +652,7 @@ impl Render for QuickActionBar {
                                 },
                             );
                             menu = menu.toggleable_entry(
-                                "Helix Mode",
+                                "Helix 모드",
                                 helix_mode_enabled,
                                 IconPosition::Start,
                                 None,

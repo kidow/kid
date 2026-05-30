@@ -348,7 +348,7 @@ const WORKTREE_REMOVE_FORCE_DELETE_PROMPTS: &[WorktreeRemoveForceDeletePrompt] =
     }];
 
 fn dirty_worktree_force_delete_prompt(display_name: &str) -> String {
-    format!("Worktree \"{display_name}\" contains modified or untracked files. Force delete it?")
+    format!("워크트리 \"{display_name}\"에 수정되었거나 추적되지 않은 파일이 있습니다. 강제로 삭제하시겠습니까?")
 }
 
 fn force_delete_prompt_for_worktree_remove_error(
@@ -399,7 +399,7 @@ impl Render for DeleteWorktreeTooltip {
 
         if force_delete {
             Tooltip::for_action_in(
-                "Force Delete Worktree",
+                "워크트리 강제 삭제",
                 &ForceDeleteWorktree,
                 &self.focus_handle,
                 cx,
@@ -407,9 +407,9 @@ impl Render for DeleteWorktreeTooltip {
             .into_any_element()
         } else {
             Tooltip::with_meta_in(
-                "Delete Worktree",
+                "워크트리 삭제",
                 Some(&DeleteWorktree),
-                "Hold alt to force delete",
+                "alt을 누르면 강제 삭제",
                 &self.focus_handle,
                 cx,
             )
@@ -449,9 +449,9 @@ impl WorktreePickerDelegate {
     fn creation_blocked_reason(&self, cx: &App) -> Option<SharedString> {
         let project = self.project.read(cx);
         if project.is_via_collab() {
-            Some("Worktree creation is not supported in collaborative projects".into())
+            Some("협업 프로젝트에서는 워크트리 생성을 지원하지 않습니다".into())
         } else if project.repositories(cx).is_empty() {
-            Some("Requires a Git repository in the project".into())
+            Some("프로젝트에 Git 저장소가 필요합니다".into())
         } else {
             None
         }
@@ -542,7 +542,7 @@ impl WorktreePickerDelegate {
                                 PromptLevel::Warning,
                                 &prompt_message,
                                 None,
-                                &["Force Delete", "Cancel"],
+                                &["강제 삭제", "취소"],
                                 cx,
                             )
                         })?;
@@ -664,7 +664,7 @@ impl PickerDelegate for WorktreePickerDelegate {
     type ListItem = AnyElement;
 
     fn placeholder_text(&self, _window: &mut Window, _cx: &mut App) -> Arc<str> {
-        "Select a worktree…".into()
+        "워크트리 선택…".into()
     }
 
     fn editor_position(&self) -> PickerEditorPosition {
@@ -710,9 +710,9 @@ impl PickerDelegate for WorktreePickerDelegate {
             worktree.directory_name(main_worktree_path.as_deref()) == normalized_query
         });
         let create_named_disabled_reason: Option<String> = if self.has_multiple_repositories {
-            Some("Cannot create a named worktree in a project with multiple repositories".into())
+            Some("저장소가 여러 개인 프로젝트에서는 이름 있는 워크트리를 만들 수 없습니다".into())
         } else if has_named_worktree {
-            Some("A worktree with this name already exists".into())
+            Some("같은 이름의 워크트리가 이미 있습니다".into())
         } else {
             None
         };
@@ -973,14 +973,14 @@ impl PickerDelegate for WorktreePickerDelegate {
             ),
             WorktreeEntry::CreateFromCurrentBranch => {
                 let branch_label = if self.has_multiple_repositories {
-                    "current branches".to_string()
+                    "현재 브랜치".to_string()
                 } else {
                     self.current_branch_name
                         .clone()
                         .unwrap_or_else(|| "HEAD".to_string())
                 };
 
-                let label = format!("Create new worktree based on {branch_label}");
+                let label = format!("{branch_label} 기준으로 새 워크트리 만들기");
 
                 let item = create_new_list_item(
                     "create-from-current".to_string().into(),
@@ -993,7 +993,7 @@ impl PickerDelegate for WorktreePickerDelegate {
             }
             WorktreeEntry::CreateFromDefaultBranch { default_branch } => {
                 let default_branch_name = default_branch.display_name();
-                let label = format!("Create new worktree based on {default_branch_name}");
+                let label = format!("{default_branch_name} 기준으로 새 워크트리 만들기");
 
                 let item = create_new_list_item(
                     "create-from-main".to_string().into(),
@@ -1115,7 +1115,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                                             .with_rotate_animation(2),
                                     )
                                     .child(
-                                        Label::new("Deleting…")
+                                        Label::new("삭제 중…")
                                             .size(LabelSize::Small)
                                             .color(Color::Muted),
                                     ),
@@ -1125,7 +1125,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                             let open_in_new_window_button =
                                 IconButton::new(("open-new-window", ix), IconName::ArrowUpRight)
                                     .icon_size(IconSize::Small)
-                                    .tooltip(Tooltip::text("Open in New Window"))
+                                    .tooltip(Tooltip::text("새 창에서 열기"))
                                     .on_click(cx.listener(move |picker, _, window, cx| {
                                         let Some(entry) = picker.delegate.matches.get(ix) else {
                                             return;
@@ -1205,7 +1205,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                             .clone()
                             .unwrap_or_else(|| "HEAD".to_string())
                     });
-                let label = format!("Create \"{name}\" based on {branch_label}");
+                let label = format!("{branch_label} 기준으로 \"{name}\" 만들기");
                 let element_id = match from_branch {
                     Some(branch) => format!("create-named-from-{}", branch.display_name()),
                     None => "create-named-from-current".to_string(),
@@ -1267,7 +1267,7 @@ impl PickerDelegate for WorktreePickerDelegate {
             Some(
                 footer
                     .child(
-                        Button::new("create-worktree", "Create")
+                        Button::new("create-worktree", "만들기")
                             .key_binding(
                                 KeyBinding::for_action_in(&menu::Confirm, &focus_handle, cx)
                                     .map(|kb| kb.size(rems_from_px(12.))),
@@ -1283,7 +1283,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                 footer
                     .when(is_deleting, |this| {
                         this.child(
-                            Button::new("delete-worktree", "Deleting…")
+                            Button::new("delete-worktree", "삭제 중…")
                                 .loading(true)
                                 .disabled(true),
                         )
@@ -1291,7 +1291,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                     .when(!is_deleting && can_delete, |this| {
                         let focus_handle = focus_handle.clone();
                         this.child(
-                            Button::new("delete-worktree", "Delete")
+                            Button::new("delete-worktree", "삭제")
                                 .key_binding(
                                     KeyBinding::for_action_in(&DeleteWorktree, &focus_handle, cx)
                                         .map(|kb| kb.size(rems_from_px(12.))),
@@ -1304,7 +1304,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                     .when(!is_deleting && !is_current, |this| {
                         let focus_handle = focus_handle.clone();
                         this.child(
-                            Button::new("open-in-new-window", "Open in New Window")
+                            Button::new("open-in-new-window", "새 창에서 열기")
                                 .key_binding(
                                     KeyBinding::for_action_in(
                                         &menu::SecondaryConfirm,
@@ -1320,7 +1320,7 @@ impl PickerDelegate for WorktreePickerDelegate {
                     })
                     .when(!is_deleting, |this| {
                         this.child(
-                            Button::new("open-worktree", "Open")
+                            Button::new("open-worktree", "열기")
                                 .key_binding(
                                     KeyBinding::for_action_in(&menu::Confirm, &focus_handle, cx)
                                         .map(|kb| kb.size(rems_from_px(12.))),
@@ -1404,7 +1404,7 @@ pub async fn open_remote_worktree(
             window,
             cx,
         )
-        .prompt_err("Failed to connect", window, cx, |_, _, _| None)
+        .prompt_err("연결에 실패했습니다", window, cx, |_, _, _| None)
     })?;
 
     let session = connect_task.await;

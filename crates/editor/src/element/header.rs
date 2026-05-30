@@ -714,13 +714,13 @@ pub(crate) fn render_buffer_header(
                                         move |_window, cx| {
                                             Tooltip::with_meta_in(
                                                 if is_folded_for_tooltip {
-                                                    "Unfold Excerpt"
+                                                    "발췌 펼치기"
                                                 } else {
-                                                    "Fold Excerpt"
+                                                    "발췌 접기"
                                                 },
                                                 Some(&ToggleFold),
                                                 format!(
-                                                    "{} to toggle all",
+                                                    "{}하여 전체 전환",
                                                     text_for_keystroke(
                                                         &Modifiers::alt(),
                                                         "click",
@@ -816,7 +816,7 @@ pub(crate) fn render_buffer_header(
                                             )
                                             .tooltip(move |_, cx| {
                                                 Tooltip::with_meta(
-                                                    "Open File",
+                                                    "파일 열기",
                                                     None,
                                                     full_path.clone(),
                                                     cx,
@@ -876,7 +876,7 @@ pub(crate) fn render_buffer_header(
                                         this.visible_on_hover("buffer-header-group")
                                     })
                                     .child(
-                                        Button::new("open-file-button", "Open File")
+                                        Button::new("open-file-button", "파일 열기")
                                             .style(ButtonStyle::OutlinedGhost)
                                             .when(is_selected, |this| {
                                                 this.key_binding(KeyBinding::for_action_in(

@@ -46,7 +46,7 @@ impl OnboardingBanner {
                 action,
                 icon_name,
                 label: label.into(),
-                subtitle: subtitle.or(Some(SharedString::from("Introducing:"))),
+                subtitle: subtitle.or(Some(SharedString::from("새로운 기능:"))),
             },
             visible_when: None,
             dismissed: get_dismissed(source, cx),
@@ -162,9 +162,9 @@ impl Render for OnboardingBanner {
                         }))
                         .tooltip(|_window, cx| {
                             Tooltip::with_meta(
-                                "Close Announcement Banner",
+                                "공지 배너 닫기",
                                 None,
-                                "It won't show again for this feature",
+                                "이 기능에 대해 다시 표시되지 않습니다",
                                 cx,
                             )
                         }),

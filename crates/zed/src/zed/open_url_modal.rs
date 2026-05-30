@@ -69,7 +69,7 @@ impl OpenUrlModal {
                 cx.emit(DismissEvent);
             }
             Err(e) => {
-                self.last_error = Some(format!("Invalid URL: {}", e).into());
+                self.last_error = Some(format!("올바르지 않은 URL입니다: {}", e).into());
                 cx.notify();
             }
         }
@@ -106,7 +106,7 @@ impl Render for OpenUrlModal {
                     })
                     .when(self.last_error.is_none(), |this| {
                         this.child(
-                            Label::new("Paste a URL to open.")
+                            Label::new("열려는 URL을 붙여넣으세요.")
                                 .color(Color::Muted)
                                 .size(LabelSize::Small),
                         )

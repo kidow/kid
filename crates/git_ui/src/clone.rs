@@ -18,7 +18,7 @@ pub fn clone_and_open(
         files: false,
         directories: true,
         multiple: false,
-        prompt: Some("Select as Repository Destination".into()),
+        prompt: Some("저장소 대상 위치로 선택".into()),
     });
 
     window
@@ -71,9 +71,9 @@ pub fn clone_and_open(
                 cx.update(|window, cx| {
                     window.prompt(
                         gpui::PromptLevel::Info,
-                        &format!("Git Clone: {}", repo_name),
+                        &format!("Git 클론: {}", repo_name),
                         None,
-                        &["Add repo to project", "Open repo in new project"],
+                        &["프로젝트에 저장소 추가", "새 프로젝트에서 저장소 열기"],
                         cx,
                     )
                 })

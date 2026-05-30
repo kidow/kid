@@ -303,7 +303,7 @@ fn render_conflict_buttons(
         .gap_1()
         .bg(cx.theme().colors().editor_background)
         .child(
-            Button::new("head", format!("Use {}", conflict.ours_branch_name))
+            Button::new("head", format!("{} 사용", conflict.ours_branch_name))
                 .label_size(LabelSize::Small)
                 .on_click({
                     let editor = editor.clone();
@@ -322,7 +322,7 @@ fn render_conflict_buttons(
                 }),
         )
         .child(
-            Button::new("origin", format!("Use {}", conflict.theirs_branch_name))
+            Button::new("origin", format!("{} 사용", conflict.theirs_branch_name))
                 .label_size(LabelSize::Small)
                 .on_click({
                     let editor = editor.clone();
@@ -341,7 +341,7 @@ fn render_conflict_buttons(
                 }),
         )
         .child(
-            Button::new("both", "Use Both")
+            Button::new("both", "둘 다 사용")
                 .label_size(LabelSize::Small)
                 .on_click({
                     let conflict = conflict.clone();
@@ -362,7 +362,7 @@ fn render_conflict_buttons(
         )
         .when(is_ai_enabled, |this| {
             this.child(Divider::vertical()).child(
-                Button::new("resolve-with-agent", "Resolve with Agent")
+                Button::new("resolve-with-agent", "에이전트로 해결")
                     .label_size(LabelSize::Small)
                     .start_icon(
                         Icon::new(IconName::ZedAssistant)
@@ -611,18 +611,18 @@ impl Render for MergeConflictIndicator {
         let file_count = self.conflicted_paths.len();
 
         let message: SharedString = format!(
-            "Resolve Merge Conflict{} with Agent",
-            if file_count == 1 { "" } else { "s" }
+            "에이전트로 머지 충돌 해결{}",
+            if file_count == 1 { "" } else { "" }
         )
         .into();
 
         let tooltip_label: SharedString = format!(
-            "Found {} {} across the codebase",
+            "코드베이스 전체에서 충돌 {}개 발견{}",
             file_count,
             if file_count == 1 {
-                "conflict"
+                ""
             } else {
-                "conflicts"
+                ""
             }
         )
         .into();
@@ -651,7 +651,7 @@ impl Render for MergeConflictIndicator {
                         Tooltip::with_meta(
                             tooltip_label.clone(),
                             None,
-                            "Click to Resolve with Agent",
+                            "클릭하여 에이전트로 해결",
                             cx,
                         )
                     })

@@ -102,7 +102,7 @@ impl Workspace {
                             log::error!("Task spawn failed: {e:#}");
                             _ = workspace.update(cx, |w, cx| {
                                 let id = NotificationId::unique::<ResolvedTask>();
-                                w.show_toast(Toast::new(id, format!("Task spawn failed: {e}")), cx);
+                                w.show_toast(Toast::new(id, format!("작업 실행에 실패했습니다: {e}")), cx);
                             })
                         }
                         None => log::debug!("Task spawn got cancelled"),

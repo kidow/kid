@@ -502,30 +502,30 @@ impl TerminalView {
             .is_some_and(|terminal_panel| terminal_panel.read(cx).assistant_enabled());
         let context_menu = ContextMenu::build(window, cx, |menu, _, _| {
             menu.context(self.focus_handle.clone())
-                .action("New Terminal", Box::new(NewTerminal::default()))
+                .action("새 터미널", Box::new(NewTerminal::default()))
                 .action(
-                    "New Center Terminal",
+                    "새 가운데 터미널",
                     Box::new(NewCenterTerminal::default()),
                 )
                 .separator()
-                .action("Copy", Box::new(Copy))
-                .action("Paste", Box::new(Paste))
-                .action("Paste Text", Box::new(PasteText))
-                .action("Select All", Box::new(SelectAll))
-                .action("Clear", Box::new(Clear))
+                .action("복사", Box::new(Copy))
+                .action("붙여넣기", Box::new(Paste))
+                .action("텍스트 붙여넣기", Box::new(PasteText))
+                .action("모두 선택", Box::new(SelectAll))
+                .action("지우기", Box::new(Clear))
                 .when(
                     assistant_enabled && !matches!(self.mode, TerminalMode::Embedded { .. }),
                     |menu| {
                         menu.separator()
-                            .action("Inline Assist", Box::new(InlineAssist::default()))
+                            .action("인라인 어시스트", Box::new(InlineAssist::default()))
                             .when(has_selection, |menu| {
-                                menu.action("Add to Agent Thread", Box::new(AddSelectionToThread))
+                                menu.action("에이전트 스레드에 추가", Box::new(AddSelectionToThread))
                             })
                     },
                 )
                 .separator()
                 .action(
-                    "Close Terminal Tab",
+                    "터미널 탭 닫기",
                     Box::new(CloseActiveItem {
                         save_intent: None,
                         close_pinned: true,
@@ -1028,7 +1028,7 @@ impl TerminalView {
                 .size(ButtonSize::Compact)
                 .icon_color(Color::Default)
                 .shape(ui::IconButtonShape::Square)
-                .tooltip(move |_window, cx| Tooltip::for_action("Rerun task", &RerunTask, cx))
+                .tooltip(move |_window, cx| Tooltip::for_action("작업 다시 실행", &RerunTask, cx))
                 .on_click(move |_, window, cx| {
                     window.dispatch_action(Box::new(terminal_rerun_override(&task_id)), cx);
                 }),
@@ -1380,7 +1380,7 @@ impl Item for TerminalView {
                     .child(Label::new(title.clone()))
                     .child(h_flex().flex_grow().child(Divider::horizontal()))
                     .child(
-                        Label::new(format!("Process ID (PID): {}", pid))
+                        Label::new(format!("프로세스 ID (PID): {}", pid))
                             .color(Color::Muted)
                             .size(LabelSize::Small),
                     )
@@ -1659,7 +1659,7 @@ impl Item for TerminalView {
     ) -> Vec<(SharedString, Box<dyn gpui::Action>)> {
         let terminal = self.terminal.read(cx);
         if terminal.task().is_none() {
-            vec![("Rename".into(), Box::new(RenameTerminal))]
+            vec![("이름 변경".into(), Box::new(RenameTerminal))]
         } else {
             Vec::new()
         }

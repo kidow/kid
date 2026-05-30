@@ -247,44 +247,44 @@ pub fn deploy_context_menu(
             let builder = menu
                 .on_blur_subscription(Subscription::new(|| {}))
                 .when(run_to_cursor, |builder| {
-                    builder.action("Run to Cursor", Box::new(RunToCursor))
+                    builder.action("커서까지 실행", Box::new(RunToCursor))
                 })
                 .when(evaluate_selection && has_selections, |builder| {
-                    builder.action("Evaluate Selection", Box::new(EvaluateSelectedText))
+                    builder.action("선택 영역 평가", Box::new(EvaluateSelectedText))
                 })
                 .when(
                     run_to_cursor || (evaluate_selection && has_selections),
                     |builder| builder.separator(),
                 )
-                .action("Go to Definition", Box::new(GoToDefinition))
-                .action("Go to Declaration", Box::new(GoToDeclaration))
-                .action("Go to Type Definition", Box::new(GoToTypeDefinition))
-                .action("Go to Implementation", Box::new(GoToImplementation))
+                .action("정의로 이동", Box::new(GoToDefinition))
+                .action("선언으로 이동", Box::new(GoToDeclaration))
+                .action("타입 정의로 이동", Box::new(GoToTypeDefinition))
+                .action("구현으로 이동", Box::new(GoToImplementation))
                 .action(
-                    "Find All References",
+                    "모든 참조 찾기",
                     Box::new(FindAllReferences::default()),
                 )
                 .separator()
-                .action("Rename Symbol", Box::new(Rename))
-                .action("Format Buffer", Box::new(Format))
+                .action("심볼 이름 변경", Box::new(Rename))
+                .action("버퍼 서식 정리", Box::new(Format))
                 .when(format_selections, |cx| {
-                    cx.action("Format Selections", Box::new(FormatSelections))
+                    cx.action("선택 영역 서식 정리", Box::new(FormatSelections))
                 })
                 .action(
-                    "Show Code Actions",
+                    "코드 액션 표시",
                     Box::new(ToggleCodeActions {
                         deployed_from: None,
                         quick_launch: false,
                     }),
                 )
                 .when(!disable_ai && has_selections, |this| {
-                    this.action("Add to Agent Thread", Box::new(AddSelectionToThread))
+                    this.action("에이전트 스레드에 추가", Box::new(AddSelectionToThread))
                 })
                 .separator()
-                .action("Cut", Box::new(Cut))
-                .action("Copy", Box::new(Copy))
-                .action("Copy and Trim", Box::new(CopyAndTrim))
-                .action("Paste", Box::new(Paste))
+                .action("잘라내기", Box::new(Cut))
+                .action("복사", Box::new(Copy))
+                .action("복사 후 공백 정리", Box::new(CopyAndTrim))
+                .action("붙여넣기", Box::new(Paste))
                 .separator()
                 .action_disabled_when(
                     !has_reveal_target,
@@ -292,24 +292,24 @@ pub fn deploy_context_menu(
                     Box::new(RevealInFileManager),
                 )
                 .when(is_markdown, |builder| {
-                    builder.action("Open Markdown Preview", Box::new(OpenMarkdownPreview))
+                    builder.action("Markdown 미리보기 열기", Box::new(OpenMarkdownPreview))
                 })
                 .when(is_svg, |builder| {
-                    builder.action("Open SVG Preview", Box::new(OpenSvgPreview))
+                    builder.action("SVG 미리보기 열기", Box::new(OpenSvgPreview))
                 })
                 .action_disabled_when(
                     !has_reveal_target,
-                    "Open in Terminal",
+                    "터미널에서 열기",
                     Box::new(OpenInTerminal),
                 )
                 .action_disabled_when(
                     !has_git_repo,
-                    "Copy Permalink",
+                    "퍼머링크 복사",
                     Box::new(CopyPermalinkToLine),
                 )
                 .action_disabled_when(
                     !has_git_repo,
-                    "View File History",
+                    "파일 히스토리 보기",
                     Box::new(git::FileHistory),
                 );
             match focus {

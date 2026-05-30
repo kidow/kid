@@ -73,14 +73,14 @@ impl MoveToApplicationsRequest {
         let response = cx
             .prompt(
                 PromptLevel::Info,
-                "Move Zed to Applications?",
+                "Kid를 응용 프로그램 폴더로 옮기시겠습니까?",
                 Some(
-                    "Zed is running from a temporary location. Move it to Applications to finish installing it.",
+                    "Kid가 임시 위치에서 실행되고 있습니다. 설치를 완료하려면 응용 프로그램 폴더로 옮기세요.",
                 ),
                 &[
-                    PromptButton::ok("Yes"),
-                    PromptButton::cancel("No"),
-                    PromptButton::new("Don't ask me again"),
+                    PromptButton::ok("예"),
+                    PromptButton::cancel("아니요"),
+                    PromptButton::new("다시 묻지 않기"),
                 ],
             )
             .await?;
@@ -103,9 +103,9 @@ impl MoveToApplicationsRequest {
                         .ok();
                     cx.prompt(
                         PromptLevel::Critical,
-                        "Failed to move Zed to Applications",
+                        "Kid를 응용 프로그램 폴더로 옮기는 데 실패했습니다",
                         Some(&error.to_string()),
-                        &["Ok"],
+                        &["확인"],
                     )
                     .await
                     .log_err();
@@ -178,7 +178,7 @@ impl Render for InstallingZedModal {
                     .py_3()
                     .border_b_1()
                     .border_color(theme.colors().border_variant)
-                    .child(Label::new("Installing Zed…")),
+                    .child(Label::new("Kid 설치 중…")),
             )
             .child(
                 h_flex()
@@ -196,9 +196,9 @@ impl Render for InstallingZedModal {
                     .child(
                         v_flex()
                             .gap_1()
-                            .child(Label::new("Moving Zed to Applications"))
+                            .child(Label::new("Kid를 응용 프로그램 폴더로 옮기는 중"))
                             .child(
-                                Label::new("Zed will reopen when installation is complete.")
+                                Label::new("설치가 완료되면 Kid가 다시 열립니다.")
                                     .size(LabelSize::Small)
                                     .color(Color::Muted),
                             ),

@@ -55,21 +55,21 @@ impl QuickActionBar {
             match preview_type {
                 PreviewType::Markdown => (
                     "toggle-markdown-preview",
-                    "Preview Markdown",
+                    "Markdown 미리보기",
                     Box::new(MarkdownOpenPreview) as Box<dyn gpui::Action>,
                     Box::new(MarkdownOpenPreviewToTheSide) as Box<dyn gpui::Action>,
                     &markdown_preview::OpenPreview as &dyn gpui::Action,
                 ),
                 PreviewType::Svg => (
                     "toggle-svg-preview",
-                    "Preview SVG",
+                    "SVG 미리보기",
                     Box::new(SvgOpenPreview) as Box<dyn gpui::Action>,
                     Box::new(SvgOpenPreviewToTheSide) as Box<dyn gpui::Action>,
                     &svg_preview::OpenPreview as &dyn gpui::Action,
                 ),
                 PreviewType::Csv => (
                     "toggle-csv-preview",
-                    "Preview CSV",
+                    "CSV 미리보기",
                     Box::new(CsvOpenPreview) as Box<dyn gpui::Action>,
                     Box::new(CsvOpenPreviewToTheSide) as Box<dyn gpui::Action>,
                     &csv_preview::OpenPreview as &dyn gpui::Action,
@@ -90,7 +90,7 @@ impl QuickActionBar {
                     tooltip_text,
                     Some(open_action_for_tooltip),
                     format!(
-                        "{} to open in a split",
+                        "{}로 분할 화면에서 열기",
                         text_for_keystroke(&alt_click.modifiers, &alt_click.key, cx)
                     ),
                     cx,

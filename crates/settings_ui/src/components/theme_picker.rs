@@ -68,7 +68,7 @@ impl PickerDelegate for ThemePickerDelegate {
     }
 
     fn placeholder_text(&self, _window: &mut Window, _cx: &mut App) -> Arc<str> {
-        "Search theme…".into()
+        "테마 검색…".into()
     }
 
     fn update_matches(

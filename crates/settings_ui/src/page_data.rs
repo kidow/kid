@@ -69,10 +69,10 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
 fn general_page(cx: &App) -> SettingsPage {
     fn general_settings_section(_cx: &App) -> Vec<SettingsPageItem> {
         vec![
-            SettingsPageItem::SectionHeader("General Settings"),
+            SettingsPageItem::SectionHeader("일반 설정"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "When Closing With No Tabs",
-                description: "What to do when using the 'close active item' action with no tabs.",
+                title: "탭이 없을 때 닫기",
+                description: "탭이 없을 때 '활성 항목 닫기' 작업을 사용하면 수행할 동작입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("when_closing_with_no_tabs"),
                     pick: |settings_content| {
@@ -89,8 +89,8 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "On Last Window Closed",
-                description: "What to do when the last window is closed.",
+                title: "마지막 창 닫을 때",
+                description: "마지막 창을 닫을 때 수행할 동작입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("on_last_window_closed"),
                     pick: |settings_content| {
@@ -104,8 +104,8 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Path Prompts",
-                description: "Use native OS dialogs for 'Open' and 'Save As'.",
+                title: "시스템 경로 대화상자 사용",
+                description: "'열기'와 '다른 이름으로 저장'에 OS 기본 대화상자를 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("use_system_path_prompts"),
                     pick: |settings_content| {
@@ -119,8 +119,8 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Prompts",
-                description: "Use native OS dialogs for confirmations.",
+                title: "시스템 대화상자 사용",
+                description: "확인 작업에 OS 기본 대화상자를 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("use_system_prompts"),
                     pick: |settings_content| settings_content.workspace.use_system_prompts.as_ref(),
@@ -136,10 +136,10 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn workspace_restoration_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Workspace Restoration"),
+            SettingsPageItem::SectionHeader("작업 공간 복원"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Restore Unsaved Buffers",
-                description: "Whether or not to restore unsaved buffers on restart.",
+                title: "저장하지 않은 버퍼 복원",
+                description: "다시 시작할 때 저장하지 않은 버퍼를 복원할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("session.restore_unsaved_buffers"),
                     pick: |settings_content| {
@@ -159,8 +159,8 @@ fn general_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Restore On Startup",
-                description: "What to restore from the previous session when opening Zed.",
+                title: "시작 시 복원",
+                description: "Zed를 열 때 이전 세션에서 복원할 항목입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("restore_on_startup"),
                     pick: |settings_content| settings_content.workspace.restore_on_startup.as_ref(),
@@ -176,10 +176,10 @@ fn general_page(cx: &App) -> SettingsPage {
 
     fn auto_update_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Updates"),
+            SettingsPageItem::SectionHeader("업데이트"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Check For Updates",
-                description: "Whether to periodically check for newer upstream Zed releases and notify you when one is available.",
+                title: "업데이트 확인",
+                description: "더 새로운 업스트림 Zed 릴리스를 주기적으로 확인하고 사용할 수 있을 때 알릴지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("auto_update"),
                     pick: |settings_content| settings_content.auto_update.as_ref(),
@@ -194,7 +194,7 @@ fn general_page(cx: &App) -> SettingsPage {
     }
 
     SettingsPage {
-        title: "General",
+        title: "일반",
         items: concat_sections!(
             @vec,
             general_settings_section(cx),
@@ -208,12 +208,12 @@ fn general_page(cx: &App) -> SettingsPage {
 fn appearance_page() -> SettingsPage {
     fn theme_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Theme"),
+            SettingsPageItem::SectionHeader("테마"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Theme Mode",
-                    description: "Choose a static, fixed theme or dynamically select themes based on appearance and light/dark modes.",
+                    title: "테마 모드",
+                    description: "고정된 정적 테마를 선택하거나, 외형 및 라이트/다크 모드에 따라 테마를 동적으로 선택합니다.",
                     field: Box::new(SettingField {
                         json_path: Some("theme$"),
                         pick: |settings_content| {
@@ -275,8 +275,8 @@ fn appearance_page() -> SettingsPage {
                         settings::ThemeSelectionDiscriminants::Static => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Theme Name",
-                                description: "The name of your selected theme.",
+                                title: "테마 이름",
+                                description: "선택한 테마의 이름입니다.",
                                 field: Box::new(SettingField {
                                     json_path: Some("theme"),
                                     pick: |settings_content| {
@@ -303,8 +303,8 @@ fn appearance_page() -> SettingsPage {
                         settings::ThemeSelectionDiscriminants::Dynamic => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Mode",
-                                description: "Choose whether to use the selected light or dark theme or to follow your OS appearance configuration.",
+                                title: "모드",
+                                description: "선택한 라이트 또는 다크 테마를 사용할지, 아니면 OS 외형 설정을 따를지 선택합니다.",
                                 field: Box::new(SettingField {
                                     json_path: Some("theme.mode"),
                                     pick: |settings_content| {
@@ -329,8 +329,8 @@ fn appearance_page() -> SettingsPage {
                             },
                             SettingItem {
                                 files: USER,
-                                title: "Light Theme",
-                                description: "The theme to use when mode is set to light, or when mode is set to system and it is in light mode.",
+                                title: "라이트 테마",
+                                description: "모드가 라이트로 설정되었거나, 시스템으로 설정되고 라이트 모드일 때 사용할 테마입니다.",
                                 field: Box::new(SettingField {
                                     json_path: Some("theme.light"),
                                     pick: |settings_content| {
@@ -355,8 +355,8 @@ fn appearance_page() -> SettingsPage {
                             },
                             SettingItem {
                                 files: USER,
-                                title: "Dark Theme",
-                                description: "The theme to use when mode is set to dark, or when mode is set to system and it is in dark mode.",
+                                title: "다크 테마",
+                                description: "모드가 다크로 설정되었거나, 시스템으로 설정되고 다크 모드일 때 사용할 테마입니다.",
                                 field: Box::new(SettingField {
                                     json_path: Some("theme.dark"),
                                     pick: |settings_content| {
@@ -388,10 +388,10 @@ fn appearance_page() -> SettingsPage {
 
     fn buffer_font_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Buffer Font"),
+            SettingsPageItem::SectionHeader("버퍼 글꼴"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
-                description: "Font family for editor text.",
+                title: "글꼴 종류",
+                description: "편집기 텍스트의 글꼴 종류입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("buffer_font_family"),
                     pick: |settings_content| settings_content.theme.buffer_font_family.as_ref(),
@@ -403,8 +403,8 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
-                description: "Font size for editor text.",
+                title: "글꼴 크기",
+                description: "편집기 텍스트의 글꼴 크기입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("buffer_font_size"),
                     pick: |settings_content| settings_content.theme.buffer_font_size.as_ref(),
@@ -420,10 +420,10 @@ fn appearance_page() -> SettingsPage {
 
     fn ui_font_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("UI Font"),
+            SettingsPageItem::SectionHeader("UI 글꼴"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
-                description: "Font family for UI elements.",
+                title: "글꼴 종류",
+                description: "UI 요소의 글꼴 종류입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("ui_font_family"),
                     pick: |settings_content| settings_content.theme.ui_font_family.as_ref(),
@@ -435,8 +435,8 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
-                description: "Font size for UI elements.",
+                title: "글꼴 크기",
+                description: "UI 요소의 글꼴 크기입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("ui_font_size"),
                     pick: |settings_content| settings_content.theme.ui_font_size.as_ref(),
@@ -452,10 +452,10 @@ fn appearance_page() -> SettingsPage {
 
     fn cursor_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Cursor"),
+            SettingsPageItem::SectionHeader("커서"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Blink",
-                description: "Whether the cursor blinks in the editor.",
+                title: "커서 깜박임",
+                description: "편집기에서 커서를 깜박일지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("cursor_blink"),
                     pick: |settings_content| settings_content.editor.cursor_blink.as_ref(),
@@ -467,8 +467,8 @@ fn appearance_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape",
-                description: "Cursor shape for the editor.",
+                title: "커서 모양",
+                description: "편집기의 커서 모양입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("cursor_shape"),
                     pick: |settings_content| settings_content.editor.cursor_shape.as_ref(),
@@ -484,10 +484,10 @@ fn appearance_page() -> SettingsPage {
 
     fn highlighting_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Highlighting"),
+            SettingsPageItem::SectionHeader("강조 표시"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Current Line Highlight",
-                description: "How to highlight the current line.",
+                title: "현재 줄 강조",
+                description: "현재 줄을 강조하는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("current_line_highlight"),
                     pick: |settings_content| {
@@ -512,7 +512,7 @@ fn appearance_page() -> SettingsPage {
     );
 
     SettingsPage {
-        title: "Appearance",
+        title: "모양",
         items,
     }
 }
@@ -520,11 +520,11 @@ fn appearance_page() -> SettingsPage {
 fn keymap_page() -> SettingsPage {
     fn keybindings_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Keybindings"),
+            SettingsPageItem::SectionHeader("키 바인딩"),
             SettingsPageItem::ActionLink(ActionLink {
-                title: "Edit Keybindings".into(),
-                description: Some("Customize keybindings in the keymap editor.".into()),
-                button_text: "Open Keymap".into(),
+                title: "키 바인딩 편집".into(),
+                description: Some("키맵 편집기에서 키 바인딩을 사용자 지정합니다.".into()),
+                button_text: "키맵 열기".into(),
                 on_click: Arc::new(|settings_window, window, cx| {
                     let Some(original_window) = settings_window.original_window else {
                         return;
@@ -546,7 +546,7 @@ fn keymap_page() -> SettingsPage {
     let items: Box<[SettingsPageItem]> = concat_sections!(keybindings_section());
 
     SettingsPage {
-        title: "Keymap",
+        title: "키맵",
         items,
     }
 }
@@ -554,12 +554,12 @@ fn keymap_page() -> SettingsPage {
 fn editor_page() -> SettingsPage {
     fn auto_save_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Auto Save"),
+            SettingsPageItem::SectionHeader("자동 저장"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Auto Save Mode",
-                    description: "When to auto save buffer changes.",
+                    title: "자동 저장 모드",
+                    description: "버퍼 변경 사항을 자동 저장할 시점입니다.",
                     field: Box::new(SettingField {
                         json_path: Some("autosave$"),
                         pick: |settings_content| {
@@ -614,8 +614,8 @@ fn editor_page() -> SettingsPage {
                         settings::AutosaveSettingDiscriminants::Off => vec![],
                         settings::AutosaveSettingDiscriminants::AfterDelay => vec![SettingItem {
                             files: USER,
-                            title: "Delay (milliseconds)",
-                            description: "Save after inactivity period (in milliseconds).",
+                            title: "지연 시간 (밀리초)",
+                            description: "비활성 기간 후 저장합니다 (밀리초 단위).",
                             field: Box::new(SettingField {
                                 json_path: Some("autosave.after_delay.milliseconds"),
                                 pick: |settings_content| match settings_content
@@ -653,10 +653,10 @@ fn editor_page() -> SettingsPage {
 
     fn which_key_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Which-key Menu"),
+            SettingsPageItem::SectionHeader("Which-key 메뉴"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Which-key Menu",
-                description: "Display the which-key menu with matching bindings while a multi-stroke binding is pending.",
+                title: "Which-key 메뉴 표시",
+                description: "다중 입력 바인딩이 대기 중일 때 일치하는 바인딩과 함께 which-key 메뉴를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("which_key.enabled"),
                     pick: |settings_content| {
@@ -673,8 +673,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Menu Delay",
-                description: "Delay in milliseconds before the which-key menu appears.",
+                title: "메뉴 지연",
+                description: "which-key 메뉴가 나타나기 전 지연 시간(밀리초)입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("which_key.delay_ms"),
                     pick: |settings_content| {
@@ -695,10 +695,10 @@ fn editor_page() -> SettingsPage {
 
     fn multibuffer_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Multibuffer"),
+            SettingsPageItem::SectionHeader("멀티버퍼"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Double Click In Multibuffer",
-                description: "What to do when multibuffer is double-clicked in some of its excerpts.",
+                title: "멀티버퍼에서 더블 클릭",
+                description: "멀티버퍼의 발췌 부분을 더블 클릭했을 때 수행할 동작입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("double_click_in_multibuffer"),
                     pick: |settings_content| {
@@ -712,8 +712,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Expand Excerpt Lines",
-                description: "How many lines to expand the multibuffer excerpts by default.",
+                title: "발췌 줄 확장",
+                description: "멀티버퍼 발췌를 기본적으로 확장할 줄 수입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("expand_excerpt_lines"),
                     pick: |settings_content| settings_content.editor.expand_excerpt_lines.as_ref(),
@@ -725,8 +725,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Excerpt Context Lines",
-                description: "How many lines of context to provide in multibuffer excerpts by default.",
+                title: "발췌 컨텍스트 줄",
+                description: "멀티버퍼 발췌에 기본적으로 제공할 컨텍스트 줄 수입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("excerpt_context_lines"),
                     pick: |settings_content| settings_content.editor.excerpt_context_lines.as_ref(),
@@ -738,8 +738,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Expand Outlines With Depth",
-                description: "Default depth to expand outline items in the current file.",
+                title: "개요 깊이만큼 확장",
+                description: "현재 파일에서 개요 항목을 확장할 기본 깊이입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("outline_panel.expand_outlines_with_depth"),
                     pick: |settings_content| {
@@ -761,8 +761,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diff View Style",
-                description: "How to display diffs in the editor.",
+                title: "차이 보기 스타일",
+                description: "편집기에서 차이를 표시하는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("diff_view_style"),
                     pick: |settings_content| settings_content.editor.diff_view_style.as_ref(),
@@ -774,8 +774,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Split Diff Width",
-                description: "The minimum width (in columns) at which the split diff view is used. When the editor is narrower, the diff view automatically switches to unified mode. Set to 0 to disable.",
+                title: "분할 차이 보기 최소 너비",
+                description: "분할 차이 보기를 사용하는 최소 너비(열 단위)입니다. 편집기가 이보다 좁으면 차이 보기가 자동으로 통합 모드로 전환됩니다. 0으로 설정하면 비활성화됩니다.",
                 field: Box::new(SettingField {
                     json_path: Some("minimum_split_diff_width"),
                     pick: |settings_content| {
@@ -793,10 +793,10 @@ fn editor_page() -> SettingsPage {
 
     fn scrolling_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Scrolling"),
+            SettingsPageItem::SectionHeader("스크롤"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Beyond Last Line",
-                description: "Whether the editor will scroll beyond the last line.",
+                title: "마지막 줄 너머로 스크롤",
+                description: "편집기가 마지막 줄 너머로 스크롤할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("scroll_beyond_last_line"),
                     pick: |settings_content| {
@@ -810,8 +810,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Sensitivity",
-                description: "Scroll sensitivity multiplier for both horizontal and vertical scrolling.",
+                title: "스크롤 감도",
+                description: "가로 및 세로 스크롤 모두에 적용되는 스크롤 감도 배수입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("scroll_sensitivity"),
                     pick: |settings_content| settings_content.editor.scroll_sensitivity.as_ref(),
@@ -827,10 +827,10 @@ fn editor_page() -> SettingsPage {
 
     fn signature_help_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Signature Help"),
+            SettingsPageItem::SectionHeader("시그니처 도움말"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Signature Help",
-                description: "Automatically show a signature help pop-up.",
+                title: "자동 시그니처 도움말",
+                description: "시그니처 도움말 팝업을 자동으로 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("auto_signature_help"),
                     pick: |settings_content| settings_content.editor.auto_signature_help.as_ref(),
@@ -842,8 +842,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Signature Help After Edits",
-                description: "Show the signature help pop-up after completions or bracket pairs are inserted.",
+                title: "편집 후 시그니처 도움말 표시",
+                description: "자동 완성 또는 괄호 쌍이 삽입된 후 시그니처 도움말 팝업을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("show_signature_help_after_edits"),
                     pick: |settings_content| {
@@ -860,8 +860,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Snippet Sort Order",
-                description: "Determines how snippets are sorted relative to other completion items.",
+                title: "스니펫 정렬 순서",
+                description: "스니펫을 다른 자동 완성 항목과 비교해 정렬하는 방식을 결정합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("snippet_sort_order"),
                     pick: |settings_content| settings_content.editor.snippet_sort_order.as_ref(),
@@ -877,10 +877,10 @@ fn editor_page() -> SettingsPage {
 
     fn hover_popover_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Hover Popover"),
+            SettingsPageItem::SectionHeader("호버 팝오버"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Show the informational hover box when moving the mouse over symbols in the editor.",
+                title: "사용",
+                description: "편집기에서 기호 위로 마우스를 이동할 때 정보 호버 상자를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("hover_popover_enabled"),
                     pick: |settings_content| settings_content.editor.hover_popover_enabled.as_ref(),
@@ -896,10 +896,10 @@ fn editor_page() -> SettingsPage {
 
     fn drag_and_drop_selection_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Drag And Drop Selection"),
+            SettingsPageItem::SectionHeader("드래그 앤 드롭 선택"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Enable drag and drop selection.",
+                title: "사용",
+                description: "드래그 앤 드롭 선택을 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("drag_and_drop_selection.enabled"),
                     pick: |settings_content| {
@@ -921,8 +921,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Delay",
-                description: "Delay in milliseconds before drag and drop selection starts.",
+                title: "지연",
+                description: "드래그 앤 드롭 선택이 시작되기 전 지연 시간(밀리초)입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("drag_and_drop_selection.delay"),
                     pick: |settings_content| {
@@ -948,10 +948,10 @@ fn editor_page() -> SettingsPage {
 
     fn gutter_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Gutter"),
+            SettingsPageItem::SectionHeader("거터"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Line Numbers",
-                description: "Show line numbers in the gutter.",
+                title: "줄 번호 표시",
+                description: "거터에 줄 번호를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("gutter.line_numbers"),
                     pick: |settings_content| {
@@ -973,8 +973,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Relative Line Numbers",
-                description: "Controls line number display in the editor's gutter. \"disabled\" shows absolute line numbers, \"enabled\" shows relative line numbers for each absolute line, and \"wrapped\" shows relative line numbers for every line, absolute or wrapped.",
+                title: "상대 줄 번호",
+                description: "편집기 거터의 줄 번호 표시를 제어합니다. \"disabled\"는 절대 줄 번호를, \"enabled\"는 각 절대 줄에 대한 상대 줄 번호를, \"wrapped\"는 절대 줄과 줄 바꿈된 줄을 포함한 모든 줄에 대한 상대 줄 번호를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("relative_line_numbers"),
                     pick: |settings_content| settings_content.editor.relative_line_numbers.as_ref(),
@@ -986,8 +986,8 @@ fn editor_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Folds",
-                description: "Show code folding controls in the gutter.",
+                title: "접기 표시",
+                description: "거터에 코드 접기 컨트롤을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("gutter.folds"),
                     pick: |settings_content| {
@@ -1009,10 +1009,10 @@ fn editor_page() -> SettingsPage {
 
     fn scrollbar_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Scrollbar"),
+            SettingsPageItem::SectionHeader("스크롤바"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show",
-                description: "When to show the scrollbar in the editor.",
+                title: "표시",
+                description: "편집기에서 스크롤바를 표시할 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("scrollbar"),
                     pick: |settings_content| {
@@ -1034,10 +1034,10 @@ fn editor_page() -> SettingsPage {
 
     fn minimap_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Minimap"),
+            SettingsPageItem::SectionHeader("미니맵"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show",
-                description: "When to show the minimap in the editor.",
+                title: "표시",
+                description: "편집기에서 미니맵을 표시할 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("minimap.show"),
                     pick: |settings_content| {
@@ -1055,10 +1055,10 @@ fn editor_page() -> SettingsPage {
 
     fn toolbar_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Toolbar"),
+            SettingsPageItem::SectionHeader("툴바"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Breadcrumbs",
-                description: "Show breadcrumbs.",
+                title: "이동 경로",
+                description: "이동 경로를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("toolbar.breadcrumbs"),
                     pick: |settings_content| {
@@ -1099,7 +1099,7 @@ fn editor_page() -> SettingsPage {
     );
 
     SettingsPage {
-        title: "Editor",
+        title: "편집기",
         items: items,
     }
 }
@@ -1107,10 +1107,10 @@ fn editor_page() -> SettingsPage {
 fn languages_and_tools_page(cx: &App) -> SettingsPage {
     fn file_types_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("File Types"),
+            SettingsPageItem::SectionHeader("파일 형식"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Type Associations",
-                description: "A mapping from languages to files and file extensions that should be treated as that language.",
+                title: "파일 형식 연결",
+                description: "특정 언어로 처리할 파일 및 파일 확장자를 언어에 매핑한 설정입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("file_type_associations"),
@@ -1131,10 +1131,10 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn diagnostics_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Diagnostics"),
+            SettingsPageItem::SectionHeader("진단"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Max Severity",
-                description: "Which level to use to filter out diagnostics displayed in the editor.",
+                title: "최대 심각도",
+                description: "편집기에 표시되는 진단을 필터링할 기준 수준입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("diagnostics_max_severity"),
                     pick: |settings_content| {
@@ -1148,8 +1148,8 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Include Warnings",
-                description: "Whether to show warnings or not by default.",
+                title: "경고 포함",
+                description: "기본적으로 경고를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("diagnostics.include_warnings"),
                     pick: |settings_content| {
@@ -1174,10 +1174,10 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn inline_diagnostics_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Inline Diagnostics"),
+            SettingsPageItem::SectionHeader("인라인 진단"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Whether to show diagnostics inline or not.",
+                title: "사용",
+                description: "진단을 인라인으로 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("diagnostics.inline.enabled"),
                     pick: |settings_content| {
@@ -1206,10 +1206,10 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 
     fn lsp_pull_diagnostics_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("LSP Pull Diagnostics"),
+            SettingsPageItem::SectionHeader("LSP 풀 진단"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Whether to pull for language server-powered diagnostics or not.",
+                title: "사용",
+                description: "언어 서버 기반 진단을 풀할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("diagnostics.lsp_pull_diagnostics.enabled"),
                     pick: |settings_content| {
@@ -1239,7 +1239,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
     fn languages_list_section(cx: &App) -> Box<[SettingsPageItem]> {
         // todo(settings_ui): Refresh on extension (un)/installed
         // Note that `crates/json_schema_store` solves the same problem, there is probably a way to unify the two
-        std::iter::once(SettingsPageItem::SectionHeader("Languages"))
+        std::iter::once(SettingsPageItem::SectionHeader("언어"))
             .chain(all_language_names(cx).into_iter().map(|language_name| {
                 let link = format!("languages.{language_name}");
                 SettingsPageItem::SubPageLink(SubPageLink {
@@ -1269,7 +1269,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Languages & Tools",
+        title: "언어 및 도구",
         items: {
             concat_sections!(
                 non_editor_language_settings_data(),
@@ -1286,10 +1286,10 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
 fn search_and_files_page() -> SettingsPage {
     fn search_section() -> [SettingsPageItem; 9] {
         [
-            SettingsPageItem::SectionHeader("Search"),
+            SettingsPageItem::SectionHeader("검색"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Whole Word",
-                description: "Search for whole words by default.",
+                title: "단어 단위",
+                description: "기본적으로 단어 단위로 검색합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("search.whole_word"),
                     pick: |settings_content| {
@@ -1307,8 +1307,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Case Sensitive",
-                description: "Search case-sensitively by default.",
+                title: "대소문자 구분",
+                description: "기본적으로 대소문자를 구분해 검색합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("search.case_sensitive"),
                     pick: |settings_content| {
@@ -1331,8 +1331,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Smartcase Search",
-                description: "Whether to automatically enable case-sensitive search based on the search query.",
+                title: "스마트케이스 검색 사용",
+                description: "검색 쿼리에 따라 대소문자 구분 검색을 자동으로 사용할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("use_smartcase_search"),
                     pick: |settings_content| settings_content.editor.use_smartcase_search.as_ref(),
@@ -1344,8 +1344,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Include Ignored",
-                description: "Include ignored files in search results by default.",
+                title: "무시된 파일 포함",
+                description: "기본적으로 검색 결과에 무시된 파일을 포함합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("search.include_ignored"),
                     pick: |settings_content| {
@@ -1368,8 +1368,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Regex",
-                description: "Use regex search by default.",
+                title: "정규식",
+                description: "기본적으로 정규식 검색을 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("search.regex"),
                     pick: |settings_content| {
@@ -1383,8 +1383,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Search Wrap",
-                description: "Whether the editor search results will loop.",
+                title: "검색 순환",
+                description: "편집기 검색 결과가 순환할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("search_wrap"),
                     pick: |settings_content| settings_content.editor.search_wrap.as_ref(),
@@ -1396,8 +1396,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Center on Match",
-                description: "Whether to center the current match in the editor",
+                title: "일치 항목 가운데 정렬",
+                description: "편집기에서 현재 일치 항목을 가운데로 정렬할지 여부입니다",
                 field: Box::new(SettingField {
                     json_path: Some("editor.search.center_on_match"),
                     pick: |settings_content| {
@@ -1419,8 +1419,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Seed Search Query From Cursor",
-                description: "When to populate a new search's query based on the text under the cursor.",
+                title: "커서에서 검색어 채우기",
+                description: "커서 아래 텍스트를 기반으로 새 검색어를 채울 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("seed_search_query_from_cursor"),
                     pick: |settings_content| {
@@ -1441,11 +1441,11 @@ fn search_and_files_page() -> SettingsPage {
 
     fn file_finder_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("File Finder"),
+            SettingsPageItem::SectionHeader("파일 찾기"),
             // todo: null by default
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Include Ignored in Search",
-                description: "Use gitignored files when searching.",
+                title: "검색에 무시된 파일 포함",
+                description: "검색할 때 gitignore된 파일을 포함합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("file_finder.include_ignored"),
                     pick: |settings_content| {
@@ -1466,8 +1466,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
-                description: "Show file icons in the file finder.",
+                title: "파일 아이콘",
+                description: "파일 찾기에 파일 아이콘을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("file_finder.file_icons"),
                     pick: |settings_content| {
@@ -1484,8 +1484,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Modal Max Width",
-                description: "Determines how much space the file finder can take up in relation to the available window width.",
+                title: "모달 최대 너비",
+                description: "사용 가능한 창 너비를 기준으로 파일 찾기가 차지할 수 있는 공간을 결정합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("file_finder.modal_max_width"),
                     pick: |settings_content| {
@@ -1510,10 +1510,10 @@ fn search_and_files_page() -> SettingsPage {
 
     fn file_scan_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("File Scan"),
+            SettingsPageItem::SectionHeader("파일 스캔"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Scan Exclusions",
-                description: "Files or globs of files that will be excluded by Zed entirely. They will be skipped during file scans, file searches, and not be displayed in the project file tree. Takes precedence over \"File Scan Inclusions\"",
+                title: "파일 스캔 제외",
+                description: "Zed에서 완전히 제외할 파일 또는 파일 glob입니다. 파일 스캔, 파일 검색 시 건너뛰며 프로젝트 파일 트리에도 표시되지 않습니다. \"파일 스캔 포함\"보다 우선합니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("file_scan_exclusions"),
@@ -1534,8 +1534,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Scan Inclusions",
-                description: "Files or globs of files that will be included by Zed, even when ignored by git. This is useful for files that are not tracked by git, but are still important to your project. Note that globs that are overly broad can slow down Zed's file scanning. \"File Scan Exclusions\" takes precedence over these inclusions",
+                title: "파일 스캔 포함",
+                description: "git에서 무시하더라도 Zed에 포함할 파일 또는 파일 glob입니다. git이 추적하지 않지만 프로젝트에 여전히 중요한 파일에 유용합니다. 너무 광범위한 glob은 Zed의 파일 스캔을 느리게 할 수 있습니다. \"파일 스캔 제외\"가 이 포함 항목보다 우선합니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("file_scan_inclusions"),
@@ -1556,8 +1556,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Restore File State",
-                description: "Restore previous file state when reopening.",
+                title: "파일 상태 복원",
+                description: "다시 열 때 이전 파일 상태를 복원합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("restore_on_file_reopen"),
                     pick: |settings_content| {
@@ -1571,8 +1571,8 @@ fn search_and_files_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Close on File Delete",
-                description: "Automatically close files that have been deleted.",
+                title: "파일 삭제 시 닫기",
+                description: "삭제된 파일을 자동으로 닫습니다.",
                 field: Box::new(SettingField {
                     json_path: Some("close_on_file_delete"),
                     pick: |settings_content| {
@@ -1589,7 +1589,7 @@ fn search_and_files_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Search & Files",
+        title: "검색 및 파일",
         items: concat_sections![search_section(), file_finder_section(), file_scan_section()],
     }
 }
@@ -1597,10 +1597,10 @@ fn search_and_files_page() -> SettingsPage {
 fn window_and_layout_page() -> SettingsPage {
     fn status_bar_section() -> [SettingsPageItem; 11] {
         [
-            SettingsPageItem::SectionHeader("Status Bar"),
+            SettingsPageItem::SectionHeader("상태 표시줄"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Panel Button",
-                description: "Show the project panel button in the status bar.",
+                title: "프로젝트 패널 버튼",
+                description: "상태 표시줄에 프로젝트 패널 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.button"),
                     pick: |settings_content| {
@@ -1617,8 +1617,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active Language Button",
-                description: "Show the active language button in the status bar.",
+                title: "활성 언어 버튼",
+                description: "상태 표시줄에 활성 언어 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("status_bar.active_language_button"),
                     pick: |settings_content| {
@@ -1639,8 +1639,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active Encoding Button",
-                description: "Control when to show the active encoding in the status bar.",
+                title: "활성 인코딩 버튼",
+                description: "상태 표시줄에 활성 인코딩을 표시할 시점을 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("status_bar.active_encoding_button"),
                     pick: |settings_content| {
@@ -1661,8 +1661,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Position Button",
-                description: "Show the cursor position button in the status bar.",
+                title: "커서 위치 버튼",
+                description: "상태 표시줄에 커서 위치 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("status_bar.cursor_position_button"),
                     pick: |settings_content| {
@@ -1683,8 +1683,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Endings Button",
-                description: "Show the active line endings button in the status bar.",
+                title: "줄 끝 버튼",
+                description: "상태 표시줄에 활성 줄 끝 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("status_bar.line_endings_button"),
                     pick: |settings_content| {
@@ -1705,8 +1705,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Terminal Button",
-                description: "Show the terminal button in the status bar.",
+                title: "터미널 버튼",
+                description: "상태 표시줄에 터미널 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.button"),
                     pick: |settings_content| settings_content.terminal.as_ref()?.button.as_ref(),
@@ -1718,8 +1718,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diagnostics Button",
-                description: "Show the project diagnostics button in the status bar.",
+                title: "진단 버튼",
+                description: "상태 표시줄에 프로젝트 진단 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("diagnostics.button"),
                     pick: |settings_content| settings_content.diagnostics.as_ref()?.button.as_ref(),
@@ -1731,8 +1731,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Search Button",
-                description: "Show the project search button in the status bar.",
+                title: "프로젝트 검색 버튼",
+                description: "상태 표시줄에 프로젝트 검색 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("search.button"),
                     pick: |settings_content| {
@@ -1750,8 +1750,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debugger Button",
-                description: "Show the debugger button in the status bar.",
+                title: "디버거 버튼",
+                description: "상태 표시줄에 디버거 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("debugger.button"),
                     pick: |settings_content| settings_content.debugger.as_ref()?.button.as_ref(),
@@ -1763,8 +1763,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active File Name",
-                description: "Show the name of the active file in the status bar.",
+                title: "활성 파일 이름",
+                description: "상태 표시줄에 활성 파일 이름을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("status_bar.show_active_file"),
                     pick: |settings_content| {
@@ -1789,10 +1789,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn title_bar_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Title Bar"),
+            SettingsPageItem::SectionHeader("제목 표시줄"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Branch Status Icon",
-                description: "Show git status indicators on the branch icon in the titlebar.",
+                title: "브랜치 상태 아이콘 표시",
+                description: "제목 표시줄의 브랜치 아이콘에 git 상태 표시기를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("title_bar.show_branch_status_icon"),
                     pick: |settings_content| {
@@ -1813,8 +1813,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Branch Name",
-                description: "Show the branch name button in the titlebar.",
+                title: "브랜치 이름 표시",
+                description: "제목 표시줄에 브랜치 이름 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("title_bar.show_branch_name"),
                     pick: |settings_content| {
@@ -1835,8 +1835,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Project Items",
-                description: "Show the project host and name in the titlebar.",
+                title: "프로젝트 항목 표시",
+                description: "제목 표시줄에 프로젝트 호스트와 이름을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("title_bar.show_project_items"),
                     pick: |settings_content| {
@@ -1857,8 +1857,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Menus",
-                description: "Show the menus in the titlebar.",
+                title: "메뉴 표시",
+                description: "제목 표시줄에 메뉴를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("title_bar.show_menus"),
                     pick: |settings_content| {
@@ -1877,9 +1877,9 @@ fn window_and_layout_page() -> SettingsPage {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Button Layout",
+                    title: "버튼 레이아웃",
                     description:
-                        "(Linux only) choose how window control buttons are laid out in the titlebar.",
+                        "(Linux 전용) 제목 표시줄에서 창 제어 버튼이 배치되는 방식을 선택합니다.",
                     field: Box::new(SettingField {
                         json_path: Some("title_bar.button_layout$"),
                         pick: |settings_content| {
@@ -1957,7 +1957,7 @@ fn window_and_layout_page() -> SettingsPage {
                         settings::WindowButtonLayoutContentDiscriminants::Custom => vec![
                             SettingItem {
                                 files: USER,
-                                title: "Custom Button Layout",
+                                title: "사용자 지정 버튼 레이아웃",
                                 description:
                                     "GNOME-style layout string such as \"close:minimize,maximize\".",
                                 field: Box::new(SettingField {
@@ -1995,10 +1995,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn tab_bar_section() -> [SettingsPageItem; 9] {
         [
-            SettingsPageItem::SectionHeader("Tab Bar"),
+            SettingsPageItem::SectionHeader("탭 바"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Tab Bar",
-                description: "Show the tab bar in the editor.",
+                title: "탭 바 표시",
+                description: "편집기에 탭 바를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tab_bar.show"),
                     pick: |settings_content| settings_content.tab_bar.as_ref()?.show.as_ref(),
@@ -2010,8 +2010,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Git Status In Tabs",
-                description: "Show the Git file status on a tab item.",
+                title: "탭에 Git 상태 표시",
+                description: "탭 항목에 Git 파일 상태를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tabs.git_status"),
                     pick: |settings_content| settings_content.tabs.as_ref()?.git_status.as_ref(),
@@ -2023,8 +2023,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show File Icons In Tabs",
-                description: "Show the file icon for a tab.",
+                title: "탭에 파일 아이콘 표시",
+                description: "탭에 파일 아이콘을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tabs.file_icons"),
                     pick: |settings_content| settings_content.tabs.as_ref()?.file_icons.as_ref(),
@@ -2036,8 +2036,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Close Position",
-                description: "Position of the close button in a tab.",
+                title: "탭 닫기 버튼 위치",
+                description: "탭에서 닫기 버튼의 위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tabs.close_position"),
                     pick: |settings_content| {
@@ -2052,8 +2052,8 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Maximum Tabs",
-                description: "Maximum open tabs in a pane. Will not close an unsaved tab.",
+                title: "최대 탭 수",
+                description: "한 창에서 열 수 있는 최대 탭 수입니다. 저장하지 않은 탭은 닫지 않습니다.",
                 // todo(settings_ui): The default for this value is null and it's use in code
                 // is complex, so I'm going to come back to this later
                 field: Box::new(
@@ -2069,8 +2069,8 @@ fn window_and_layout_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Navigation History Buttons",
-                description: "Show the navigation history buttons in the tab bar.",
+                title: "탐색 기록 버튼 표시",
+                description: "탭 바에 탐색 기록 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tab_bar.show_nav_history_buttons"),
                     pick: |settings_content| {
@@ -2091,8 +2091,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Tab Bar Buttons",
-                description: "Show the tab bar buttons (New, Split Pane, Zoom).",
+                title: "탭 바 버튼 표시",
+                description: "탭 바 버튼(새로 만들기, 창 분할, 확대)을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tab_bar.show_tab_bar_buttons"),
                     pick: |settings_content| {
@@ -2113,8 +2113,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Pinned Tabs Layout",
-                description: "Show pinned tabs in a separate row above unpinned tabs.",
+                title: "고정 탭 레이아웃",
+                description: "고정된 탭을 고정되지 않은 탭 위 별도 행에 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tab_bar.show_pinned_tabs_in_separate_row"),
                     pick: |settings_content| {
@@ -2139,10 +2139,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn tab_settings_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Tab Settings"),
+            SettingsPageItem::SectionHeader("탭 설정"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Activate On Close",
-                description: "What to do after closing the current tab.",
+                title: "닫은 후 활성화",
+                description: "현재 탭을 닫은 후 수행할 동작입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tabs.activate_on_close"),
                     pick: |settings_content| {
@@ -2159,8 +2159,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Show Diagnostics",
-                description: "Which files containing diagnostic errors/warnings to mark in the tabs.",
+                title: "탭에 진단 표시",
+                description: "진단 오류/경고가 포함된 어떤 파일을 탭에 표시할지입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tabs.show_diagnostics"),
                     pick: |settings_content| {
@@ -2177,8 +2177,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Close Button",
-                description: "Controls the appearance behavior of the tab's close button.",
+                title: "닫기 버튼 표시",
+                description: "탭 닫기 버튼의 표시 동작을 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("tabs.show_close_button"),
                     pick: |settings_content| {
@@ -2199,10 +2199,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn preview_tabs_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Preview Tabs"),
+            SettingsPageItem::SectionHeader("미리보기 탭"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Preview Tabs Enabled",
-                description: "Show opened editors as preview tabs.",
+                title: "미리보기 탭 사용",
+                description: "열린 편집기를 미리보기 탭으로 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("preview_tabs.enabled"),
                     pick: |settings_content| {
@@ -2223,10 +2223,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn layout_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Layout"),
+            SettingsPageItem::SectionHeader("레이아웃"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Bottom Dock Layout",
-                description: "Layout mode for the bottom dock.",
+                title: "하단 독 레이아웃",
+                description: "하단 독의 레이아웃 모드입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("bottom_dock_layout"),
                     pick: |settings_content| settings_content.workspace.bottom_dock_layout.as_ref(),
@@ -2239,8 +2239,8 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Centered Layout Left Padding",
-                description: "Left padding for centered layout.",
+                title: "가운데 레이아웃 왼쪽 여백",
+                description: "가운데 레이아웃의 왼쪽 여백입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("centered_layout.left_padding"),
                     pick: |settings_content| {
@@ -2263,8 +2263,8 @@ fn window_and_layout_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Centered Layout Right Padding",
-                description: "Right padding for centered layout.",
+                title: "가운데 레이아웃 오른쪽 여백",
+                description: "가운데 레이아웃의 오른쪽 여백입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("centered_layout.right_padding"),
                     pick: |settings_content| {
@@ -2286,8 +2286,8 @@ fn window_and_layout_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Focus Follows Mouse",
-                description: "Whether to change focus to a pane when the mouse hovers over it.",
+                title: "마우스를 따라 포커스 이동",
+                description: "마우스가 창 위에 올라갈 때 해당 창으로 포커스를 이동할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("focus_follows_mouse.enabled"),
                     pick: |settings_content| {
@@ -2309,8 +2309,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Focus Follows Mouse Debounce ms",
-                description: "Amount of time to wait before changing focus.",
+                title: "마우스 포커스 디바운스(ms)",
+                description: "포커스를 변경하기 전 대기할 시간입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("focus_follows_mouse.debounce_ms"),
                     pick: |settings_content| {
@@ -2336,11 +2336,11 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn window_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Window"),
+            SettingsPageItem::SectionHeader("창"),
             // todo(settings_ui): Should we filter by platform.as_ref()?
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use System Window Tabs",
-                description: "(macOS only) whether to allow Windows to tab together.",
+                title: "시스템 창 탭 사용",
+                description: "(macOS 전용) 창을 함께 탭으로 묶을지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("use_system_window_tabs"),
                     pick: |settings_content| {
@@ -2354,8 +2354,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Window Decorations",
-                description: "(Linux only) whether Zed or your compositor should draw window decorations.",
+                title: "창 장식",
+                description: "(Linux 전용) Zed 또는 컴포지터 중 어느 쪽이 창 장식을 그릴지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("window_decorations"),
                     pick: |settings_content| settings_content.workspace.window_decorations.as_ref(),
@@ -2371,10 +2371,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn pane_modifiers_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Pane Modifiers"),
+            SettingsPageItem::SectionHeader("창 수정자"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Inactive Opacity",
-                description: "Opacity of inactive panels (0.0 - 1.0).",
+                title: "비활성 불투명도",
+                description: "비활성 패널의 불투명도입니다 (0.0 - 1.0).",
                 field: Box::new(SettingField {
                     json_path: Some("active_pane_modifiers.inactive_opacity"),
                     pick: |settings_content| {
@@ -2397,8 +2397,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Border Size",
-                description: "Size of the border surrounding the active pane.",
+                title: "테두리 크기",
+                description: "활성 창을 둘러싼 테두리의 크기입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("active_pane_modifiers.border_size"),
                     pick: |settings_content| {
@@ -2421,8 +2421,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Zoomed Padding",
-                description: "Show padding for zoomed panes.",
+                title: "확대 여백",
+                description: "확대된 창의 여백을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("zoomed_padding"),
                     pick: |settings_content| settings_content.workspace.zoomed_padding.as_ref(),
@@ -2438,10 +2438,10 @@ fn window_and_layout_page() -> SettingsPage {
 
     fn pane_split_direction_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Pane Split Direction"),
+            SettingsPageItem::SectionHeader("창 분할 방향"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vertical Split Direction",
-                description: "Direction to split vertically.",
+                title: "세로 분할 방향",
+                description: "세로로 분할할 방향입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("pane_split_direction_vertical"),
                     pick: |settings_content| {
@@ -2458,8 +2458,8 @@ fn window_and_layout_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Horizontal Split Direction",
-                description: "Direction to split horizontally.",
+                title: "가로 분할 방향",
+                description: "가로로 분할할 방향입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("pane_split_direction_horizontal"),
                     pick: |settings_content| {
@@ -2479,7 +2479,7 @@ fn window_and_layout_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Window & Layout",
+        title: "창 및 레이아웃",
         items: concat_sections![
             status_bar_section(),
             title_bar_section(),
@@ -2497,10 +2497,10 @@ fn window_and_layout_page() -> SettingsPage {
 fn panels_page() -> SettingsPage {
     fn project_panel_section() -> [SettingsPageItem; 14] {
         [
-            SettingsPageItem::SectionHeader("Project Panel"),
+            SettingsPageItem::SectionHeader("프로젝트 패널"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Panel Dock",
-                description: "Where to dock the project panel.",
+                title: "프로젝트 패널 도킹",
+                description: "프로젝트 패널을 도킹할 위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.dock"),
                     pick: |settings_content| settings_content.project_panel.as_ref()?.dock.as_ref(),
@@ -2512,8 +2512,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Project Panel Default Width",
-                description: "Default width of the project panel in pixels.",
+                title: "프로젝트 패널 기본 너비",
+                description: "프로젝트 패널의 기본 너비(픽셀)입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.default_width"),
                     pick: |settings_content| {
@@ -2534,8 +2534,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide .gitignore",
-                description: "Whether to hide the gitignore entries in the project panel.",
+                title: ".gitignore 숨기기",
+                description: "프로젝트 패널에서 gitignore 항목을 숨길지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.hide_gitignore"),
                     pick: |settings_content| {
@@ -2556,8 +2556,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
-                description: "Show file icons in the project panel.",
+                title: "파일 아이콘",
+                description: "프로젝트 패널에 파일 아이콘을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.file_icons"),
                     pick: |settings_content| {
@@ -2574,8 +2574,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Folder Icons",
-                description: "Whether to show folder icons or chevrons for directories in the project panel.",
+                title: "폴더 아이콘",
+                description: "프로젝트 패널에서 디렉터리에 폴더 아이콘을 표시할지 펼침 화살표를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.folder_icons"),
                     pick: |settings_content| {
@@ -2596,8 +2596,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Status",
-                description: "Show the Git status in the project panel.",
+                title: "Git 상태",
+                description: "프로젝트 패널에 Git 상태를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.git_status"),
                     pick: |settings_content| {
@@ -2614,8 +2614,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Indent Size",
-                description: "Amount of indentation for nested items.",
+                title: "들여쓰기 크기",
+                description: "중첩 항목의 들여쓰기 양입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.indent_size"),
                     pick: |settings_content| {
@@ -2636,8 +2636,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Reveal Entries",
-                description: "Whether to reveal entries in the project panel automatically when a corresponding project entry becomes active.",
+                title: "항목 자동 표시",
+                description: "해당 프로젝트 항목이 활성화될 때 프로젝트 패널에서 항목을 자동으로 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.auto_reveal_entries"),
                     pick: |settings_content| {
@@ -2658,8 +2658,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Scrollbar",
-                description: "Show the scrollbar in the project panel.",
+                title: "스크롤바 표시",
+                description: "프로젝트 패널에 스크롤바를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.scrollbar.show"),
                     pick: |settings_content| {
@@ -2687,8 +2687,8 @@ fn panels_page() -> SettingsPage {
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 files: USER,
-                title: "Show Indent Guides",
-                description: "Show indent guides in the project panel.",
+                title: "들여쓰기 가이드 표시",
+                description: "프로젝트 패널에 들여쓰기 가이드를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.indent_guides.show"),
                     pick: |settings_content| {
@@ -2712,8 +2712,8 @@ fn panels_page() -> SettingsPage {
                 metadata: None,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sort Mode",
-                description: "Sort order for entries in the project panel.",
+                title: "정렬 모드",
+                description: "프로젝트 패널 항목의 정렬 순서입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("project_panel.sort_mode"),
                     pick: |settings_content| {
@@ -2730,8 +2730,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Sort Order",
-                description: "Whether to sort file and folder names case-sensitively in the project panel.",
+                title: "정렬 순서",
+                description: "프로젝트 패널에서 파일 및 폴더 이름을 대소문자를 구분해 정렬할지 여부입니다.",
                 field: Box::new(SettingField {
                     pick: |settings_content| {
                         settings_content.project_panel.as_ref()?.sort_order.as_ref()
@@ -2748,8 +2748,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hidden Files",
-                description: "Globs to match files that will be considered \"hidden\" and can be hidden from the project panel.",
+                title: "숨김 파일",
+                description: "\"숨김\"으로 간주되어 프로젝트 패널에서 숨길 수 있는 파일을 일치시키는 glob입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("worktree.hidden_files"),
@@ -2770,10 +2770,10 @@ fn panels_page() -> SettingsPage {
 
     fn terminal_panel_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Terminal Panel"),
+            SettingsPageItem::SectionHeader("터미널 패널"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Terminal Dock",
-                description: "Where to dock the terminal panel.",
+                title: "터미널 도킹",
+                description: "터미널 패널을 도킹할 위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.dock"),
                     pick: |settings_content| settings_content.terminal.as_ref()?.dock.as_ref(),
@@ -2785,8 +2785,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Terminal Panel Flexible Sizing",
-                description: "Whether the terminal panel should use flexible (proportional) sizing when docked to the left or right.",
+                title: "터미널 패널 유연한 크기 조정",
+                description: "터미널 패널을 좌우에 도킹할 때 유연한(비례) 크기 조정을 사용할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.flexible"),
                     pick: |settings_content| settings_content.terminal.as_ref()?.flexible.as_ref(),
@@ -2798,8 +2798,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Count Badge",
-                description: "Show a badge on the terminal panel icon with the count of open terminals.",
+                title: "개수 배지 표시",
+                description: "열린 터미널 개수를 나타내는 배지를 터미널 패널 아이콘에 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.show_count_badge"),
                     pick: |settings_content| {
@@ -2824,10 +2824,10 @@ fn panels_page() -> SettingsPage {
 
     fn git_panel_section() -> [SettingsPageItem; 10] {
         [
-            SettingsPageItem::SectionHeader("Git Panel"),
+            SettingsPageItem::SectionHeader("Git 패널"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Button",
-                description: "Show the Git panel button in the status bar.",
+                title: "Git 패널 버튼",
+                description: "상태 표시줄에 Git 패널 버튼을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.button"),
                     pick: |settings_content| settings_content.git_panel.as_ref()?.button.as_ref(),
@@ -2839,8 +2839,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Dock",
-                description: "Where to dock the Git panel.",
+                title: "Git 패널 도킹",
+                description: "Git 패널을 도킹할 위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.dock"),
                     pick: |settings_content| settings_content.git_panel.as_ref()?.dock.as_ref(),
@@ -2852,8 +2852,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Default Width",
-                description: "Default width of the Git panel in pixels.",
+                title: "Git 패널 기본 너비",
+                description: "Git 패널의 기본 너비(픽셀)입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.default_width"),
                     pick: |settings_content| {
@@ -2870,8 +2870,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Panel Status Style",
-                description: "How entry statuses are displayed.",
+                title: "Git 패널 상태 스타일",
+                description: "항목 상태가 표시되는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.status_style"),
                     pick: |settings_content| {
@@ -2888,8 +2888,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tree View",
-                description: "Enable to show entries in tree view list, disable to show in flat view list.",
+                title: "트리 보기",
+                description: "사용하면 항목을 트리 보기 목록으로, 사용 안 하면 평면 보기 목록으로 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.tree_view"),
                     pick: |settings_content| {
@@ -2903,8 +2903,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
-                description: "Show file icons next to the Git status icon.",
+                title: "파일 아이콘",
+                description: "Git 상태 아이콘 옆에 파일 아이콘을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.file_icons"),
                     pick: |settings_content| {
@@ -2921,8 +2921,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Folder Icons",
-                description: "Whether to show folder icons or chevrons for directories in the git panel.",
+                title: "폴더 아이콘",
+                description: "Git 패널에서 디렉터리에 폴더 아이콘을 표시할지 펼침 화살표를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.folder_icons"),
                     pick: |settings_content| {
@@ -2939,8 +2939,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Count Badge",
-                description: "Whether to show a badge on the git panel icon with the count of uncommitted changes.",
+                title: "개수 배지 표시",
+                description: "커밋하지 않은 변경 개수를 나타내는 배지를 Git 패널 아이콘에 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.show_count_badge"),
                     pick: |settings_content| {
@@ -2961,8 +2961,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Bar",
-                description: "How and when the scrollbar should be displayed.",
+                title: "스크롤바",
+                description: "스크롤바를 표시하는 방식과 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git_panel.scrollbar.show"),
                     pick: |settings_content| {
@@ -2993,10 +2993,10 @@ fn panels_page() -> SettingsPage {
 
     fn agent_panel_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Agent Panel"),
+            SettingsPageItem::SectionHeader("에이전트 패널"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Button",
-                description: "Whether to show the agent panel button in the status bar.",
+                title: "에이전트 패널 버튼",
+                description: "상태 표시줄에 에이전트 패널 버튼을 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.button"),
                     pick: |settings_content| settings_content.agent.as_ref()?.button.as_ref(),
@@ -3008,8 +3008,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Dock",
-                description: "Where to dock the agent panel.",
+                title: "에이전트 패널 도킹",
+                description: "에이전트 패널을 도킹할 위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.dock"),
                     pick: |settings_content| settings_content.agent.as_ref()?.dock.as_ref(),
@@ -3021,8 +3021,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Flexible Sizing",
-                description: "Whether the agent panel should use flexible (proportional) sizing when docked to the left or right.",
+                title: "에이전트 패널 유연한 크기 조정",
+                description: "에이전트 패널을 좌우에 도킹할 때 유연한(비례) 크기 조정을 사용할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.flexible"),
                     pick: |settings_content| settings_content.agent.as_ref()?.flexible.as_ref(),
@@ -3034,8 +3034,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Default Width",
-                description: "Default width when the agent panel is docked to the left or right.",
+                title: "에이전트 패널 기본 너비",
+                description: "에이전트 패널을 좌우에 도킹할 때의 기본 너비입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.default_width"),
                     pick: |settings_content| {
@@ -3049,8 +3049,8 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Agent Panel Default Height",
-                description: "Default height when the agent panel is docked to the bottom.",
+                title: "에이전트 패널 기본 높이",
+                description: "에이전트 패널을 하단에 도킹할 때의 기본 높이입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.default_height"),
                     pick: |settings_content| {
@@ -3069,8 +3069,8 @@ fn panels_page() -> SettingsPage {
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Limit Content Width",
-                    description: "Whether to constrain the agent panel content to a maximum width, centering it when the panel is wider, for optimal readability.",
+                    title: "콘텐츠 너비 제한",
+                    description: "가독성을 위해 에이전트 패널 콘텐츠를 최대 너비로 제한하고, 패널이 더 넓을 때 가운데로 정렬할지 여부입니다.",
                     field: Box::new(SettingField::<bool> {
                         json_path: Some("agent.limit_content_width"),
                         pick: |settings_content| {
@@ -3101,8 +3101,8 @@ fn panels_page() -> SettingsPage {
                     vec![],
                     vec![SettingItem {
                         files: USER,
-                        title: "Max Content Width",
-                        description: "Maximum content width in pixels. Content will be centered when the panel is wider than this value.",
+                        title: "최대 콘텐츠 너비",
+                        description: "최대 콘텐츠 너비(픽셀)입니다. 패널이 이 값보다 넓으면 콘텐츠가 가운데로 정렬됩니다.",
                         field: Box::new(SettingField {
                             json_path: Some("agent.max_content_width"),
                             pick: |settings_content| {
@@ -3123,7 +3123,7 @@ fn panels_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Panels",
+        title: "패널",
         items: concat_sections![
             project_panel_section(),
             terminal_panel_section(),
@@ -3136,12 +3136,12 @@ fn panels_page() -> SettingsPage {
 fn terminal_page() -> SettingsPage {
     fn environment_section() -> [SettingsPageItem; 5] {
         [
-                SettingsPageItem::SectionHeader("Environment"),
+                SettingsPageItem::SectionHeader("환경"),
                 SettingsPageItem::DynamicItem(DynamicItem {
                     discriminant: SettingItem {
                         files: USER | PROJECT,
-                        title: "Shell",
-                        description: "What shell to use when opening a terminal.",
+                        title: "셸",
+                        description: "터미널을 열 때 사용할 셸입니다.",
                         field: Box::new(SettingField {
                             json_path: Some("terminal.shell$"),
                             pick: |settings_content| {
@@ -3221,8 +3221,8 @@ fn terminal_page() -> SettingsPage {
                             settings::ShellDiscriminants::System => vec![],
                             settings::ShellDiscriminants::Program => vec![SettingItem {
                                 files: USER | PROJECT,
-                                title: "Program",
-                                description: "The shell program to use.",
+                                title: "프로그램",
+                                description: "사용할 셸 프로그램입니다.",
                                 field: Box::new(SettingField {
                                     json_path: Some("terminal.shell"),
                                     pick: |settings_content| match settings_content.terminal.as_ref()?.project.shell.as_ref()
@@ -3251,8 +3251,8 @@ fn terminal_page() -> SettingsPage {
                             settings::ShellDiscriminants::WithArguments => vec![
                                 SettingItem {
                                     files: USER | PROJECT,
-                                    title: "Program",
-                                    description: "The shell program to run.",
+                                    title: "프로그램",
+                                    description: "실행할 셸 프로그램입니다.",
                                     field: Box::new(SettingField {
                                         json_path: Some("terminal.shell.program"),
                                         pick: |settings_content| {
@@ -3283,8 +3283,8 @@ fn terminal_page() -> SettingsPage {
                                 },
                                 SettingItem {
                                     files: USER | PROJECT,
-                                    title: "Arguments",
-                                    description: "The arguments to pass to the shell program.",
+                                    title: "인수",
+                                    description: "셸 프로그램에 전달할 인수입니다.",
                                     field: Box::new(
                                         SettingField {
                                             json_path: Some("terminal.shell.args"),
@@ -3316,8 +3316,8 @@ fn terminal_page() -> SettingsPage {
                                 },
                                 SettingItem {
                                     files: USER | PROJECT,
-                                    title: "Title Override",
-                                    description: "An optional string to override the title of the terminal tab.",
+                                    title: "제목 재정의",
+                                    description: "터미널 탭의 제목을 재정의하는 선택적 문자열입니다.",
                                     field: Box::new(SettingField {
                                         json_path: Some("terminal.shell.title_override"),
                                         pick: |settings_content| {
@@ -3352,8 +3352,8 @@ fn terminal_page() -> SettingsPage {
                 SettingsPageItem::DynamicItem(DynamicItem {
                     discriminant: SettingItem {
                         files: USER | PROJECT,
-                        title: "Working Directory",
-                        description: "What working directory to use when launching the terminal.",
+                        title: "작업 디렉터리",
+                        description: "터미널을 시작할 때 사용할 작업 디렉터리입니다.",
                         field: Box::new(SettingField {
                             json_path: Some("terminal.working_directory$"),
                             pick: |settings_content| {
@@ -3425,8 +3425,8 @@ fn terminal_page() -> SettingsPage {
                             settings::WorkingDirectoryDiscriminants::AlwaysHome => vec![],
                             settings::WorkingDirectoryDiscriminants::Always => vec![SettingItem {
                                 files: USER | PROJECT,
-                                title: "Directory",
-                                description: "The directory path to use (will be shell expanded).",
+                                title: "디렉터리",
+                                description: "사용할 디렉터리 경로입니다 (셸 확장됩니다).",
                                 field: Box::new(SettingField {
                                     json_path: Some("terminal.working_directory.always"),
                                     pick: |settings_content| {
@@ -3455,8 +3455,8 @@ fn terminal_page() -> SettingsPage {
                         .collect(),
                 }),
                 SettingsPageItem::SettingItem(SettingItem {
-                    title: "Environment Variables",
-                    description: "Key-value pairs to add to the terminal's environment.",
+                    title: "환경 변수",
+                    description: "터미널 환경에 추가할 키-값 쌍입니다.",
                     field: Box::new(
                         SettingField {
                             json_path: Some("terminal.env"),
@@ -3471,8 +3471,8 @@ fn terminal_page() -> SettingsPage {
                     files: USER | PROJECT,
                 }),
                 SettingsPageItem::SettingItem(SettingItem {
-                    title: "Detect Virtual Environment",
-                    description: "Activates the Python virtual environment, if one is found, in the terminal's working directory.",
+                    title: "가상 환경 감지",
+                    description: "터미널 작업 디렉터리에서 Python 가상 환경이 발견되면 활성화합니다.",
                     field: Box::new(
                         SettingField {
                             json_path: Some("terminal.detect_venv"),
@@ -3495,10 +3495,10 @@ fn terminal_page() -> SettingsPage {
 
     fn font_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Font"),
+            SettingsPageItem::SectionHeader("글꼴"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Size",
-                description: "Font size for terminal text. If not set, defaults to buffer font size.",
+                title: "글꼴 크기",
+                description: "터미널 텍스트의 글꼴 크기입니다. 설정하지 않으면 버퍼 글꼴 크기를 기본값으로 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.font_size"),
                     pick: |settings_content| {
@@ -3516,8 +3516,8 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Family",
-                description: "Font family for terminal text. If not set, defaults to buffer font family.",
+                title: "글꼴 종류",
+                description: "터미널 텍스트의 글꼴 종류입니다. 설정하지 않으면 버퍼 글꼴 종류를 기본값으로 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.font_family"),
                     pick: |settings_content| {
@@ -3542,10 +3542,10 @@ fn terminal_page() -> SettingsPage {
 
     fn display_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Display Settings"),
+            SettingsPageItem::SectionHeader("표시 설정"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Shape",
-                description: "Default cursor shape for the terminal (bar, block, underline, or hollow).",
+                title: "커서 모양",
+                description: "터미널의 기본 커서 모양입니다 (bar, block, underline 또는 hollow).",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.cursor_shape"),
                     pick: |settings_content| {
@@ -3562,8 +3562,8 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cursor Blinking",
-                description: "Sets the cursor blinking behavior in the terminal.",
+                title: "커서 깜박임",
+                description: "터미널에서 커서 깜박임 동작을 설정합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.blinking"),
                     pick: |settings_content| settings_content.terminal.as_ref()?.blinking.as_ref(),
@@ -3579,10 +3579,10 @@ fn terminal_page() -> SettingsPage {
 
     fn behavior_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Behavior Settings"),
+            SettingsPageItem::SectionHeader("동작 설정"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Copy On Select",
-                description: "Whether selecting text in the terminal automatically copies to the system clipboard.",
+                title: "선택 시 복사",
+                description: "터미널에서 텍스트를 선택하면 시스템 클립보드에 자동으로 복사할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.copy_on_select"),
                     pick: |settings_content| {
@@ -3599,8 +3599,8 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Keep Selection On Copy",
-                description: "Whether to keep the text selection after copying it to the clipboard.",
+                title: "복사 후 선택 유지",
+                description: "텍스트를 클립보드에 복사한 후 선택을 유지할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.keep_selection_on_copy"),
                     pick: |settings_content| {
@@ -3625,10 +3625,10 @@ fn terminal_page() -> SettingsPage {
 
     fn layout_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Layout Settings"),
+            SettingsPageItem::SectionHeader("레이아웃 설정"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Default Width",
-                description: "Default width when the terminal is docked to the left or right (in pixels).",
+                title: "기본 너비",
+                description: "터미널을 좌우에 도킹할 때의 기본 너비(픽셀)입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.default_width"),
                     pick: |settings_content| {
@@ -3645,8 +3645,8 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Default Height",
-                description: "Default height when the terminal is docked to the bottom (in pixels).",
+                title: "기본 높이",
+                description: "터미널을 하단에 도킹할 때의 기본 높이(픽셀)입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.default_height"),
                     pick: |settings_content| {
@@ -3667,10 +3667,10 @@ fn terminal_page() -> SettingsPage {
 
     fn advanced_settings_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Advanced Settings"),
+            SettingsPageItem::SectionHeader("고급 설정"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Max Scroll History Lines",
-                description: "Maximum number of lines to keep in scrollback history (max: 100,000; 0 disables scrolling).",
+                title: "최대 스크롤 기록 줄 수",
+                description: "스크롤백 기록에 유지할 최대 줄 수입니다 (최대: 100,000; 0이면 스크롤 비활성화).",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.max_scroll_history_lines"),
                     pick: |settings_content| {
@@ -3691,8 +3691,8 @@ fn terminal_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Multiplier",
-                description: "The multiplier for scrolling in the terminal with the mouse wheel",
+                title: "스크롤 배수",
+                description: "마우스 휠로 터미널을 스크롤할 때의 배수입니다",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.scroll_multiplier"),
                     pick: |settings_content| {
@@ -3717,10 +3717,10 @@ fn terminal_page() -> SettingsPage {
 
     fn toolbar_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Toolbar"),
+            SettingsPageItem::SectionHeader("툴바"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Breadcrumbs",
-                description: "Display the terminal title in breadcrumbs inside the terminal pane.",
+                title: "이동 경로",
+                description: "터미널 창 내 이동 경로에 터미널 제목을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.toolbar.breadcrumbs"),
                     pick: |settings_content| {
@@ -3749,10 +3749,10 @@ fn terminal_page() -> SettingsPage {
 
     fn scrollbar_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Scrollbar"),
+            SettingsPageItem::SectionHeader("스크롤바"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Scrollbar",
-                description: "When to show the scrollbar in the terminal.",
+                title: "스크롤바 표시",
+                description: "터미널에서 스크롤바를 표시할 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("terminal.scrollbar.show"),
                     pick: |settings_content| {
@@ -3782,7 +3782,7 @@ fn terminal_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Terminal",
+        title: "터미널",
         items: concat_sections![
             environment_section(),
             font_section(),
@@ -3799,12 +3799,12 @@ fn terminal_page() -> SettingsPage {
 fn version_control_page() -> SettingsPage {
     fn git_integration_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Git Integration"),
+            SettingsPageItem::SectionHeader("Git 통합"),
             SettingsPageItem::DynamicItem(DynamicItem {
                 discriminant: SettingItem {
                     files: USER,
-                    title: "Disable Git Integration",
-                    description: "Disable all Git integration features in Zed.",
+                    title: "Git 통합 사용 안 함",
+                    description: "Zed의 모든 Git 통합 기능을 사용 안 함으로 설정합니다.",
                     field: Box::new(SettingField::<bool> {
                         json_path: Some("git.disable_git"),
                         pick: |settings_content| {
@@ -3842,8 +3842,8 @@ fn version_control_page() -> SettingsPage {
                     vec![
                         SettingItem {
                             files: USER,
-                            title: "Enable Git Status",
-                            description: "Show Git status information in the editor.",
+                            title: "Git 상태 사용",
+                            description: "편집기에 Git 상태 정보를 표시합니다.",
                             field: Box::new(SettingField::<bool> {
                                 json_path: Some("git.enable_status"),
                                 pick: |settings_content| {
@@ -3868,8 +3868,8 @@ fn version_control_page() -> SettingsPage {
                         },
                         SettingItem {
                             files: USER,
-                            title: "Enable Git Diff",
-                            description: "Show Git diff information in the editor.",
+                            title: "Git 차이 사용",
+                            description: "편집기에 Git 차이 정보를 표시합니다.",
                             field: Box::new(SettingField::<bool> {
                                 json_path: Some("git.enable_diff"),
                                 pick: |settings_content| {
@@ -3900,10 +3900,10 @@ fn version_control_page() -> SettingsPage {
 
     fn git_gutter_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Git Gutter"),
+            SettingsPageItem::SectionHeader("Git 거터"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Visibility",
-                description: "Control whether Git status is shown in the editor's gutter.",
+                title: "표시 여부",
+                description: "편집기 거터에 Git 상태를 표시할지 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git.git_gutter"),
                     pick: |settings_content| settings_content.git.as_ref()?.git_gutter.as_ref(),
@@ -3919,10 +3919,10 @@ fn version_control_page() -> SettingsPage {
 
     fn inline_git_blame_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Inline Git Blame"),
+            SettingsPageItem::SectionHeader("인라인 Git Blame"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Whether or not to show Git blame data inline in the currently focused line.",
+                title: "사용",
+                description: "현재 포커스된 줄에 Git blame 데이터를 인라인으로 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git.inline_blame.enabled"),
                     pick: |settings_content| {
@@ -3947,8 +3947,8 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Commit Summary",
-                description: "Show commit summary as part of the inline blame.",
+                title: "커밋 요약 표시",
+                description: "인라인 blame의 일부로 커밋 요약을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git.inline_blame.show_commit_summary"),
                     pick: |settings_content| {
@@ -3977,10 +3977,10 @@ fn version_control_page() -> SettingsPage {
 
     fn git_hunks_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("Git Hunks"),
+            SettingsPageItem::SectionHeader("Git 헝크"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hunk Style",
-                description: "How Git hunks are displayed visually in the editor.",
+                title: "헝크 스타일",
+                description: "편집기에서 Git 헝크가 시각적으로 표시되는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git.hunk_style"),
                     pick: |settings_content| settings_content.git.as_ref()?.hunk_style.as_ref(),
@@ -3992,8 +3992,8 @@ fn version_control_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Stage/Restore Buttons",
-                description: "Whether to show the stage and restore buttons on diff hunks.",
+                title: "스테이지/복원 버튼 표시",
+                description: "차이 헝크에 스테이지 및 복원 버튼을 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("git.show_stage_restore_buttons"),
                     pick: |settings_content| {
@@ -4017,7 +4017,7 @@ fn version_control_page() -> SettingsPage {
     }
 
     SettingsPage {
-        title: "Version Control",
+        title: "버전 관리",
         items: concat_sections![
             git_integration_section(),
             git_gutter_section(),
@@ -4030,10 +4030,10 @@ fn version_control_page() -> SettingsPage {
 fn ai_page(cx: &App) -> SettingsPage {
     fn general_section() -> [SettingsPageItem; 3] {
         [
-            SettingsPageItem::SectionHeader("General"),
+            SettingsPageItem::SectionHeader("일반"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Disable AI",
-                description: "Whether to disable all AI features in Zed.",
+                title: "AI 사용 안 함",
+                description: "Zed의 모든 AI 기능을 사용 안 함으로 설정할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("disable_ai"),
                     pick: |settings_content| settings_content.project.disable_ai.as_ref(),
@@ -4045,8 +4045,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Threads Sidebar Side",
-                description: "Which side of the window the threads sidebar appears on.",
+                title: "스레드 사이드바 위치",
+                description: "스레드 사이드바가 창의 어느 쪽에 나타날지입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.sidebar_side"),
                     pick: |settings_content| settings_content.agent.as_ref()?.sidebar_side.as_ref(),
@@ -4062,21 +4062,21 @@ fn ai_page(cx: &App) -> SettingsPage {
 
     fn agent_configuration_section(_cx: &App) -> Box<[SettingsPageItem]> {
         let mut items = vec![
-            SettingsPageItem::SectionHeader("Agent Configuration"),
+            SettingsPageItem::SectionHeader("에이전트 구성"),
             SettingsPageItem::SubPageLink(SubPageLink {
-                title: "Skills".into(),
+                title: "스킬".into(),
                 r#type: Default::default(),
                 json_path: Some("agent.skills"),
-                description: Some("View and manage agent skills installed globally or in project worktrees.".into()),
+                description: Some("전역 또는 프로젝트 워크트리에 설치된 에이전트 스킬을 보고 관리합니다.".into()),
                 in_json: false,
                 files: USER | PROJECT,
                 render: render_skills_setup_page,
             }),
             SettingsPageItem::SubPageLink(SubPageLink {
-                title: "Tool Permissions".into(),
+                title: "도구 권한".into(),
                 r#type: Default::default(),
                 json_path: Some("agent.tool_permissions"),
-                description: Some("Set up regex patterns to auto-allow, auto-deny, or always request confirmation, for specific tool inputs.".into()),
+                description: Some("특정 도구 입력에 대해 자동 허용, 자동 거부 또는 항상 확인 요청하도록 정규식 패턴을 설정합니다.".into()),
                 in_json: true,
                 files: USER,
                 render: render_tool_permissions_setup_page,
@@ -4085,8 +4085,8 @@ fn ai_page(cx: &App) -> SettingsPage {
 
         items.extend([
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Single File Review",
-                description: "When enabled, agent edits will also be displayed in single-file buffers for review.",
+                title: "단일 파일 검토",
+                description: "사용하면 에이전트 편집이 검토를 위해 단일 파일 버퍼에도 표시됩니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.single_file_review"),
                     pick: |settings_content| {
@@ -4103,8 +4103,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Notify When Agent Waiting",
-                description: "Where to show notifications when the agent has completed its response or needs confirmation before running a tool action.",
+                title: "에이전트 대기 시 알림",
+                description: "에이전트가 응답을 완료했거나 도구 작업 실행 전 확인이 필요할 때 알림을 표시할 위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.notify_when_agent_waiting"),
                     pick: |settings_content| {
@@ -4125,8 +4125,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Play Sound When Agent Done",
-                description: "When to play a sound when the agent has either completed its response, or needs user input.",
+                title: "에이전트 완료 시 소리 재생",
+                description: "에이전트가 응답을 완료했거나 사용자 입력이 필요할 때 소리를 재생할 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.play_sound_when_agent_done"),
                     pick: |settings_content| {
@@ -4147,8 +4147,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Expand Edit Card",
-                description: "Whether to have edit cards in the agent panel expanded, showing a Preview of the diff.",
+                title: "편집 카드 펼치기",
+                description: "에이전트 패널의 편집 카드를 펼쳐 차이 미리보기를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.expand_edit_card"),
                     pick: |settings_content| {
@@ -4165,8 +4165,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Expand Terminal Card",
-                description: "Whether to have terminal cards in the agent panel expanded, showing the whole command output.",
+                title: "터미널 카드 펼치기",
+                description: "에이전트 패널의 터미널 카드를 펼쳐 전체 명령어 출력을 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.expand_terminal_card"),
                     pick: |settings_content| {
@@ -4187,8 +4187,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Thinking Display",
-                description: "How thinking blocks should be displayed by default. 'Auto' fully expands during streaming, then auto-collapses when done. 'Preview' auto-expands with a height constraint during streaming. 'Always Expanded' shows full content. 'Always Collapsed' keeps them collapsed.",
+                title: "사고 과정 표시",
+                description: "사고 블록을 기본적으로 표시하는 방식입니다. 'Auto'는 스트리밍 중 완전히 펼쳐졌다가 완료되면 자동으로 접힙니다. 'Preview'는 스트리밍 중 높이 제한을 두고 자동으로 펼쳐집니다. 'Always Expanded'는 전체 내용을 표시합니다. 'Always Collapsed'는 항상 접힌 상태를 유지합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.thinking_display"),
                     pick: |settings_content| {
@@ -4209,8 +4209,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Cancel Generation On Terminal Stop",
-                description: "Whether clicking the stop button on a running terminal tool should also cancel the agent's generation. Note that this only applies to the stop button, not to ctrl+c inside the terminal.",
+                title: "터미널 중지 시 생성 취소",
+                description: "실행 중인 터미널 도구의 중지 버튼을 클릭하면 에이전트의 생성도 취소할지 여부입니다. 이는 중지 버튼에만 적용되며 터미널 내부의 ctrl+c에는 적용되지 않습니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.cancel_generation_on_terminal_stop"),
                     pick: |settings_content| {
@@ -4231,8 +4231,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Modifier To Send",
-                description: "Whether to always use cmd-enter (or ctrl-enter on Linux or Windows) to send messages.",
+                title: "보낼 때 수정자 키 사용",
+                description: "메시지를 보낼 때 항상 cmd-enter(Linux 또는 Windows에서는 ctrl-enter)를 사용할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.use_modifier_to_send"),
                     pick: |settings_content| {
@@ -4253,8 +4253,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Turn Stats",
-                description: "Whether to show turn statistics like elapsed time during generation and final turn duration.",
+                title: "턴 통계 표시",
+                description: "생성 중 경과 시간이나 최종 턴 소요 시간 같은 턴 통계를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.show_turn_stats"),
                     pick: |settings_content| {
@@ -4271,8 +4271,8 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Merge Conflict Indicator",
-                description: "Whether to show the merge conflict indicator in the status bar that offers to resolve conflicts using the agent.",
+                title: "머지 충돌 표시기 표시",
+                description: "에이전트를 사용해 충돌을 해결하도록 제안하는 머지 충돌 표시기를 상태 표시줄에 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("agent.show_merge_conflict_indicator"),
                     pick: |settings_content| {
@@ -4295,10 +4295,10 @@ fn ai_page(cx: &App) -> SettingsPage {
 
     fn context_servers_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Context Servers"),
+            SettingsPageItem::SectionHeader("컨텍스트 서버"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Context Server Timeout",
-                description: "Default timeout in seconds for context server tool calls. Can be overridden per-server in context_servers configuration.",
+                title: "컨텍스트 서버 시간 제한",
+                description: "컨텍스트 서버 도구 호출의 기본 시간 제한(초)입니다. context_servers 구성에서 서버별로 재정의할 수 있습니다.",
                 field: Box::new(SettingField {
                     json_path: Some("context_server_timeout"),
                     pick: |settings_content| {
@@ -4316,8 +4316,8 @@ fn ai_page(cx: &App) -> SettingsPage {
 
     fn edit_prediction_display_sub_section() -> [SettingsPageItem; 1] {
         [SettingsPageItem::SettingItem(SettingItem {
-            title: "Display Mode",
-            description: "When to show edit predictions previews in buffer. The eager mode displays them inline, while the subtle mode displays them only when holding a modifier key.",
+            title: "표시 모드",
+            description: "버퍼에 편집 예측 미리보기를 표시할 시점입니다. eager 모드는 인라인으로 표시하고, subtle 모드는 수정자 키를 누르고 있을 때만 표시합니다.",
             field: Box::new(SettingField {
                 json_path: Some("edit_prediction.display_mode"),
                 pick: |settings_content| {
@@ -4393,10 +4393,10 @@ fn language_settings_field_mut<T>(
 fn language_settings_data() -> Box<[SettingsPageItem]> {
     fn indentation_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Indentation"),
+            SettingsPageItem::SectionHeader("들여쓰기"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Size",
-                description: "How many columns a tab should occupy.",
+                title: "탭 크기",
+                description: "탭이 차지할 열 수입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).tab_size"), // TODO(cameron): not JQ syntax because not URL-safe
                     pick: |settings_content| {
@@ -4414,8 +4414,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Hard Tabs",
-                description: "Whether to indent lines using tab characters, as opposed to multiple spaces.",
+                title: "하드 탭",
+                description: "여러 개의 공백 대신 탭 문자를 사용해 줄을 들여쓸지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).hard_tabs"),
                     pick: |settings_content| {
@@ -4433,8 +4433,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Indent",
-                description: "Controls automatic indentation behavior when typing.",
+                title: "자동 들여쓰기",
+                description: "입력할 때 자동 들여쓰기 동작을 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).auto_indent"),
                     pick: |settings_content| {
@@ -4452,8 +4452,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Indent On Paste",
-                description: "Whether indentation of pasted content should be adjusted based on the context.",
+                title: "붙여넣기 시 자동 들여쓰기",
+                description: "붙여넣은 콘텐츠의 들여쓰기를 컨텍스트에 따라 조정할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).auto_indent_on_paste"),
                     pick: |settings_content| {
@@ -4475,10 +4475,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn wrapping_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Wrapping"),
+            SettingsPageItem::SectionHeader("줄 바꿈"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Soft Wrap",
-                description: "How to soft-wrap long lines of text.",
+                title: "소프트 줄 바꿈",
+                description: "긴 텍스트 줄을 소프트 줄 바꿈하는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).soft_wrap"),
                     pick: |settings_content| {
@@ -4496,8 +4496,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Wrap Guides",
-                description: "Show wrap guides in the editor.",
+                title: "줄 바꿈 가이드 표시",
+                description: "편집기에 줄 바꿈 가이드를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).show_wrap_guides"),
                     pick: |settings_content| {
@@ -4515,8 +4515,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Preferred Line Length",
-                description: "The column at which to soft-wrap lines, for buffers where soft-wrap is enabled.",
+                title: "선호 줄 길이",
+                description: "소프트 줄 바꿈이 사용되는 버퍼에서 줄을 소프트 줄 바꿈할 열입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).preferred_line_length"),
                     pick: |settings_content| {
@@ -4534,8 +4534,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Wrap Guides",
-                description: "Character counts at which to show wrap guides in the editor.",
+                title: "줄 바꿈 가이드",
+                description: "편집기에서 줄 바꿈 가이드를 표시할 글자 수입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).wrap_guides"),
@@ -4560,8 +4560,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Allow Rewrap",
-                description: "Controls where the `editor::rewrap` action is allowed for this language.",
+                title: "다시 줄 바꿈 허용",
+                description: "이 언어에 대해 `editor::rewrap` 작업이 허용되는 위치를 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).allow_rewrap"),
                     pick: |settings_content| {
@@ -4583,10 +4583,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn indent_guides_section() -> [SettingsPageItem; 6] {
         [
-            SettingsPageItem::SectionHeader("Indent Guides"),
+            SettingsPageItem::SectionHeader("들여쓰기 가이드"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Display indent guides in the editor.",
+                title: "사용",
+                description: "편집기에 들여쓰기 가이드를 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).indent_guides.enabled"),
                     pick: |settings_content| {
@@ -4607,8 +4607,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Width",
-                description: "The width of the indent guides in pixels, between 1 and 10.",
+                title: "선 너비",
+                description: "들여쓰기 가이드의 너비(픽셀)이며, 1과 10 사이입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).indent_guides.line_width"),
                     pick: |settings_content| {
@@ -4629,8 +4629,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Active Line Width",
-                description: "The width of the active indent guide in pixels, between 1 and 10.",
+                title: "활성 선 너비",
+                description: "활성 들여쓰기 가이드의 너비(픽셀)이며, 1과 10 사이입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).indent_guides.active_line_width"),
                     pick: |settings_content| {
@@ -4654,8 +4654,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Coloring",
-                description: "Determines how indent guides are colored.",
+                title: "색상",
+                description: "들여쓰기 가이드의 색상을 지정하는 방식을 결정합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).indent_guides.coloring"),
                     pick: |settings_content| {
@@ -4676,8 +4676,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Background Coloring",
-                description: "Determines how indent guide backgrounds are colored.",
+                title: "배경 색상",
+                description: "들여쓰기 가이드 배경의 색상을 지정하는 방식을 결정합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).indent_guides.background_coloring"),
                     pick: |settings_content| {
@@ -4704,10 +4704,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn formatting_section() -> [SettingsPageItem; 8] {
         [
-            SettingsPageItem::SectionHeader("Formatting"),
+            SettingsPageItem::SectionHeader("서식"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Format On Save",
-                description: "Whether or not to perform a buffer format before saving.",
+                title: "저장 시 서식",
+                description: "저장하기 전 버퍼 서식을 수행할지 여부입니다.",
                 field: Box::new(
                     // TODO(settings_ui): this setting should just be a bool
                     SettingField {
@@ -4732,8 +4732,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Remove Trailing Whitespace On Save",
-                description: "Whether or not to remove any trailing whitespace from lines of a buffer before saving it.",
+                title: "저장 시 끝 공백 제거",
+                description: "버퍼를 저장하기 전 줄 끝의 공백을 제거할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).remove_trailing_whitespace_on_save"),
                     pick: |settings_content| {
@@ -4751,8 +4751,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Ensure Final Newline On Save",
-                description: "Whether or not to ensure there's a single newline at the end of a buffer when saving it.",
+                title: "저장 시 마지막 줄바꿈 보장",
+                description: "버퍼를 저장할 때 끝에 줄바꿈 하나가 있도록 보장할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).ensure_final_newline_on_save"),
                     pick: |settings_content| {
@@ -4770,8 +4770,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Ending",
-                description: "How line endings should be handled for new files and during format and save operations.",
+                title: "줄 끝",
+                description: "새 파일과 서식 및 저장 작업 중에 줄 끝을 처리하는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).line_ending"),
                     pick: |settings_content| {
@@ -4792,8 +4792,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Formatter",
-                description: "How to perform a buffer format.",
+                title: "포매터",
+                description: "버퍼 서식을 수행하는 방식입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).formatter"),
@@ -4818,8 +4818,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use On Type Format",
-                description: "Whether to use additional LSP queries to format (and amend) the code after every \"trigger\" symbol input, defined by LSP server capabilities",
+                title: "입력 중 서식 사용",
+                description: "LSP 서버 기능으로 정의된 \"트리거\" 기호를 입력할 때마다 추가 LSP 쿼리를 사용해 코드를 서식 지정(및 수정)할지 여부입니다",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).use_on_type_format"),
                     pick: |settings_content| {
@@ -4837,8 +4837,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Code Actions On Format",
-                description: "Additional code actions to run when formatting.",
+                title: "서식 시 코드 작업",
+                description: "서식을 지정할 때 실행할 추가 코드 작업입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).code_actions_on_format"),
@@ -4867,10 +4867,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn autoclose_section() -> [SettingsPageItem; 5] {
         [
-            SettingsPageItem::SectionHeader("Autoclose"),
+            SettingsPageItem::SectionHeader("자동 닫기"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Autoclose",
-                description: "Whether to automatically type closing characters for you. For example, when you type '(', Zed will automatically add a closing ')' at the correct position.",
+                title: "자동 닫기 사용",
+                description: "닫는 문자를 자동으로 입력할지 여부입니다. 예를 들어 '('를 입력하면 Zed가 올바른 위치에 닫는 ')'를 자동으로 추가합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).use_autoclose"),
                     pick: |settings_content| {
@@ -4888,8 +4888,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Use Auto Surround",
-                description: "Whether to automatically surround text with characters for you. For example, when you select text and type '(', Zed will automatically surround text with ().",
+                title: "자동 감싸기 사용",
+                description: "텍스트를 문자로 자동으로 감쌀지 여부입니다. 예를 들어 텍스트를 선택하고 '('를 입력하면 Zed가 텍스트를 ()로 자동으로 감쌉니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).use_auto_surround"),
                     pick: |settings_content| {
@@ -4907,8 +4907,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Always Treat Brackets As Autoclosed",
-                description: "Controls whether the closing characters are always skipped over and auto-removed no matter how they were inserted.",
+                title: "괄호를 항상 자동 닫기로 처리",
+                description: "닫는 문자가 어떻게 삽입되었든 상관없이 항상 건너뛰고 자동으로 제거할지 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).always_treat_brackets_as_autoclosed"),
                     pick: |settings_content| {
@@ -4926,8 +4926,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "JSX Tag Auto Close",
-                description: "Whether to automatically close JSX tags.",
+                title: "JSX 태그 자동 닫기",
+                description: "JSX 태그를 자동으로 닫을지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).jsx_tag_auto_close"),
                     // TODO(settings_ui): this setting should just be a bool
@@ -4950,10 +4950,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn whitespace_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Whitespace"),
+            SettingsPageItem::SectionHeader("공백 문자"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Whitespaces",
-                description: "Whether to show tabs and spaces in the editor.",
+                title: "공백 문자 표시",
+                description: "편집기에 탭과 공백을 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).show_whitespaces"),
                     pick: |settings_content| {
@@ -4971,8 +4971,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Space Whitespace Indicator",
-                description: "Visible character used to render space characters when show_whitespaces is enabled (default: \"•\")",
+                title: "공백 표시 문자",
+                description: "show_whitespaces가 사용 설정되었을 때 공백 문자를 렌더링하는 데 사용하는 표시 문자입니다 (기본값: \"•\")",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).whitespace_map.space"),
@@ -4997,8 +4997,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Tab Whitespace Indicator",
-                description: "Visible character used to render tab characters when show_whitespaces is enabled (default: \"→\")",
+                title: "탭 표시 문자",
+                description: "show_whitespaces가 사용 설정되었을 때 탭 문자를 렌더링하는 데 사용하는 표시 문자입니다 (기본값: \"→\")",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).whitespace_map.tab"),
@@ -5027,10 +5027,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn completions_section() -> [SettingsPageItem; 8] {
         [
-            SettingsPageItem::SectionHeader("Completions"),
+            SettingsPageItem::SectionHeader("자동 완성"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Completions On Input",
-                description: "Whether to pop the completions menu while typing in an editor without explicitly requesting it.",
+                title: "입력 시 자동 완성 표시",
+                description: "편집기에서 입력하는 동안 명시적으로 요청하지 않아도 자동 완성 메뉴를 띄울지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).show_completions_on_input"),
                     pick: |settings_content| {
@@ -5048,8 +5048,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Completion Documentation",
-                description: "Whether to display inline and alongside documentation for items in the completions menu.",
+                title: "자동 완성 문서 표시",
+                description: "자동 완성 메뉴의 항목에 대한 문서를 인라인 및 옆에 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).show_completion_documentation"),
                     pick: |settings_content| {
@@ -5067,8 +5067,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Words",
-                description: "Controls how words are completed.",
+                title: "단어",
+                description: "단어를 완성하는 방식을 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).completions.words"),
                     pick: |settings_content| {
@@ -5086,8 +5086,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Words Min Length",
-                description: "How many characters has to be in the completions query to automatically show the words-based completions.",
+                title: "단어 최소 길이",
+                description: "단어 기반 자동 완성을 자동으로 표시하기 위해 자동 완성 쿼리에 필요한 글자 수입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).completions.words_min_length"),
                     pick: |settings_content| {
@@ -5108,8 +5108,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Completion Menu Scrollbar",
-                description: "When to show the scrollbar in the completion menu.",
+                title: "자동 완성 메뉴 스크롤바",
+                description: "자동 완성 메뉴에서 스크롤바를 표시할 시점입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("editor.completion_menu_scrollbar"),
                     pick: |settings_content| {
@@ -5123,8 +5123,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Completion Detail Alignment",
-                description: "Whether to align detail text in code completions context menus left or right.",
+                title: "자동 완성 세부 정보 정렬",
+                description: "코드 자동 완성 컨텍스트 메뉴에서 세부 정보 텍스트를 왼쪽 또는 오른쪽으로 정렬할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("editor.completion_detail_alignment"),
                     pick: |settings_content| {
@@ -5138,8 +5138,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Completion Menu Item Kind",
-                description: "How to display the LSP item kind (function, method, variable, etc.) of each entry in the completions menu.",
+                title: "자동 완성 메뉴 항목 종류",
+                description: "자동 완성 메뉴의 각 항목에 대한 LSP 항목 종류(함수, 메서드, 변수 등)를 표시하는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("editor.completion_menu_item_kind"),
                     pick: |settings_content| {
@@ -5157,10 +5157,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn inlay_hints_section() -> [SettingsPageItem; 10] {
         [
-            SettingsPageItem::SectionHeader("Inlay Hints"),
+            SettingsPageItem::SectionHeader("인레이 힌트"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Global switch to toggle hints on and off.",
+                title: "사용",
+                description: "힌트를 켜고 끄는 전역 스위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.enabled"),
                     pick: |settings_content| {
@@ -5178,8 +5178,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Value Hints",
-                description: "Global switch to toggle inline values on and off when debugging.",
+                title: "값 힌트 표시",
+                description: "디버깅할 때 인라인 값을 켜고 끄는 전역 스위치입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.show_value_hints"),
                     pick: |settings_content| {
@@ -5200,8 +5200,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Type Hints",
-                description: "Whether type hints should be shown.",
+                title: "타입 힌트 표시",
+                description: "타입 힌트를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.show_type_hints"),
                     pick: |settings_content| {
@@ -5219,8 +5219,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Parameter Hints",
-                description: "Whether parameter hints should be shown.",
+                title: "매개변수 힌트 표시",
+                description: "매개변수 힌트를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.show_parameter_hints"),
                     pick: |settings_content| {
@@ -5241,8 +5241,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Other Hints",
-                description: "Whether other hints should be shown.",
+                title: "기타 힌트 표시",
+                description: "기타 힌트를 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.show_other_hints"),
                     pick: |settings_content| {
@@ -5263,8 +5263,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Background",
-                description: "Show a background for inlay hints.",
+                title: "배경 표시",
+                description: "인레이 힌트에 배경을 표시합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.show_background"),
                     pick: |settings_content| {
@@ -5282,8 +5282,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Edit Debounce Ms",
-                description: "Whether or not to debounce inlay hints updates after buffer edits (set to 0 to disable debouncing).",
+                title: "편집 디바운스(ms)",
+                description: "버퍼 편집 후 인레이 힌트 업데이트를 디바운스할지 여부입니다 (0으로 설정하면 디바운싱 비활성화).",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.edit_debounce_ms"),
                     pick: |settings_content| {
@@ -5304,8 +5304,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Scroll Debounce Ms",
-                description: "Whether or not to debounce inlay hints updates after buffer scrolls (set to 0 to disable debouncing).",
+                title: "스크롤 디바운스(ms)",
+                description: "버퍼 스크롤 후 인레이 힌트 업데이트를 디바운스할지 여부입니다 (0으로 설정하면 디바운싱 비활성화).",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).inlay_hints.scroll_debounce_ms"),
                     pick: |settings_content| {
@@ -5326,8 +5326,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Toggle On Modifiers Press",
-                description: "Toggles inlay hints (hides or shows) when the user presses the modifiers specified.",
+                title: "수정자 키 누를 때 전환",
+                description: "지정한 수정자 키를 누르면 인레이 힌트를 표시 전환(숨기거나 표시)합니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some(
@@ -5365,10 +5365,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn tasks_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("Tasks"),
+            SettingsPageItem::SectionHeader("작업"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Whether tasks are enabled for this language.",
+                title: "사용",
+                description: "이 언어에 대해 작업을 사용할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).tasks.enabled"),
                     pick: |settings_content| {
@@ -5386,8 +5386,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Variables",
-                description: "Extra task variables to set for a particular language.",
+                title: "변수",
+                description: "특정 언어에 설정할 추가 작업 변수입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).tasks.variables"),
@@ -5412,8 +5412,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Prefer LSP",
-                description: "Use LSP tasks over Zed language extension tasks.",
+                title: "LSP 우선",
+                description: "Zed 언어 확장 작업보다 LSP 작업을 우선 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).tasks.prefer_lsp"),
                     pick: |settings_content| {
@@ -5435,10 +5435,10 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn miscellaneous_section() -> [SettingsPageItem; 7] {
         [
-            SettingsPageItem::SectionHeader("Miscellaneous"),
+            SettingsPageItem::SectionHeader("기타"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Word Diff Enabled",
-                description: "Whether to enable word diff highlighting in the editor. When enabled, changed words within modified lines are highlighted to show exactly what changed.",
+                title: "단어 차이 사용",
+                description: "편집기에서 단어 차이 강조를 사용할지 여부입니다. 사용하면 수정된 줄 내에서 변경된 단어가 강조되어 정확히 무엇이 바뀌었는지 보여줍니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).word_diff_enabled"),
                     pick: |settings_content| {
@@ -5456,8 +5456,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debuggers",
-                description: "Preferred debuggers for this language.",
+                title: "디버거",
+                description: "이 언어에 대해 선호하는 디버거입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).debuggers"),
@@ -5482,8 +5482,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Middle Click Paste",
-                description: "Enable middle-click paste on Linux.",
+                title: "가운데 클릭 붙여넣기",
+                description: "Linux에서 가운데 클릭 붙여넣기를 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).editor.middle_click_paste"),
                     pick: |settings_content| settings_content.editor.middle_click_paste.as_ref(),
@@ -5495,8 +5495,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Extend Comment On Newline",
-                description: "Whether to start a new line with a comment when a previous line is a comment as well.",
+                title: "줄바꿈 시 주석 이어가기",
+                description: "이전 줄도 주석일 때 새 줄을 주석으로 시작할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).extend_comment_on_newline"),
                     pick: |settings_content| {
@@ -5514,8 +5514,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Colorize Brackets",
-                description: "Whether to colorize brackets in the editor.",
+                title: "괄호 색상 표시",
+                description: "편집기에서 괄호에 색상을 표시할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).colorize_brackets"),
                     pick: |settings_content| {
@@ -5533,8 +5533,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Vim/Emacs Modeline Support",
-                description: "Number of lines to search for modelines (set to 0 to disable).",
+                title: "Vim/Emacs 모드라인 지원",
+                description: "모드라인을 검색할 줄 수입니다 (0으로 설정하면 비활성화).",
                 field: Box::new(SettingField {
                     json_path: Some("modeline_lines"),
                     pick: |settings_content| settings_content.modeline_lines.as_ref(),
@@ -5551,8 +5551,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
     fn global_only_miscellaneous_sub_section() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Image Viewer",
-                description: "The unit for image file sizes.",
+                title: "이미지 뷰어",
+                description: "이미지 파일 크기의 단위입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("image_viewer.unit"),
                     pick: |settings_content| {
@@ -5569,8 +5569,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Replace Emoji Shortcode",
-                description: "Whether to automatically replace emoji shortcodes with emoji characters.",
+                title: "이모지 단축코드 자동 변환",
+                description: "이모지 단축코드를 이모지 문자로 자동 변환할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("message_editor.auto_replace_emoji_shortcode"),
                     pick: |settings_content| {
@@ -5592,8 +5592,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Drop Size Target",
-                description: "Relative size of the drop target in the editor that will open dropped file as a split pane.",
+                title: "드롭 크기 대상",
+                description: "드롭한 파일을 분할 창으로 여는 편집기 내 드롭 대상의 상대 크기입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("drop_target_size"),
                     pick: |settings_content| settings_content.workspace.drop_target_size.as_ref(),
@@ -5610,8 +5610,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
     let is_global = active_language().is_none();
 
     let code_lens_item = [SettingsPageItem::SettingItem(SettingItem {
-        title: "Code Lens",
-        description: "Whether and how to display code lenses from language servers.",
+        title: "코드 렌즈",
+        description: "언어 서버의 코드 렌즈를 표시할지 여부와 표시 방식입니다.",
         field: Box::new(SettingField {
             json_path: Some("code_lens"),
             pick: |settings_content| settings_content.editor.code_lens.as_ref(),
@@ -5624,8 +5624,8 @@ fn language_settings_data() -> Box<[SettingsPageItem]> {
     })];
 
     let lsp_document_colors_item = [SettingsPageItem::SettingItem(SettingItem {
-        title: "LSP Document Colors",
-        description: "How to render LSP color previews in the editor.",
+        title: "LSP 문서 색상",
+        description: "편집기에서 LSP 색상 미리보기를 렌더링하는 방식입니다.",
         field: Box::new(SettingField {
             json_path: Some("lsp_document_colors"),
             pick: |settings_content| settings_content.editor.lsp_document_colors.as_ref(),
@@ -5677,8 +5677,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
         [
             SettingsPageItem::SectionHeader("LSP"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Language Server",
-                description: "Whether to use language servers to provide code intelligence.",
+                title: "언어 서버 사용",
+                description: "코드 인텔리전스를 제공하기 위해 언어 서버를 사용할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).enable_language_server"),
                     pick: |settings_content| {
@@ -5696,8 +5696,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Language Servers",
-                description: "The list of language servers to use (or disable) for this language.",
+                title: "언어 서버",
+                description: "이 언어에 사용(또는 사용 안 함)할 언어 서버 목록입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).language_servers"),
@@ -5722,8 +5722,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Linked Edits",
-                description: "Whether to perform linked edits of associated ranges, if the LS supports it. For example, when editing opening <html> tag, the contents of the closing </html> tag will be edited as well.",
+                title: "연결 편집",
+                description: "LS가 지원하는 경우 연관된 범위의 연결 편집을 수행할지 여부입니다. 예를 들어 여는 <html> 태그를 편집하면 닫는 </html> 태그의 내용도 함께 편집됩니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).linked_edits"),
                     pick: |settings_content| {
@@ -5741,8 +5741,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Go To Definition Fallback",
-                description: "Whether to follow-up empty Go to definition responses from the language server.",
+                title: "정의로 이동 대체",
+                description: "언어 서버의 빈 정의로 이동 응답을 후속 처리할지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("go_to_definition_fallback"),
                     pick: |settings_content| {
@@ -5756,8 +5756,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Go To Definition Scroll Strategy",
-                description: "How to scroll the target into view when navigating to a definition or reference.",
+                title: "정의로 이동 스크롤 전략",
+                description: "정의나 참조로 이동할 때 대상을 화면에 보이도록 스크롤하는 방식입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("go_to_definition_scroll_strategy"),
                     pick: |settings_content| {
@@ -5774,7 +5774,7 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Semantic Tokens",
+                title: "시맨틱 토큰",
                 description: {
                     static DESCRIPTION: OnceLock<&'static str> = OnceLock::new();
                     DESCRIPTION.get_or_init(|| {
@@ -5809,8 +5809,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "LSP Folding Ranges",
-                description: "When enabled, use folding ranges from the language server instead of indent-based folding.",
+                title: "LSP 접기 범위",
+                description: "사용하면 들여쓰기 기반 접기 대신 언어 서버의 접기 범위를 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).document_folding_ranges"),
                     pick: |settings_content| {
@@ -5828,8 +5828,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "LSP Document Symbols",
-                description: "When enabled, use the language server's document symbols for outlines and breadcrumbs instead of tree-sitter.",
+                title: "LSP 문서 기호",
+                description: "사용하면 개요와 이동 경로에 tree-sitter 대신 언어 서버의 문서 기호를 사용합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).document_symbols"),
                     pick: |settings_content| {
@@ -5851,10 +5851,10 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn lsp_completions_section() -> [SettingsPageItem; 4] {
         [
-            SettingsPageItem::SectionHeader("LSP Completions"),
+            SettingsPageItem::SectionHeader("LSP 자동 완성"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enabled",
-                description: "Whether to fetch LSP completions or not.",
+                title: "사용",
+                description: "LSP 자동 완성을 가져올지 여부입니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).completions.lsp"),
                     pick: |settings_content| {
@@ -5872,8 +5872,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Fetch Timeout (milliseconds)",
-                description: "When fetching LSP completions, determines how long to wait for a response of a particular server (set to 0 to wait indefinitely).",
+                title: "가져오기 시간 제한 (밀리초)",
+                description: "LSP 자동 완성을 가져올 때 특정 서버의 응답을 기다릴 시간을 결정합니다 (0으로 설정하면 무한정 대기).",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).completions.lsp_fetch_timeout_ms"),
                     pick: |settings_content| {
@@ -5894,8 +5894,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Insert Mode",
-                description: "Controls how LSP completions are inserted.",
+                title: "삽입 모드",
+                description: "LSP 자동 완성이 삽입되는 방식을 제어합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).completions.lsp_insert_mode"),
                     pick: |settings_content| {
@@ -5917,10 +5917,10 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
 
     fn debugger_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Debuggers"),
+            SettingsPageItem::SectionHeader("디버거"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Debuggers",
-                description: "Preferred debuggers for this language.",
+                title: "디버거",
+                description: "이 언어에 대해 선호하는 디버거입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).debuggers"),
@@ -5951,8 +5951,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
         [
             SettingsPageItem::SectionHeader("Prettier"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Allowed",
-                description: "Enables or disables formatting with Prettier for a given language.",
+                title: "허용",
+                description: "특정 언어에 대해 Prettier 서식을 사용하거나 사용 안 함으로 설정합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).prettier.allowed"),
                     pick: |settings_content| {
@@ -5970,8 +5970,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Parser",
-                description: "Forces Prettier integration to use a specific parser name when formatting files with the language.",
+                title: "파서",
+                description: "해당 언어로 파일을 서식 지정할 때 Prettier 통합이 특정 파서 이름을 사용하도록 강제합니다.",
                 field: Box::new(SettingField {
                     json_path: Some("languages.$(language).prettier.parser"),
                     pick: |settings_content| {
@@ -5989,8 +5989,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Plugins",
-                description: "Forces Prettier integration to use specific plugins when formatting files with the language.",
+                title: "플러그인",
+                description: "해당 언어로 파일을 서식 지정할 때 Prettier 통합이 특정 플러그인을 사용하도록 강제합니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).prettier.plugins"),
@@ -6015,8 +6015,8 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
                 files: USER | PROJECT,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Options",
-                description: "Default Prettier options, in the format as in package.json section for Prettier.",
+                title: "옵션",
+                description: "기본 Prettier 옵션이며, package.json의 Prettier 섹션과 동일한 형식입니다.",
                 field: Box::new(
                     SettingField {
                         json_path: Some("languages.$(language).prettier.options"),
@@ -6053,10 +6053,10 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
 
 fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
     [
-        SettingsPageItem::SectionHeader("Edit Predictions"),
+        SettingsPageItem::SectionHeader("편집 예측"),
         SettingsPageItem::SettingItem(SettingItem {
-            title: "Data Collection",
-            description: "Controls whether Zed may collect training data when using Zed's Edit Predictions. Data is only collected for files in projects detected as open source. The default value uses the preference previously set via the status-bar toggle, or false if no preference has been stored.",
+            title: "데이터 수집",
+            description: "Zed의 편집 예측을 사용할 때 Zed가 학습 데이터를 수집할 수 있는지 제어합니다. 데이터는 오픈 소스로 감지된 프로젝트의 파일에 대해서만 수집됩니다. 기본값은 이전에 상태 표시줄 전환으로 설정한 환경설정을 사용하며, 저장된 환경설정이 없으면 false입니다.",
             field: Box::new(SettingField {
                 json_path: Some("edit_predictions.allow_data_collection"),
                 pick: |settings_content| {
@@ -6081,8 +6081,8 @@ fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
             files: USER,
         }),
         SettingsPageItem::SettingItem(SettingItem {
-            title: "Show Edit Predictions",
-            description: "Controls whether edit predictions are shown immediately or manually.",
+            title: "편집 예측 표시",
+            description: "편집 예측을 즉시 표시할지 수동으로 표시할지 제어합니다.",
             field: Box::new(SettingField {
                 json_path: Some("languages.$(language).show_edit_predictions"),
                 pick: |settings_content| {
@@ -6100,8 +6100,8 @@ fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
             files: USER | PROJECT,
         }),
         SettingsPageItem::SettingItem(SettingItem {
-            title: "Disable in Language Scopes",
-            description: "Controls whether edit predictions are shown in the given language scopes.",
+            title: "언어 스코프에서 사용 안 함",
+            description: "지정한 언어 스코프에서 편집 예측을 표시할지 제어합니다.",
             field: Box::new(
                 SettingField {
                     json_path: Some("languages.$(language).edit_predictions_disabled_in"),

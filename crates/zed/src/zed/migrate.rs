@@ -96,7 +96,7 @@ impl MigrationBanner {
     fn show(&mut self, cx: &mut Context<Self>) {
         let (file_type, backup_file_name) = match self.migration_type {
             Some(MigrationType::Keymap) => (
-                "keymap",
+                "키맵",
                 paths::keymap_backup_file()
                     .file_name()
                     .unwrap_or_default()
@@ -104,7 +104,7 @@ impl MigrationBanner {
                     .into_owned(),
             ),
             Some(MigrationType::Settings) => (
-                "settings",
+                "설정",
                 paths::settings_backup_file()
                     .file_name()
                     .unwrap_or_default()
@@ -115,8 +115,8 @@ impl MigrationBanner {
         };
 
         let migration_text = format!(
-            "Your {} file uses deprecated settings which can be \
-            automatically updated. A backup will be saved to `{}`",
+            "{} 파일에 더 이상 사용되지 않는 설정이 있어 자동으로 \
+            업데이트할 수 있습니다. 백업은 `{}`에 저장됩니다",
             file_type, backup_file_name
         );
 
@@ -238,7 +238,7 @@ impl Render for MigrationBanner {
                     ),
             )
             .child(
-                Button::new("backup-and-migrate", "Backup and Update").on_click({
+                Button::new("backup-and-migrate", "백업 후 업데이트").on_click({
                     let workspace = self.workspace.clone();
                     move |_, window, cx| {
                         let fs = <dyn Fs>::global(cx);

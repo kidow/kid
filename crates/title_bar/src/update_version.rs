@@ -68,7 +68,7 @@ impl UpdateVersion {
     }
 
     fn version_tooltip_message(version: &VersionCheckType) -> String {
-        format!("Update to Version: {}", {
+        format!("다음 버전으로 업데이트: {}", {
             match version {
                 VersionCheckType::Sha(sha) => sha.full(),
                 VersionCheckType::Semantic(semantic_version) => semantic_version.to_string(),
@@ -136,7 +136,7 @@ mod tests {
             Version::new(1, 0, 0),
         ));
 
-        assert_eq!(message, "Update to Version: 1.0.0");
+        assert_eq!(message, "다음 버전으로 업데이트: 1.0.0");
 
         let message = UpdateVersion::version_tooltip_message(&VersionCheckType::Sha(
             AppCommitSha::new("14d9a4189f058d8736339b06ff2340101eaea5af".to_string()),
@@ -144,7 +144,7 @@ mod tests {
 
         assert_eq!(
             message,
-            "Update to Version: 14d9a4189f058d8736339b06ff2340101eaea5af"
+            "다음 버전으로 업데이트: 14d9a4189f058d8736339b06ff2340101eaea5af"
         );
     }
 }

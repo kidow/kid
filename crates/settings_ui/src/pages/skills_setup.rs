@@ -53,9 +53,9 @@ pub(crate) fn render_skills_setup_page(
         .map(|this| {
             if skills.is_empty() {
                 let message = match &settings_window.current_file {
-                    SettingsUiFile::User => "No global skills installed.",
-                    SettingsUiFile::Project(_) => "No project skills found.",
-                    _ => "No skills available for this context.",
+                    SettingsUiFile::User => "설치된 전역 스킬이 없습니다.",
+                    SettingsUiFile::Project(_) => "프로젝트 스킬을 찾을 수 없습니다.",
+                    _ => "이 컨텍스트에서 사용할 수 있는 스킬이 없습니다.",
                 };
                 let original_window = settings_window.original_window;
                 this.items_center().justify_center().child(
@@ -64,7 +64,7 @@ pub(crate) fn render_skills_setup_page(
                         .gap_2()
                         .child(Label::new(message).color(Color::Muted))
                         .child(
-                            Button::new("open-skill-creator", "Create a Skill")
+                            Button::new("open-skill-creator", "스킬 만들기")
                                 .tab_index(0_isize)
                                 .style(ButtonStyle::Outlined)
                                 .end_icon(
@@ -151,7 +151,7 @@ fn render_skill_row(
                     .tab_index(0_isize)
                     .icon_size(IconSize::Small)
                     .icon_color(share_icon_color)
-                    .tooltip(Tooltip::text("Copy Share Link"))
+                    .tooltip(Tooltip::text("공유 링크 복사"))
                     .on_click(cx.listener(
                         move |_settings_window, _event, _window, cx| {
                             let skill_file_path = share_skill_file_path.clone();
@@ -192,7 +192,7 @@ fn render_skill_row(
                     )
                     .tab_index(0_isize)
                     .icon_size(IconSize::Small)
-                    .tooltip(Tooltip::text("Delete Skill"))
+                    .tooltip(Tooltip::text("스킬 삭제"))
                     .on_click(cx.listener(
                         move |settings_window, _event, _window, cx| {
                             let directory_path = directory_path.clone();
@@ -236,7 +236,7 @@ fn render_skill_row(
                     )),
                 )
                 .child(
-                    Button::new(SharedString::from(format!("open-{}", skill.name)), "Open")
+                    Button::new(SharedString::from(format!("open-{}", skill.name)), "열기")
                         .tab_index(0_isize)
                         .style(ButtonStyle::OutlinedGhost)
                         .size(ButtonSize::Medium)

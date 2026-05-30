@@ -222,8 +222,8 @@ impl TextDiffView {
 
         Self {
             diff_editor,
-            title: format!("Clipboard ↔ {selection_location_title}").into(),
-            path: Some(format!("Clipboard ↔ {selection_location_path}").into()),
+            title: format!("클립보드 ↔ {selection_location_title}").into(),
+            path: Some(format!("클립보드 ↔ {selection_location_path}").into()),
             buffer_changes_tx,
             _recalculate_diff_task: cx.spawn(async move |_, cx| {
                 while buffer_changes_rx.recv().await.is_ok() {

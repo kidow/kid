@@ -33,14 +33,14 @@ impl Render for SearchButton {
                 .tooltip(move |_window, cx| {
                     if let Some(focus_handle) = &focus_handle {
                         Tooltip::for_action_in(
-                            "Project Search",
+                            "프로젝트 검색",
                             &workspace::DeploySearch::default(),
                             focus_handle,
                             cx,
                         )
                     } else {
                         Tooltip::for_action(
-                            "Project Search",
+                            "프로젝트 검색",
                             &workspace::DeploySearch::default(),
                             cx,
                         )

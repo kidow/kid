@@ -178,7 +178,7 @@ impl PickerDelegate for RepositorySelectorDelegate {
     }
 
     fn placeholder_text(&self, _window: &mut Window, _cx: &mut App) -> Arc<str> {
-        "Select a repository...".into()
+        "저장소 선택...".into()
     }
 
     fn editor_position(&self) -> PickerEditorPosition {

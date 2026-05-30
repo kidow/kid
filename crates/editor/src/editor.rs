@@ -3885,9 +3885,9 @@ impl Editor {
             }))
             .tooltip(move |_window, cx| {
                 Tooltip::with_meta_in(
-                    "Remove Bookmark",
+                    "북마크 제거",
                     Some(&ToggleBookmark),
-                    SharedString::from("Right-click for more options"),
+                    SharedString::from("우클릭하여 추가 옵션 보기"),
                     &focus_handle,
                     cx,
                 )
@@ -3974,48 +3974,48 @@ impl Editor {
             .map(|(anchor, bp)| (anchor, Arc::from(bp)));
 
         let log_breakpoint_msg = if breakpoint.as_ref().is_some_and(|bp| bp.1.message.is_some()) {
-            "Edit Log Breakpoint"
+            "로그 브레이크포인트 편집"
         } else {
-            "Set Log Breakpoint"
+            "로그 브레이크포인트 설정"
         };
 
         let condition_breakpoint_msg = if breakpoint
             .as_ref()
             .is_some_and(|bp| bp.1.condition.is_some())
         {
-            "Edit Condition Breakpoint"
+            "조건 브레이크포인트 편집"
         } else {
-            "Set Condition Breakpoint"
+            "조건 브레이크포인트 설정"
         };
 
         let hit_condition_breakpoint_msg = if breakpoint
             .as_ref()
             .is_some_and(|bp| bp.1.hit_condition.is_some())
         {
-            "Edit Hit Condition Breakpoint"
+            "히트 조건 브레이크포인트 편집"
         } else {
-            "Set Hit Condition Breakpoint"
+            "히트 조건 브레이크포인트 설정"
         };
 
         let set_breakpoint_msg = if breakpoint.as_ref().is_some() {
-            "Unset Breakpoint"
+            "브레이크포인트 해제"
         } else {
-            "Set Breakpoint"
+            "브레이크포인트 설정"
         };
 
         let bookmark = self.bookmark_at_row(row, window, cx);
 
         let set_bookmark_msg = if bookmark.as_ref().is_some() {
-            "Remove Bookmark"
+            "북마크 제거"
         } else {
-            "Add Bookmark"
+            "북마크 추가"
         };
 
         let run_to_cursor = window.is_action_available(&RunToCursor, cx);
 
         let toggle_state_msg = breakpoint.as_ref().map_or(None, |bp| match bp.1.state {
-            BreakpointState::Enabled => Some("Disable"),
-            BreakpointState::Disabled => Some("Enable"),
+            BreakpointState::Enabled => Some("사용 안 함"),
+            BreakpointState::Disabled => Some("사용"),
         });
 
         let (anchor, breakpoint) =
@@ -4026,7 +4026,7 @@ impl Editor {
                 .context(focus_handle)
                 .when(run_to_cursor, |this| {
                     let weak_editor = weak_editor.clone();
-                    this.entry("Run to Cursor", None, move |window, cx| {
+                    this.entry("커서까지 실행", None, move |window, cx| {
                         weak_editor
                             .update(cx, |editor, cx| {
                                 editor.change_selections(
@@ -4171,18 +4171,18 @@ impl Editor {
             modifiers: Modifiers::secondary_key(),
             ..Default::default()
         };
-        let primary_action_text = "Unset breakpoint";
+        let primary_action_text = "브레이크포인트 해제";
         let focus_handle = self.focus_handle.clone();
         let has_context_menu = self.has_mouse_context_menu();
 
         let meta = if is_rejected {
-            SharedString::from("No executable code is associated with this line.")
+            SharedString::from("이 줄에는 실행 가능한 코드가 없습니다.")
         } else if !breakpoint.is_disabled() {
             SharedString::from(format!(
-                "{alt_as_text}-click to disable\nright-click for more options"
+                "{alt_as_text}-클릭하여 사용 안 함\n우클릭하여 추가 옵션 보기"
             ))
         } else {
-            SharedString::from("Right-click for more options")
+            SharedString::from("우클릭하여 추가 옵션 보기")
         };
         IconButton::new(("breakpoint_indicator", row.0 as usize), icon)
             .icon_size(IconSize::XSmall)
@@ -4241,8 +4241,8 @@ impl Editor {
         impl Intent {
             fn as_str(&self) -> &'static str {
                 match self {
-                    Intent::SetBookmark => "Set bookmark",
-                    Intent::SetBreakpoint => "Set breakpoint",
+                    Intent::SetBookmark => "북마크 설정",
+                    Intent::SetBreakpoint => "브레이크포인트 설정",
                 }
             }
 
@@ -4267,10 +4267,10 @@ impl Editor {
                 };
                 match self {
                     Intent::SetBookmark => format!(
-                        "{alt_as_text}-click to add a breakpoint\nright-click for more options"
+                        "{alt_as_text}-클릭하여 브레이크포인트 추가\n우클릭하여 추가 옵션 보기"
                     ),
                     Intent::SetBreakpoint => format!(
-                        "{alt_as_text}-click to add a bookmark\nright-click for more options"
+                        "{alt_as_text}-클릭하여 북마크 추가\n우클릭하여 추가 옵션 보기"
                     ),
                 }
             }
@@ -11857,9 +11857,9 @@ impl BreakpointPromptEditor {
             prompt.set_show_cursor_when_unfocused(false, cx);
             prompt.set_placeholder_text(
                 match edit_action {
-                    BreakpointPromptEditAction::Log => "Message to log when a breakpoint is hit. Expressions within {} are interpolated.",
-                    BreakpointPromptEditAction::Condition => "Condition when a breakpoint is hit. Expressions within {} are interpolated.",
-                    BreakpointPromptEditAction::HitCondition => "How many breakpoint hits to ignore",
+                    BreakpointPromptEditAction::Log => "브레이크포인트에 도달했을 때 기록할 메시지. {} 안의 표현식은 값으로 치환됩니다.",
+                    BreakpointPromptEditAction::Condition => "브레이크포인트에 도달하는 조건. {} 안의 표현식은 값으로 치환됩니다.",
+                    BreakpointPromptEditAction::HitCondition => "무시할 브레이크포인트 히트 횟수",
                 },
                 window,
                 cx,

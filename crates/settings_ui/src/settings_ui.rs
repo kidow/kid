@@ -435,12 +435,12 @@ fn init_renderers(cx: &mut App) {
                     settings_window,
                     item,
                     settings_file,
-                    Button::new("open-in-settings-file", "Edit in settings.json")
+                    Button::new("open-in-settings-file", "settings.json에서 편집")
                         .style(ButtonStyle::Outlined)
                         .size(ButtonSize::Medium)
                         .tab_index(0_isize)
                         .tooltip(Tooltip::for_action_title_in(
-                            "Edit in settings.json",
+                            "settings.json에서 편집",
                             &OpenCurrentFile,
                             &settings_window.focus_handle,
                         ))
@@ -672,7 +672,7 @@ pub fn open_settings_editor(
         cx.open_window(
             WindowOptions {
                 titlebar: Some(TitlebarOptions {
-                    title: Some("Zed — Settings".into()),
+                    title: Some("Zed — 설정".into()),
                     appears_transparent: true,
                     traffic_light_position: Some(point(px(12.0), px(12.0))),
                 }),
@@ -1201,7 +1201,7 @@ fn render_settings_item(
                                     IconButton::new("reset-to-default-btn", IconName::Undo)
                                         .icon_color(Color::Muted)
                                         .icon_size(IconSize::Small)
-                                        .tooltip(Tooltip::text("Reset to Default"))
+                                        .tooltip(Tooltip::text("기본값으로 초기화"))
                                         .on_click({
                                             move |_, window, cx| {
                                                 reset_to_default(window, cx);
@@ -1278,7 +1278,7 @@ fn render_settings_item_link(
                 .icon_color(link_icon_color)
                 .icon_size(IconSize::Small)
                 .shape(IconButtonShape::Square)
-                .tooltip(Tooltip::text("Copy Link"))
+                .tooltip(Tooltip::text("링크 복사"))
                 .when_some(json_path, |this, path| {
                     this.on_click(cx.listener(move |this, _, _, cx| {
                         let link = format!("kid://settings/{}", path);
@@ -1499,7 +1499,7 @@ impl SettingsWindow {
         let current_file = SettingsUiFile::User;
         let search_bar = cx.new(|cx| {
             let mut editor = Editor::single_line(window, cx);
-            editor.set_placeholder_text("Search settings…", window, cx);
+            editor.set_placeholder_text("설정 검색…", window, cx);
             editor
         });
         cx.subscribe(&search_bar, |this, _, event: &EditorEvent, cx| {
@@ -2534,7 +2534,7 @@ impl SettingsWindow {
                                         }),
                                     )
                                     .style(DropdownStyle::Subtle)
-                                    .trigger_tooltip(Tooltip::text("View Other Projects"))
+                                    .trigger_tooltip(Tooltip::text("다른 프로젝트 보기"))
                                     .trigger_icon(IconName::ChevronDown)
                                     .attach(gpui::Anchor::BottomLeft)
                                     .offset(gpui::Point {
@@ -2547,11 +2547,11 @@ impl SettingsWindow {
                     }),
             )
             .child(
-                Button::new(edit_in_json_id, "Edit in settings.json")
+                Button::new(edit_in_json_id, "settings.json에서 편집")
                     .tab_index(0_isize)
                     .style(ButtonStyle::OutlinedGhost)
                     .tooltip(Tooltip::for_action_title_in(
-                        "Edit in settings.json",
+                        "settings.json에서 편집",
                         &OpenCurrentFile,
                         &self.focus_handle,
                     ))
@@ -3054,9 +3054,9 @@ impl SettingsWindow {
             .items_center()
             .justify_center()
             .gap_1()
-            .child(Label::new("No Results"))
+            .child(Label::new("결과 없음"))
             .child(
-                Label::new(format!("No settings match \"{}\"", search_query))
+                Label::new(format!("\"{}\"와(과) 일치하는 설정이 없습니다", search_query))
                     .size(LabelSize::Small)
                     .color(Color::Muted),
             )
@@ -3263,11 +3263,11 @@ impl SettingsWindow {
                 .when(current_sub_page.link.in_json, |this| {
                     this.child(
                         div().flex_shrink_0().child(
-                            Button::new("open-in-settings-file", "Edit in settings.json")
+                            Button::new("open-in-settings-file", "settings.json에서 편집")
                                 .tab_index(0_isize)
                                 .style(ButtonStyle::OutlinedGhost)
                                 .tooltip(Tooltip::for_action_title_in(
-                                    "Edit in settings.json",
+                                    "settings.json에서 편집",
                                     &OpenCurrentFile,
                                     &self.focus_handle,
                                 ))
@@ -3314,7 +3314,7 @@ impl SettingsWindow {
                     )
                     .action_slot(
                         div().pr_1().pb_1().child(
-                            Button::new("fix-in-json", "Fix in settings.json")
+                            Button::new("fix-in-json", "settings.json에서 수정")
                                 .tab_index(0_isize)
                                 .style(ButtonStyle::Tinted(ui::TintColor::Warning))
                                 .on_click(cx.listener(|this, _, window, cx| {
@@ -3331,7 +3331,7 @@ impl SettingsWindow {
                 .gap_2()
                 .when_some(parse_error, |this, err| {
                     this.child(banner(
-                        "Failed to load your settings. Some values may be incorrect and changes may be lost.",
+                        "설정을 불러오지 못했습니다. 일부 값이 올바르지 않거나 변경 사항이 손실될 수 있습니다.",
                         err,
                         &mut self.shown_errors,
                         cx,
@@ -3339,17 +3339,17 @@ impl SettingsWindow {
                 })
                 .map(|this| match &error.migration_status {
                     settings::MigrationStatus::Succeeded => this.child(banner(
-                        "Your settings are out of date, and need to be updated.",
+                        "설정이 오래되어 업데이트가 필요합니다.",
                         match &self.current_file {
-                            SettingsUiFile::User => "They can be automatically migrated to the latest version.",
-                            SettingsUiFile::Server(_) | SettingsUiFile::Project(_)  => "They must be manually migrated to the latest version."
+                            SettingsUiFile::User => "최신 버전으로 자동 마이그레이션할 수 있습니다.",
+                            SettingsUiFile::Server(_) | SettingsUiFile::Project(_)  => "최신 버전으로 수동으로 마이그레이션해야 합니다."
                         }.to_string(),
                         &mut self.shown_errors,
                         cx,
                     )),
                     settings::MigrationStatus::Failed { error: err } if !parse_failed => this
                         .child(banner(
-                            "Your settings file is out of date, automatic migration failed",
+                            "설정 파일이 오래되었으며, 자동 마이그레이션에 실패했습니다",
                             err.clone(),
                             &mut self.shown_errors,
                             cx,
@@ -3381,10 +3381,10 @@ impl SettingsWindow {
                         v_flex()
                             .my_0p5()
                             .gap_0p5()
-                            .child(Label::new("Restricted Mode"))
+                            .child(Label::new("제한 모드"))
                             .child(
                                 Label::new(
-                                    "This project is in restricted mode. Some project settings may not apply.",
+                                    "이 프로젝트는 제한 모드입니다. 일부 프로젝트 설정이 적용되지 않을 수 있습니다.",
                                 )
                                 .size(LabelSize::Small)
                                 .color(Color::Muted),
@@ -3392,7 +3392,7 @@ impl SettingsWindow {
                     )
                     .action_slot(
                         div().pr_2().pb_1().child(
-                            Button::new("manage-trust", "Manage Trust")
+                            Button::new("manage-trust", "신뢰 관리")
                                 .style(ButtonStyle::Tinted(ui::TintColor::Warning))
                                 .on_click(cx.listener(move |_this, _, window, cx| {
                                     if let Some(original_window) = original_window {
@@ -3717,7 +3717,7 @@ impl SettingsWindow {
                             .take(item_index)
                             .rev()
                             .find_map(|item| item.header_text().map(SharedString::new_static))
-                            .unwrap_or_else(|| "Settings".into());
+                            .unwrap_or_else(|| "설정".into());
 
                         self.push_sub_page(sub_page_link.clone(), section_header, window, cx);
                         return true;

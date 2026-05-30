@@ -73,9 +73,9 @@ impl Render for SecurityModal {
 
         let restricted_count = self.restricted_paths.len();
         let header_label: SharedString = if restricted_count == 1 {
-            "Unrecognized Project".into()
+            "인식되지 않은 프로젝트".into()
         } else {
-            format!("Unrecognized Projects ({})", restricted_count).into()
+            format!("인식되지 않은 프로젝트 ({})", restricted_count).into()
         };
 
         let trust_label = self.build_trust_label();
@@ -168,23 +168,23 @@ impl Render for SecurityModal {
                         v_flex()
                             .child(
                                 Label::new(
-                                    "Untrusted projects are opened in Restricted Mode to protect your system.",
+                                    "신뢰할 수 없는 프로젝트는 시스템 보호를 위해 제한 모드로 열립니다.",
                                 )
                                 .color(Color::Muted),
                             )
                             .child(
                                 Label::new(
-                                    "Review .zed/settings.json for any extensions or commands configured by this project.",
+                                    "이 프로젝트가 설정한 확장이나 명령이 있는지 .zed/settings.json을 확인하세요.",
                                 )
                                 .color(Color::Muted),
                             ),
                     )
                     .child(
                         v_flex()
-                            .child(Label::new("Restricted Mode prevents:").color(Color::Muted))
-                            .child(ListBulletItem::new("Project settings from being applied"))
-                            .child(ListBulletItem::new("Language servers from running"))
-                            .child(ListBulletItem::new("MCP Server integrations from installing")),
+                            .child(Label::new("제한 모드에서는 다음이 차단됩니다:").color(Color::Muted))
+                            .child(ListBulletItem::new("프로젝트 설정 적용"))
+                            .child(ListBulletItem::new("언어 서버 실행"))
+                            .child(ListBulletItem::new("MCP 서버 연동 설치")),
                     )
                     .map(|this| match trust_label {
                         Some(trust_label) => this.child(
@@ -208,7 +208,7 @@ impl Render for SecurityModal {
                     .gap_1()
                     .justify_end()
                     .child(
-                        Button::new("rm", "Stay in Restricted Mode")
+                        Button::new("rm", "제한 모드 유지")
                             .key_binding(
                                 KeyBinding::for_action(
                                     &ToggleWorktreeSecurity,
@@ -223,7 +223,7 @@ impl Render for SecurityModal {
                             })),
                     )
                     .child(
-                        Button::new("tc", "Trust and Continue")
+                        Button::new("tc", "신뢰하고 계속")
                             .style(ButtonStyle::Filled)
                             .layer(ui::ElevationIndex::ModalSurface)
                             .key_binding(
@@ -275,16 +275,16 @@ impl SecurityModal {
         match available_parents.len() {
             0 => {
                 if has_restricted_files {
-                    Some(Cow::Borrowed("Trust all single files"))
+                    Some(Cow::Borrowed("모든 단일 파일 신뢰"))
                 } else {
                     None
                 }
             }
             1 => Some(Cow::Owned(format!(
-                "Trust all projects in the {:} folder",
+                "{:} 폴더의 모든 프로젝트 신뢰",
                 self.shorten_path(available_parents[0]).display()
             ))),
-            _ => Some(Cow::Borrowed("Trust all projects in the parent folders")),
+            _ => Some(Cow::Borrowed("상위 폴더의 모든 프로젝트 신뢰")),
         }
     }
 

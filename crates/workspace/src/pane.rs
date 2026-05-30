@@ -1930,7 +1930,7 @@ impl Pane {
         }
         if file_names.len() > 6 {
             format!(
-                "{}\n.. and {} more",
+                "{}\n.. 외 {}개",
                 file_names.iter().take(5).join("\n"),
                 file_names.len() - 5
             )
@@ -1986,9 +1986,9 @@ impl Pane {
                     let detail = Self::file_names_for_prompt(&mut dirty_items.iter(), cx);
                     window.prompt(
                         PromptLevel::Warning,
-                        "Do you want to save changes to the following files?",
+                        "다음 파일의 변경 사항을 저장하시겠습니까?",
                         Some(&detail),
-                        &["Save all", "Discard all", "Cancel"],
+                        &["모두 저장", "모두 취소", "취소"],
                         cx,
                     )
                 })?;
@@ -2028,9 +2028,9 @@ impl Pane {
                                 );
                                 window.prompt(
                                     PromptLevel::Warning,
-                                    &format!("Unable to save file: {}", &err),
+                                    &format!("파일을 저장할 수 없습니다: {}", &err),
                                     Some(&detail),
-                                    &["Close Without Saving", "Cancel"],
+                                    &["저장하지 않고 닫기", "취소"],
                                     cx,
                                 )
                             })?;
@@ -2229,9 +2229,9 @@ impl Pane {
         save_intent: SaveIntent,
         cx: &mut AsyncWindowContext,
     ) -> Result<bool> {
-        const CONFLICT_MESSAGE: &str = "This file has changed on disk since you started editing it. Do you want to overwrite it?";
+        const CONFLICT_MESSAGE: &str = "편집을 시작한 이후 이 파일이 디스크에서 변경되었습니다. 덮어쓰시겠습니까?";
 
-        const DELETED_MESSAGE: &str = "This file has been deleted on disk since you started editing it. Do you want to recreate it?";
+        const DELETED_MESSAGE: &str = "편집을 시작한 이후 이 파일이 디스크에서 삭제되었습니다. 다시 만드시겠습니까?";
 
         let path_style = project.read_with(cx, |project, cx| project.path_style(cx));
         if save_intent == SaveIntent::Skip {
@@ -2300,7 +2300,7 @@ impl Pane {
                         PromptLevel::Warning,
                         DELETED_MESSAGE,
                         None,
-                        &["Save", "Close", "Cancel"],
+                        &["저장", "닫기", "취소"],
                         cx,
                     )
                 })?;
@@ -2335,7 +2335,7 @@ impl Pane {
                         PromptLevel::Warning,
                         CONFLICT_MESSAGE,
                         None,
-                        &["Overwrite", "Discard", "Cancel"],
+                        &["덮어쓰기", "변경 취소", "취소"],
                         cx,
                     )
                 })?;
@@ -2378,7 +2378,7 @@ impl Pane {
                                 PromptLevel::Warning,
                                 &prompt,
                                 None,
-                                &["Save", "Don't Save", "Cancel"],
+                                &["저장", "저장 안 함", "취소"],
                                 cx,
                             ))
                         } else {
@@ -2861,13 +2861,13 @@ impl Pane {
                 .tooltip(move |_, cx| {
                     if toggleable {
                         Tooltip::with_meta(
-                            "Unlock File",
+                            "파일 잠금 해제",
                             None,
-                            "This will make this file editable",
+                            "이 파일을 편집할 수 있게 합니다",
                             cx,
                         )
                     } else {
-                        Tooltip::with_meta("Locked File", None, "This file is read-only", cx)
+                        Tooltip::with_meta("파일 잠김", None, "이 파일은 읽기 전용입니다", cx)
                     }
                 })
                 .on_click(cx.listener(move |pane, _, window, cx| {
@@ -2977,7 +2977,7 @@ impl Pane {
                 let end_slot_tooltip_text: &'static str;
                 let end_slot = if is_pinned {
                     end_slot_action = &TogglePinTab;
-                    end_slot_tooltip_text = "Unpin Tab";
+                    end_slot_tooltip_text = "탭 고정 해제";
                     IconButton::new("unpin tab", IconName::Pin)
                         .shape(IconButtonShape::Square)
                         .icon_color(Color::Muted)
@@ -2991,7 +2991,7 @@ impl Pane {
                         save_intent: None,
                         close_pinned: false,
                     };
-                    end_slot_tooltip_text = "Close Tab";
+                    end_slot_tooltip_text = "탭 닫기";
                     match show_close_button {
                         ShowCloseButton::Always => IconButton::new("close tab", IconName::Close),
                         ShowCloseButton::Hover => {
@@ -3046,7 +3046,7 @@ impl Pane {
                             } else {
                                 this.tooltip(move |_, cx| {
                                     let text = text.clone();
-                                    Tooltip::with_meta(text, None, "Read-Only File", cx)
+                                    Tooltip::with_meta(text, None, "읽기 전용 파일", cx)
                                 })
                             }
                         }
@@ -3113,7 +3113,7 @@ impl Pane {
                     if let Some(pane) = pane.upgrade() {
                         menu = menu
                             .entry(
-                                "Close",
+                                "닫기",
                                 Some(Box::new(close_active_item_action)),
                                 window.handler_for(&pane, move |pane, window, cx| {
                                     pane.close_item_by_id(item_id, SaveIntent::Close, window, cx)
@@ -3121,7 +3121,7 @@ impl Pane {
                                 }),
                             )
                             .item(ContextMenuItem::Entry(
-                                ContextMenuEntry::new("Close Others")
+                                ContextMenuEntry::new("나머지 닫기")
                                     .action(Box::new(close_inactive_items_action.clone()))
                                     .disabled(total_items == 1)
                                     .handler(window.handler_for(&pane, move |pane, window, cx| {
@@ -3137,7 +3137,7 @@ impl Pane {
                             // We make this optional, instead of using disabled as to not overwhelm the context menu unnecessarily
                             .extend(has_multibuffer_items.then(|| {
                                 ContextMenuItem::Entry(
-                                    ContextMenuEntry::new("Close Multibuffers")
+                                    ContextMenuEntry::new("멀티버퍼 닫기")
                                         .action(Box::new(close_multibuffers_action.clone()))
                                         .handler(window.handler_for(
                                             &pane,
@@ -3154,7 +3154,7 @@ impl Pane {
                             }))
                             .separator()
                             .item(ContextMenuItem::Entry(
-                                ContextMenuEntry::new("Close Left")
+                                ContextMenuEntry::new("왼쪽 닫기")
                                     .action(Box::new(close_items_to_the_left_action.clone()))
                                     .disabled(!has_items_to_left)
                                     .handler(window.handler_for(&pane, move |pane, window, cx| {
@@ -3168,7 +3168,7 @@ impl Pane {
                                     })),
                             ))
                             .item(ContextMenuItem::Entry(
-                                ContextMenuEntry::new("Close Right")
+                                ContextMenuEntry::new("오른쪽 닫기")
                                     .action(Box::new(close_items_to_the_right_action.clone()))
                                     .disabled(!has_items_to_right)
                                     .handler(window.handler_for(&pane, move |pane, window, cx| {
@@ -3183,7 +3183,7 @@ impl Pane {
                             ))
                             .separator()
                             .item(ContextMenuItem::Entry(
-                                ContextMenuEntry::new("Close Clean")
+                                ContextMenuEntry::new("저장된 항목 닫기")
                                     .action(Box::new(close_clean_items_action.clone()))
                                     .disabled(!has_clean_items)
                                     .handler(window.handler_for(&pane, move |pane, window, cx| {
@@ -3196,7 +3196,7 @@ impl Pane {
                                     })),
                             ))
                             .entry(
-                                "Close All",
+                                "모두 닫기",
                                 Some(Box::new(close_all_items_action.clone())),
                                 window.handler_for(&pane, move |pane, window, cx| {
                                     pane.close_all_items(&close_all_items_action, window, cx)
@@ -3208,7 +3208,7 @@ impl Pane {
                             menu.separator().map(|this| {
                                 if is_pinned {
                                     this.entry(
-                                        "Unpin Tab",
+                                        "탭 고정 해제",
                                         Some(TogglePinTab.boxed_clone()),
                                         window.handler_for(&pane, move |pane, window, cx| {
                                             pane.unpin_tab_at(ix, window, cx);
@@ -3216,7 +3216,7 @@ impl Pane {
                                     )
                                 } else {
                                     this.entry(
-                                        "Pin Tab",
+                                        "탭 고정",
                                         Some(TogglePinTab.boxed_clone()),
                                         window.handler_for(&pane, move |pane, window, cx| {
                                             pane.pin_tab_at(ix, window, cx);
@@ -3228,9 +3228,9 @@ impl Pane {
 
                         if capability != Capability::ReadOnly {
                             let read_only_label = if capability.editable() {
-                                "Make File Read-Only"
+                                "파일 읽기 전용으로 설정"
                             } else {
-                                "Make File Editable"
+                                "파일 편집 가능으로 설정"
                             };
                             menu = menu.separator().entry(
                                 read_only_label,
@@ -3289,7 +3289,7 @@ impl Pane {
                                 .separator()
                                 .when_some(entry_abs_path, |menu, abs_path| {
                                     menu.entry(
-                                        "Copy Path",
+                                        "경로 복사",
                                         Some(Box::new(zed_actions::workspace::CopyPath)),
                                         window.handler_for(&pane, move |_, _, cx| {
                                             cx.write_to_clipboard(ClipboardItem::new_string(
@@ -3300,7 +3300,7 @@ impl Pane {
                                 })
                                 .when_some(relative_path, |menu, relative_path| {
                                     menu.entry(
-                                        "Copy Relative Path",
+                                        "상대 경로 복사",
                                         Some(Box::new(zed_actions::workspace::CopyRelativePath)),
                                         window.handler_for(&pane, move |this, _, cx| {
                                             let Some(project) = this.project.upgrade() else {
@@ -3336,7 +3336,7 @@ impl Pane {
                                 .map(pin_tab_entries)
                                 .when(visible_in_project_panel, |menu| {
                                     menu.entry(
-                                        "Reveal In Project Panel",
+                                        "프로젝트 패널에서 보기",
                                         Some(Box::new(RevealInProjectPanel::default())),
                                         window.handler_for(&pane, move |pane, _, cx| {
                                             pane.project
@@ -3351,7 +3351,7 @@ impl Pane {
                                 })
                                 .when_some(parent_abs_path, |menu, parent_abs_path| {
                                     menu.entry(
-                                        "Open in Terminal",
+                                        "터미널에서 열기",
                                         Some(Box::new(OpenInTerminal)),
                                         window.handler_for(&pane, move |_, window, cx| {
                                             window.dispatch_action(
@@ -3405,7 +3405,7 @@ impl Pane {
                 let focus_handle = focus_handle.clone();
                 move |window, cx| {
                     Tooltip::for_action_in(
-                        "Go Back",
+                        "뒤로 가기",
                         &GoBack,
                         &window.focused(cx).unwrap_or_else(|| focus_handle.clone()),
                         cx,
@@ -3428,7 +3428,7 @@ impl Pane {
                 let focus_handle = focus_handle.clone();
                 move |window, cx| {
                     Tooltip::for_action_in(
-                        "Go Forward",
+                        "앞으로 가기",
                         &GoForward,
                         &window.focused(cx).unwrap_or_else(|| focus_handle.clone()),
                         cx,
@@ -4205,21 +4205,21 @@ fn default_render_tab_bar_buttons(
             PopoverMenu::new("pane-tab-bar-popover-menu")
                 .trigger_with_tooltip(
                     IconButton::new("plus", IconName::Plus).icon_size(IconSize::Small),
-                    Tooltip::text("New..."),
+                    Tooltip::text("새로 만들기..."),
                 )
                 .anchor(Anchor::TopRight)
                 .with_handle(pane.new_item_context_menu_handle.clone())
                 .menu(move |window, cx| {
                     Some(ContextMenu::build(window, cx, |menu, _, _| {
-                        menu.action("New File", NewFile.boxed_clone())
-                            .action("Open File", ToggleFileFinder::default().boxed_clone())
+                        menu.action("새 파일", NewFile.boxed_clone())
+                            .action("파일 열기", ToggleFileFinder::default().boxed_clone())
                             .separator()
-                            .action("Search Project", DeploySearch::default().boxed_clone())
-                            .action("Search Symbols", ToggleProjectSymbols.boxed_clone())
+                            .action("프로젝트 검색", DeploySearch::default().boxed_clone())
+                            .action("심볼 검색", ToggleProjectSymbols.boxed_clone())
                             .separator()
-                            .action("New Terminal", NewTerminal::default().boxed_clone())
+                            .action("새 터미널", NewTerminal::default().boxed_clone())
                             .action(
-                                "New Center Terminal",
+                                "새 가운데 터미널",
                                 NewCenterTerminal::default().boxed_clone(),
                             )
                     }))
@@ -4231,7 +4231,7 @@ fn default_render_tab_bar_buttons(
                     IconButton::new("split", IconName::Split)
                         .icon_size(IconSize::Small)
                         .disabled(!can_clone && !can_split_move),
-                    Tooltip::text("Split Pane"),
+                    Tooltip::text("패널 분할"),
                 )
                 .anchor(Anchor::TopRight)
                 .with_handle(pane.split_item_context_menu_handle.clone())
@@ -4239,15 +4239,15 @@ fn default_render_tab_bar_buttons(
                     ContextMenu::build(window, cx, |menu, _, _| {
                         let mode = SplitMode::MovePane;
                         if can_split_move {
-                            menu.action("Split Right", SplitRight { mode }.boxed_clone())
-                                .action("Split Left", SplitLeft { mode }.boxed_clone())
-                                .action("Split Up", SplitUp { mode }.boxed_clone())
-                                .action("Split Down", SplitDown { mode }.boxed_clone())
+                            menu.action("오른쪽으로 분할", SplitRight { mode }.boxed_clone())
+                                .action("왼쪽으로 분할", SplitLeft { mode }.boxed_clone())
+                                .action("위로 분할", SplitUp { mode }.boxed_clone())
+                                .action("아래로 분할", SplitDown { mode }.boxed_clone())
                         } else {
-                            menu.action("Split Right", SplitRight::default().boxed_clone())
-                                .action("Split Left", SplitLeft::default().boxed_clone())
-                                .action("Split Up", SplitUp::default().boxed_clone())
-                                .action("Split Down", SplitDown::default().boxed_clone())
+                            menu.action("오른쪽으로 분할", SplitRight::default().boxed_clone())
+                                .action("왼쪽으로 분할", SplitLeft::default().boxed_clone())
+                                .action("위로 분할", SplitUp::default().boxed_clone())
+                                .action("아래로 분할", SplitDown::default().boxed_clone())
                         }
                     })
                     .into()
@@ -4264,7 +4264,7 @@ fn default_render_tab_bar_buttons(
                 }))
                 .tooltip(move |_window, cx| {
                     Tooltip::for_action(
-                        if zoomed { "Zoom Out" } else { "Zoom In" },
+                        if zoomed { "축소" } else { "확대" },
                         &ToggleZoom,
                         cx,
                     )
@@ -4890,9 +4890,9 @@ fn dirty_message_for(buffer_path: Option<ProjectPath>, path_style: PathStyle) ->
             let path = p.path.display(path_style);
             if path.is_empty() { None } else { Some(path) }
         })
-        .unwrap_or("This buffer".into());
+        .unwrap_or("이 버퍼".into());
     let path = truncate_and_remove_front(&path, 80);
-    format!("{path} contains unsaved edits. Do you want to save it?")
+    format!("{path}에 저장되지 않은 변경 사항이 있습니다. 저장하시겠습니까?")
 }
 
 pub fn tab_details(items: &[Box<dyn ItemHandle>], _window: &Window, cx: &App) -> Vec<usize> {

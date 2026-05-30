@@ -188,7 +188,7 @@ impl CommitTooltip {
                 author_name: blame
                     .author
                     .clone()
-                    .unwrap_or("<no name>".to_string())
+                    .unwrap_or("<이름 없음>".to_string())
                     .into(),
                 author_email: blame.author_mail.clone().unwrap_or("".to_string()).into(),
                 message: details,
@@ -263,7 +263,7 @@ impl Render for CommitTooltip {
                     .scroll_handle(self.scroll_handle.clone())
                     .into_any()
             })
-            .unwrap_or("<no commit message>".into_any());
+            .unwrap_or("<커밋 메시지 없음>".into_any());
 
         let pull_request = self
             .commit
@@ -390,7 +390,7 @@ impl Render for CommitTooltip {
                                         .child(Divider::vertical())
                                         .child(
                                             CopyButton::new("copy-commit-sha", full_sha)
-                                                .tooltip_label("Copy SHA"),
+                                                .tooltip_label("SHA 복사"),
                                         ),
                                 ),
                         ),
@@ -410,7 +410,7 @@ fn blame_entry_timestamp(blame_entry: &BlameEntry, format: time_format::Timestam
                 format,
             )
         }
-        Err(_) => "Error parsing date".to_string(),
+        Err(_) => "날짜 분석 오류".to_string(),
     }
 }
 

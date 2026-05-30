@@ -116,7 +116,7 @@ impl Render for StatusToast {
                         .shape(ui::IconButtonShape::Square)
                         .icon_size(IconSize::Small)
                         .icon_color(Color::Muted)
-                        .tooltip(Tooltip::text("Dismiss"))
+                        .tooltip(Tooltip::text("닫기"))
                         .on_click(move |_click_event, _window, cx| {
                             handle.update(cx, |_, cx| {
                                 cx.emit(DismissEvent);
@@ -157,17 +157,17 @@ impl Component for StatusToast {
     }
 
     fn preview(_window: &mut Window, cx: &mut App) -> AnyElement {
-        let text_example = StatusToast::new("Operation completed", cx, |this, _| this);
+        let text_example = StatusToast::new("작업이 완료되었습니다", cx, |this, _| this);
 
-        let action_example = StatusToast::new("Update ready to install", cx, |this, _cx| {
-            this.action("Restart", |_, _| {})
+        let action_example = StatusToast::new("설치할 업데이트가 준비되었습니다", cx, |this, _cx| {
+            this.action("다시 시작", |_, _| {})
         });
 
         let dismiss_button_example =
-            StatusToast::new("Dismiss Button", cx, |this, _| this.dismiss_button(true));
+            StatusToast::new("닫기 버튼", cx, |this, _| this.dismiss_button(true));
 
         let icon_example = StatusToast::new(
-            "Nathan Sobo accepted your contact request",
+            "Nathan Sobo 님이 연락처 요청을 수락했습니다",
             cx,
             |this, _| {
                 this.icon(
@@ -178,7 +178,7 @@ impl Component for StatusToast {
             },
         );
 
-        let success_example = StatusToast::new("Pushed 4 changes to `zed/main`", cx, |this, _| {
+        let success_example = StatusToast::new("`zed/main`에 변경사항 4개를 푸시했습니다", cx, |this, _| {
             this.icon(
                 Icon::new(IconName::Check)
                     .size(IconSize::Small)
@@ -187,7 +187,7 @@ impl Component for StatusToast {
         });
 
         let error_example = StatusToast::new(
-            "git push: Couldn't find remote origin `iamnbutler/zed`",
+            "git push: 원격 저장소 origin `iamnbutler/zed`를 찾을 수 없습니다",
             cx,
             |this, _cx| {
                 this.icon(
@@ -195,27 +195,27 @@ impl Component for StatusToast {
                         .size(IconSize::Small)
                         .color(Color::Error),
                 )
-                .action("More Info", |_, _| {})
+                .action("자세히 보기", |_, _| {})
             },
         );
 
-        let warning_example = StatusToast::new("You have outdated settings", cx, |this, _cx| {
+        let warning_example = StatusToast::new("오래된 설정이 있습니다", cx, |this, _cx| {
             this.icon(
                 Icon::new(IconName::Warning)
                     .size(IconSize::Small)
                     .color(Color::Warning),
             )
-            .action("More Info", |_, _| {})
+            .action("자세히 보기", |_, _| {})
         });
 
         let pr_example =
-            StatusToast::new("`zed/new-notification-system` created!", cx, |this, _cx| {
+            StatusToast::new("`zed/new-notification-system` 브랜치를 만들었습니다!", cx, |this, _cx| {
                 this.icon(
                     Icon::new(IconName::GitBranch)
                         .size(IconSize::Small)
                         .color(Color::Muted),
                 )
-                .action("Open Pull Request", |_, cx| {
+                .action("풀 리퀘스트 열기", |_, cx| {
                     cx.open_url("https://github.com/")
                 })
             });
@@ -225,24 +225,24 @@ impl Component for StatusToast {
             .p_4()
             .children(vec![
                 example_group_with_title(
-                    "Basic Toast",
+                    "기본 토스트",
                     vec![
-                        single_example("Text", div().child(text_example).into_any_element()),
-                        single_example("Action", div().child(action_example).into_any_element()),
-                        single_example("Icon", div().child(icon_example).into_any_element()),
+                        single_example("텍스트", div().child(text_example).into_any_element()),
+                        single_example("동작", div().child(action_example).into_any_element()),
+                        single_example("아이콘", div().child(icon_example).into_any_element()),
                         single_example(
-                            "Dismiss Button",
+                            "닫기 버튼",
                             div().child(dismiss_button_example).into_any_element(),
                         ),
                     ],
                 ),
                 example_group_with_title(
-                    "Examples",
+                    "예시",
                     vec![
-                        single_example("Success", div().child(success_example).into_any_element()),
-                        single_example("Error", div().child(error_example).into_any_element()),
-                        single_example("Warning", div().child(warning_example).into_any_element()),
-                        single_example("Create PR", div().child(pr_example).into_any_element()),
+                        single_example("성공", div().child(success_example).into_any_element()),
+                        single_example("오류", div().child(error_example).into_any_element()),
+                        single_example("경고", div().child(warning_example).into_any_element()),
+                        single_example("PR 생성", div().child(pr_example).into_any_element()),
                     ],
                 )
                 .vertical(),

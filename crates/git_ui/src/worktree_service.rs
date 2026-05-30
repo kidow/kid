@@ -164,13 +164,13 @@ impl Render for WorktreeFetchFailedToast {
                     .color(Color::Error),
             )
             .child(Label::new(format!(
-                "git fetch failed for {}",
+                "{}에 대한 git fetch에 실패했습니다",
                 self.remote_branch_name
             )))
             .child(
                 Button::new(
                     "use-local-worktree-base",
-                    format!("Use local {}", self.remote_branch_name),
+                    format!("로컬 {} 사용", self.remote_branch_name),
                 )
                 .color(Color::Muted)
                 .on_click(cx.listener(move |_, _event, window, cx| {
@@ -193,7 +193,7 @@ impl Render for WorktreeFetchFailedToast {
                 })),
             )
             .child(
-                Button::new("view-worktree-fetch-log", "Show Error Logs")
+                Button::new("view-worktree-fetch-log", "오류 로그 보기")
                     .color(Color::Muted)
                     .on_click(cx.listener(move |_, _event, window, cx| {
                         cx.emit(DismissEvent);
@@ -1041,8 +1041,8 @@ async fn open_worktree_workspace(
                     workspace.show_toast(
                         workspace::Toast::new(
                             toast_id,
-                            "Some project folders are not git repositories. \
-                             They were included as-is without creating a worktree.",
+                            "일부 프로젝트 폴더가 git 저장소가 아닙니다. \
+                             워크트리를 만들지 않고 그대로 포함되었습니다.",
                         ),
                         cx,
                     );

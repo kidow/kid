@@ -193,41 +193,41 @@ fn git_panel_context_menu(
             .context(focus_handle)
             .action_disabled_when(
                 !state.has_unstaged_changes,
-                "Stage All",
+                "모두 스테이지",
                 StageAll.boxed_clone(),
             )
             .action_disabled_when(
                 !state.has_staged_changes,
-                "Unstage All",
+                "모두 스테이지 취소",
                 UnstageAll.boxed_clone(),
             )
             .separator()
             .action_disabled_when(
                 !(state.has_new_changes || state.has_tracked_changes),
-                "Stash All",
+                "모두 스태시",
                 StashAll.boxed_clone(),
             )
-            .action_disabled_when(!state.has_stash_items, "Stash Pop", StashPop.boxed_clone())
-            .action("View Stash", zed_actions::git::ViewStash.boxed_clone())
+            .action_disabled_when(!state.has_stash_items, "스태시 팝", StashPop.boxed_clone())
+            .action("스태시 보기", zed_actions::git::ViewStash.boxed_clone())
             .separator()
-            .action("Open Diff", project_diff::Diff.boxed_clone())
+            .action("차이 열기", project_diff::Diff.boxed_clone())
             .separator()
             .action_disabled_when(
                 !state.has_tracked_changes,
-                "Discard Tracked Changes",
+                "추적된 변경 사항 취소",
                 RestoreTrackedFiles.boxed_clone(),
             )
             .action_disabled_when(
                 !state.has_new_changes,
-                "Trash Untracked Files",
+                "추적되지 않은 파일 휴지통으로 이동",
                 TrashUntrackedFiles.boxed_clone(),
             )
             .separator()
             .entry(
                 if state.tree_view {
-                    "Flat View"
+                    "평면 보기"
                 } else {
-                    "Tree View"
+                    "트리 보기"
                 },
                 Some(Box::new(ToggleTreeView)),
                 move |window, cx| window.dispatch_action(Box::new(ToggleTreeView), cx),
@@ -235,9 +235,9 @@ fn git_panel_context_menu(
             .when(!state.tree_view, |this| {
                 this.entry(
                     if state.sort_by_path {
-                        "Sort by Status"
+                        "상태순 정렬"
                     } else {
-                        "Sort by Path"
+                        "경로순 정렬"
                     },
                     Some(Box::new(ToggleSortByPath)),
                     move |window, cx| window.dispatch_action(Box::new(ToggleSortByPath), cx),
@@ -740,7 +740,7 @@ pub(crate) fn commit_message_editor(
     commit_editor.set_use_modal_editing(true);
     commit_editor.set_show_wrap_guides(false, cx);
     commit_editor.set_show_indent_guides(false, cx);
-    let placeholder = placeholder.unwrap_or("Enter commit message".into());
+    let placeholder = placeholder.unwrap_or("커밋 메시지 입력".into());
     commit_editor.set_placeholder_text(&placeholder, window, cx);
     commit_editor
 }
@@ -1465,7 +1465,7 @@ impl GitPanel {
                 let prompt = window.prompt(
                     PromptLevel::Warning,
                     &format!(
-                        "Are you sure you want to discard changes to {}?",
+                        "{}의 변경 사항을 취소하시겠습니까?",
                         MarkdownInlineCode(
                             entry
                                 .repo_path
@@ -1474,7 +1474,7 @@ impl GitPanel {
                         ),
                     ),
                     None,
-                    &["Discard Changes", "Cancel"],
+                    &["변경 취소", "취소"],
                     cx,
                 );
                 cx.background_spawn(prompt)
@@ -1556,7 +1556,7 @@ impl GitPanel {
             if !entry.status.is_created() {
                 self.perform_checkout(vec![entry.clone()], window, cx);
             } else {
-                let prompt = prompt(&format!("Trash {}?", filename), None, window, cx);
+                let prompt = prompt(&format!("{}을(를) 휴지통으로 이동하시겠습니까?", filename), None, window, cx);
                 cx.spawn_in(window, async move |_, cx| {
                     match prompt.await? {
                         TrashCancel::Trash => {}
@@ -1573,7 +1573,7 @@ impl GitPanel {
                     Ok(())
                 })
                 .detach_and_prompt_err(
-                    "Failed to trash file",
+                    "파일을 휴지통으로 이동하지 못했습니다",
                     window,
                     cx,
                     |e, _, _| Some(format!("{e}")),
@@ -1693,7 +1693,7 @@ impl GitPanel {
             Cancel,
         }
         let prompt = prompt(
-            "Discard changes to these files?",
+            "이 파일들의 변경 사항을 취소하시겠습니까?",
             Some(&details),
             window,
             cx,
@@ -1742,10 +1742,10 @@ impl GitPanel {
             .join("\n");
 
         if to_delete.len() > 5 {
-            details.push_str(&format!("\nand {} more…", to_delete.len() - 5))
+            details.push_str(&format!("\n외 {}개 더…", to_delete.len() - 5))
         }
 
-        let prompt = prompt("Trash these files?", Some(&details), window, cx);
+        let prompt = prompt("이 파일들을 휴지통으로 이동하시겠습니까?", Some(&details), window, cx);
         cx.spawn_in(window, async move |this, cx| {
             match prompt.await? {
                 TrashCancel::Trash => {}
@@ -1774,7 +1774,7 @@ impl GitPanel {
             }
             Ok(())
         })
-        .detach_and_prompt_err("Failed to trash files", window, cx, |e, _, _| {
+        .detach_and_prompt_err("파일을 휴지통으로 이동하지 못했습니다", window, cx, |e, _, _| {
             Some(format!("{e}"))
         });
     }
@@ -2323,7 +2323,7 @@ impl GitPanel {
             return;
         };
         let error_spawn = |message, window: &mut Window, cx: &mut App| {
-            let prompt = window.prompt(PromptLevel::Warning, message, None, &["Ok"], cx);
+            let prompt = window.prompt(PromptLevel::Warning, message, None, &["확인"], cx);
             cx.spawn(async move |_| {
                 prompt.await.ok();
             })
@@ -2332,7 +2332,7 @@ impl GitPanel {
 
         if self.has_unstaged_conflicts() {
             error_spawn(
-                "There are still conflicts. You must stage these before committing",
+                "아직 충돌이 있습니다. 커밋하기 전에 스테이지해야 합니다",
                 window,
                 cx,
             );
@@ -2370,7 +2370,7 @@ impl GitPanel {
                 .collect::<Vec<_>>();
 
             if changed_files.is_empty() && !options.amend {
-                error_spawn("No changes to commit", window, cx);
+                error_spawn("커밋할 변경 사항 없음", window, cx);
                 return;
             }
 
@@ -2476,11 +2476,11 @@ impl GitPanel {
                     Cancel,
                 }
                 let detail = format!(
-                    "This commit was already pushed to {}.",
+                    "이 커밋은 이미 {}에 푸시되었습니다.",
                     pushed_to.into_iter().join(", ")
                 );
                 let result = cx
-                    .update(|window, cx| prompt("Are you sure?", Some(&detail), window, cx))?
+                    .update(|window, cx| prompt("정말 진행하시겠습니까?", Some(&detail), window, cx))?
                     .await?;
 
                 match result {
@@ -2905,7 +2905,7 @@ impl GitPanel {
             let selection = cx
                 .update(|window, cx| {
                     picker_prompt::prompt(
-                        "Pick which remote to fetch",
+                        "페치할 원격 선택",
                         remotes.iter().map(|r| r.name()).collect(),
                         workspace,
                         window,
@@ -2995,9 +2995,9 @@ impl GitPanel {
         } else if worktrees.is_empty() {
             let result = window.prompt(
                 PromptLevel::Warning,
-                "Unable to initialize a git repository",
-                Some("Open a directory first"),
-                &["Ok"],
+                "git 저장소를 초기화할 수 없습니다",
+                Some("먼저 디렉터리를 여세요"),
+                &["확인"],
                 cx,
             );
             cx.background_executor()
@@ -3023,7 +3023,7 @@ impl GitPanel {
                 })
                 .collect_vec();
             let prompt = picker_prompt::prompt(
-                "Where would you like to initialize this git repository?",
+                "이 git 저장소를 어디에 초기화하시겠습니까?",
                 worktree_directories,
                 self.workspace.clone(),
                 window,
@@ -3364,7 +3364,7 @@ impl GitPanel {
             let selection = cx
                 .update(|window, cx| {
                     picker_prompt::prompt(
-                        "Pick which remote to push to",
+                        "푸시할 원격 선택",
                         current_remotes.clone(),
                         workspace,
                         window,
@@ -3877,7 +3877,7 @@ impl GitPanel {
         self.select_first_entry_if_none(window, cx);
 
         let suggested_commit_message = self.suggest_commit_message(cx);
-        let placeholder_text = suggested_commit_message.unwrap_or("Enter commit message".into());
+        let placeholder_text = suggested_commit_message.unwrap_or("커밋 메시지 입력".into());
 
         self.commit_editor.update(cx, |editor, cx| {
             editor.set_placeholder_text(&placeholder_text, window, cx)
@@ -3973,7 +3973,7 @@ impl GitPanel {
                         workspace.show_toast(
                             workspace::Toast::new(
                                 NotificationId::unique::<GitJobQueueToast>(),
-                                "No active repository",
+                                "활성 저장소 없음",
                             )
                             .autohide(),
                             cx,
@@ -3986,7 +3986,7 @@ impl GitPanel {
 
         let repo_path = repo.read(cx).work_directory_abs_path.display().to_string();
         let queue_value = repo.read(cx).job_debug_queue().to_debug_value();
-        let title = format!("Git Job Queue: {repo_path}");
+        let title = format!("Git 작업 큐: {repo_path}");
 
         let json_language = self.project.read(cx).languages().language_for_name("JSON");
         let project = self.project.clone();
@@ -4063,7 +4063,7 @@ impl GitPanel {
                 workspace.show_notification(notification_id, cx, |cx| {
                     cx.new(|cx| {
                         ErrorMessagePrompt::new(
-                            format!("Failed to generate commit message: {err}"),
+                            format!("커밋 메시지 생성에 실패했습니다: {err}"),
                             cx,
                         )
                     })
@@ -4101,7 +4101,7 @@ impl GitPanel {
                                 .size(IconSize::Small)
                                 .color(Color::Muted),
                         )
-                        .action("View Log", move |window, cx| {
+                        .action("로그 보기", move |window, cx| {
                             let output = output.clone();
                             let output =
                                 format!("stdout:\n{}\nstderr:\n{}", output.stdout, output.stderr);
@@ -4248,14 +4248,14 @@ impl GitPanel {
                             .icon_color(Color::Error)
                             .icon_size(IconSize::Small)
                             .style(ButtonStyle::Tinted(TintColor::Error))
-                            .tooltip(Tooltip::text("Cancel Commit Message Generation"))
+                            .tooltip(Tooltip::text("커밋 메시지 생성 취소"))
                             .on_click(cx.listener(|this, _event, _window, cx| {
                                 this.generate_commit_message_task.take();
                                 cx.notify();
                             })),
                     )
                     .child(
-                        Label::new("Generating Commit…")
+                        Label::new("커밋 생성 중…")
                             .size(LabelSize::Small)
                             .color(Color::Muted),
                     )
@@ -4281,12 +4281,12 @@ impl GitPanel {
                 })
                 .tooltip(move |_window, cx| {
                     if !can_commit {
-                        Tooltip::simple("No Changes to Commit", cx)
+                        Tooltip::simple("커밋할 변경 사항 없음", cx)
                     } else if has_commit_model_configuration_error {
-                        Tooltip::simple("Configure an LLM provider to generate commit messages", cx)
+                        Tooltip::simple("커밋 메시지를 생성하려면 LLM 제공자를 설정하세요", cx)
                     } else {
                         Tooltip::for_action_in(
-                            "Generate Commit Message",
+                            "커밋 메시지 생성",
                             &git::GenerateCommitMessage,
                             &editor_focus_handle,
                             cx,
@@ -4305,9 +4305,9 @@ impl GitPanel {
         let potential_co_authors = self.potential_co_authors(cx);
 
         let (tooltip_label, icon) = if self.add_coauthors {
-            ("Remove co-authored-by", IconName::Person)
+            ("co-authored-by 제거", IconName::Person)
         } else {
-            ("Add co-authored-by", IconName::UserCheck)
+            ("co-authored-by 추가", IconName::UserCheck)
         };
 
         if potential_co_authors.is_empty() {
@@ -4410,15 +4410,15 @@ impl GitPanel {
 
     pub fn configure_commit_button(&self, cx: &mut Context<Self>) -> (bool, &'static str) {
         if self.has_unstaged_conflicts() {
-            (false, "You must resolve conflicts before committing")
+            (false, "커밋하기 전에 충돌을 해결해야 합니다")
         } else if !self.has_staged_changes() && !self.has_tracked_changes() && !self.amend_pending {
-            (false, "No changes to commit")
+            (false, "커밋할 변경 사항 없음")
         } else if self.pending_commit.is_some() {
-            (false, "Commit in progress")
+            (false, "커밋 진행 중")
         } else if !self.has_commit_message(cx) {
-            (false, "No commit message")
+            (false, "커밋 메시지 없음")
         } else if !self.has_write_access(cx) {
-            (false, "You do not have write access to this project")
+            (false, "이 프로젝트에 대한 쓰기 권한이 없습니다")
         } else {
             (true, self.commit_button_title())
         }
@@ -4427,16 +4427,16 @@ impl GitPanel {
     pub fn commit_button_title(&self) -> &'static str {
         if self.amend_pending {
             if self.has_staged_changes() {
-                "Amend"
+                "어멘드"
             } else if self.has_tracked_changes() {
-                "Amend Tracked"
+                "추적된 항목 어멘드"
             } else {
-                "Amend"
+                "어멘드"
             }
         } else if self.has_staged_changes() {
-            "Commit"
+            "커밋"
         } else {
-            "Commit Tracked"
+            "추적된 항목 커밋"
         }
     }
 
@@ -4494,9 +4494,9 @@ impl GitPanel {
 
         let (text, action, stage, tooltip) =
             if self.total_staged_count() == self.entry_count && self.entry_count > 0 {
-                ("Unstage All", UnstageAll.boxed_clone(), false, "git reset")
+                ("모두 스테이지 취소", UnstageAll.boxed_clone(), false, "git reset")
             } else {
-                ("Stage All", StageAll.boxed_clone(), true, "git add --all")
+                ("모두 스테이지", StageAll.boxed_clone(), true, "git add --all")
             };
 
         Some(
@@ -4507,7 +4507,7 @@ impl GitPanel {
                 .flex_none()
                 .justify_between()
                 .child(
-                    Button::new("changes", "View Diff")
+                    Button::new("changes", "차이 보기")
                         .label_size(LabelSize::Small)
                         .color(Color::Muted)
                         .start_icon(
@@ -4516,7 +4516,7 @@ impl GitPanel {
                                 .color(Color::Muted),
                         )
                         .tooltip(Tooltip::for_action_title_in(
-                            "View Diff",
+                            "차이 보기",
                             &Diff,
                             &self.focus_handle,
                         ))
@@ -4648,7 +4648,7 @@ impl GitPanel {
                         )
                         .child(
                             Label::new(format!(
-                                "Commit message title exceeds {max_title_length}-character limit."
+                                "커밋 메시지 제목이 {max_title_length}자 제한을 초과했습니다."
                             ))
                             .size(LabelSize::Small),
                         ),
@@ -4727,7 +4727,7 @@ impl GitPanel {
                                     .tooltip({
                                         move |_window, cx| {
                                             Tooltip::for_action_in(
-                                                "Open Commit Modal",
+                                                "커밋 모달 열기",
                                                 &git::ExpandCommitEditor,
                                                 &editor_focus_handle,
                                                 cx,
@@ -4745,9 +4745,9 @@ impl GitPanel {
                             )
                             .child({
                                 let (icon, label) = if self.commit_editor_expanded {
-                                    (IconName::Minimize, "Collapse Commit Editor")
+                                    (IconName::Minimize, "커밋 편집기 접기")
                                 } else {
-                                    (IconName::Maximize, "Expand Commit Editor")
+                                    (IconName::Maximize, "커밋 편집기 펼치기")
                                 };
                                 let focus_handle = self.focus_handle.clone();
 
@@ -4872,13 +4872,13 @@ impl GitPanel {
                     .overflow_hidden()
                     .max_w(relative(0.85))
                     .child(
-                        Label::new("This will update your most recent commit.")
+                        Label::new("가장 최근 커밋을 업데이트합니다.")
                             .size(LabelSize::Small)
                             .truncate(),
                     ),
             )
             .child(
-                Button::new("cancel", "Cancel")
+                Button::new("cancel", "취소")
                     .label_size(LabelSize::Small)
                     .layer(ElevationIndex::ModalSurface)
                     .on_click(cx.listener(|this, _, _, cx| this.set_amend_pending(false, cx))),
@@ -4976,7 +4976,7 @@ impl GitPanel {
                             IconButton::new("git-graph-button", IconName::GitGraph)
                                 .icon_size(IconSize::Small)
                                 .tooltip(|_window, cx| {
-                                    Tooltip::for_action("Open Git Graph", &Open, cx)
+                                    Tooltip::for_action("Git 그래프 열기", &Open, cx)
                                 })
                                 .on_click(|_, window, cx| {
                                     window.dispatch_action(Open.boxed_clone(), cx)
@@ -5021,7 +5021,7 @@ impl GitPanel {
                     )
                 })
                 .tooltip(Tooltip::for_action_title_in(
-                    format!("Toggle {} Tab", label),
+                    format!("{} 탭 표시 전환", label),
                     tooltip_action.as_ref(),
                     &focus_handle,
                 ))
@@ -5038,7 +5038,7 @@ impl GitPanel {
                 ElementId::Name("changes-tab".into()),
                 active_tab == GitPanelTab::Changes,
                 true,
-                "Changes".into(),
+                "변경 사항".into(),
                 GitPanelTab::Changes,
                 ActivateChangesTab.boxed_clone(),
             ))
@@ -5047,7 +5047,7 @@ impl GitPanel {
                 ElementId::Name("history-tab".into()),
                 active_tab != GitPanelTab::Changes,
                 false,
-                "History".into(),
+                "히스토리".into(),
                 GitPanelTab::History,
                 ActivateHistoryTab.boxed_clone(),
             ))
@@ -5062,7 +5062,7 @@ impl GitPanel {
                     h_flex()
                         .flex_1()
                         .justify_center()
-                        .child(Label::new("Loading Commit History…").color(Color::Muted)),
+                        .child(Label::new("커밋 히스토리 로딩 중…").color(Color::Muted)),
                 )
             }
         })
@@ -5415,7 +5415,7 @@ impl GitPanel {
                                         )
                                         .tooltip(move |_, cx| {
                                             Tooltip::with_meta(
-                                                "View Commit",
+                                                "커밋 보기",
                                                 None,
                                                 short_sha.clone(),
                                                 cx,
@@ -5477,10 +5477,10 @@ impl GitPanel {
         v_flex()
             .gap_1()
             .items_center()
-            .child(Label::new("No changes to commit").color(Color::Muted))
+            .child(Label::new("커밋할 변경 사항 없음").color(Color::Muted))
             .when(show_branch_diff, |this| {
                 this.child(
-                    Button::new("view_branch_diff", "View Branch Diff")
+                    Button::new("view_branch_diff", "브랜치 차이 보기")
                         .label_size(LabelSize::Small)
                         .style(ButtonStyle::Outlined)
                         .on_click(move |_, _, cx| {
@@ -5503,9 +5503,9 @@ impl GitPanel {
         });
 
         let message = format!(
-            "Detected dubious ownership in repository at {}. \
-            This happens when the .git/ directory is not owned by the current user. \
-            If you want to learn more about safe directories, visit git's documentation.",
+            "{} 저장소에서 의심스러운 소유권이 감지되었습니다. \
+            이는 .git/ 디렉터리가 현재 사용자 소유가 아닐 때 발생합니다. \
+            안전한 디렉터리에 대해 자세히 알아보려면 git 문서를 참고하세요.",
             directory.display()
         );
 
@@ -5518,7 +5518,7 @@ impl GitPanel {
                         .flex_wrap()
                         .gap_1()
                         .child(
-                            Button::new("trust_directory", "Trust Directory")
+                            Button::new("trust_directory", "디렉터리 신뢰")
                             .label_size(LabelSize::Small)
                             .layer(ElevationIndex::ModalSurface)
                             .style(ButtonStyle::Filled)
@@ -5532,7 +5532,7 @@ impl GitPanel {
                             )
                     )
                     .child(
-                        Button::new("learn_more", "Learn More")
+                        Button::new("learn_more", "자세히 보기")
                             .label_size(LabelSize::Small)
                             .style(ButtonStyle::Outlined)
                             .end_icon(Icon::new(IconName::ArrowUpRight).size(IconSize::Small).color(Color::Muted))
@@ -5548,9 +5548,9 @@ impl GitPanel {
             v_flex()
                 .gap_1()
                 .items_center()
-                .child(Label::new("No Git Repositories").color(Color::Muted))
+                .child(Label::new("Git 저장소 없음").color(Color::Muted))
                 .child(
-                    Button::new("initialize_repository", "Initialize Repository")
+                    Button::new("initialize_repository", "저장소 초기화")
                         .label_size(LabelSize::Small)
                         .style(ButtonStyle::Outlined)
                         .tooltip(Tooltip::for_action_title_in(
@@ -5568,7 +5568,7 @@ impl GitPanel {
         } else if worktree_count == 0 {
             let focus_handle = self.focus_handle.clone();
             ProjectEmptyState::new(
-                "Git Panel",
+                "Git 패널",
                 focus_handle.clone(),
                 KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
             )
@@ -5895,14 +5895,14 @@ impl GitPanel {
             return;
         };
         let stage_title = if entry.status.staging().is_fully_staged() {
-            "Unstage File"
+            "파일 스테이지 취소"
         } else {
-            "Stage File"
+            "파일 스테이지"
         };
         let restore_title = if entry.status.is_created() {
-            "Trash File"
+            "파일 휴지통으로 이동"
         } else {
-            "Discard Changes"
+            "변경 취소"
         };
         let context_menu = ContextMenu::build(window, cx, |context_menu, _, _| {
             let is_created = entry.status.is_created();
@@ -5912,16 +5912,16 @@ impl GitPanel {
                 .action(restore_title, git::RestoreFile::default().boxed_clone())
                 .action_disabled_when(
                     !is_created,
-                    "Add to .gitignore",
+                    ".gitignore에 추가",
                     git::AddToGitignore.boxed_clone(),
                 )
                 .separator()
-                .action("Open Diff", menu::Confirm.boxed_clone())
-                .action("Open File", menu::SecondaryConfirm.boxed_clone())
+                .action("차이 열기", menu::Confirm.boxed_clone())
+                .action("파일 열기", menu::SecondaryConfirm.boxed_clone())
                 .when(!is_created, |context_menu| {
                     context_menu
                         .separator()
-                        .action("View File History", Box::new(git::FileHistory))
+                        .action("파일 히스토리 보기", Box::new(git::FileHistory))
                 })
         });
         self.selected_entry = Some(ix);
@@ -6364,10 +6364,10 @@ impl GitPanel {
                             })
                             .tooltip(move |_window, cx| {
                                 let action = match stage_status {
-                                    StageStatus::Staged => "Unstage",
-                                    StageStatus::Unstaged | StageStatus::PartiallyStaged => "Stage",
+                                    StageStatus::Staged => "스테이지 취소",
+                                    StageStatus::Unstaged | StageStatus::PartiallyStaged => "스테이지",
                                 };
-                                Tooltip::simple(format!("{action} folder"), cx)
+                                Tooltip::simple(format!("폴더 {action}"), cx)
                             }),
                     ),
             )
@@ -6773,7 +6773,7 @@ impl Panel for GitPanel {
     }
 
     fn icon_tooltip(&self, _window: &Window, _cx: &App) -> Option<&'static str> {
-        Some("Git Panel")
+        Some("Git 패널")
     }
 
     fn icon_label(&self, _: &Window, cx: &App) -> Option<String> {
@@ -6993,7 +6993,7 @@ impl RenderOnce for PanelRepoFooter {
                     if single_repo {
                         cx.new(|_| Empty).into()
                     } else {
-                        Tooltip::simple("Switch Active Repository", cx)
+                        Tooltip::simple("활성 저장소 전환", cx)
                     }
                 },
             )
@@ -7020,7 +7020,7 @@ impl RenderOnce for PanelRepoFooter {
             })
             .trigger_with_tooltip(
                 branch_selector_button,
-                Tooltip::for_action_title("Switch Branch", &zed_actions::git::Switch),
+                Tooltip::for_action_title("브랜치 전환", &zed_actions::git::Switch),
             )
             .anchor(Anchor::BottomLeft)
             .offset(gpui::Point {
@@ -7343,7 +7343,7 @@ pub(crate) fn open_output(
     let editor = cx.new(|cx| {
         let mut editor = Editor::for_buffer(buffer, None, window, cx);
         editor.buffer().update(cx, |buffer, cx| {
-            buffer.set_title(format!("Output from git {operation}"), cx);
+            buffer.set_title(format!("git {operation} 출력"), cx);
         });
         editor.set_read_only(true);
         editor
@@ -7395,13 +7395,13 @@ pub(crate) fn show_error_toast(
         cx.defer(move |cx| {
             workspace.update(cx, |workspace, cx| {
                 let workspace_weak = cx.weak_entity();
-                let toast = StatusToast::new(format!("git {} failed", action), cx, |this, _cx| {
+                let toast = StatusToast::new(format!("git {} 실패", action), cx, |this, _cx| {
                     this.icon(
                         Icon::new(IconName::XCircle)
                             .size(IconSize::Small)
                             .color(Color::Error),
                     )
-                    .action("View Log", move |window, cx| {
+                    .action("로그 보기", move |window, cx| {
                         let message = message.clone();
                         let action = action.clone();
                         workspace_weak

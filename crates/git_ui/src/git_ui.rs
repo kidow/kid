@@ -378,7 +378,7 @@ impl RenameBranchModal {
                 Err(_) => Err(anyhow!("Operation was canceled")),
             }
         })
-        .detach_and_prompt_err("Failed to rename branch", window, cx, |_, _, _| None);
+        .detach_and_prompt_err("브랜치 이름 변경에 실패했습니다", window, cx, |_, _, _| None);
         cx.emit(DismissEvent);
     }
 }
@@ -408,7 +408,7 @@ impl Render for RenameBranchModal {
                     .gap_1p5()
                     .child(Icon::new(IconName::GitBranch).size(IconSize::XSmall))
                     .child(
-                        Headline::new(format!("Rename Branch ({})", self.current_branch))
+                        Headline::new(format!("브랜치 이름 변경 ({})", self.current_branch))
                             .size(HeadlineSize::XSmall),
                     ),
             )
@@ -476,7 +476,7 @@ impl RefPickerModal {
     ) -> Self {
         let editor = cx.new(|cx| {
             let mut editor = Editor::single_line(window, cx);
-            editor.set_placeholder_text("Enter git ref...", window, cx);
+            editor.set_placeholder_text("git ref 입력...", window, cx);
             editor
         });
 
@@ -661,7 +661,7 @@ impl Render for RefPickerModal {
                     .w_full()
                     .gap_1p5()
                     .child(Icon::new(IconName::Hash).size(IconSize::XSmall))
-                    .child(Headline::new("View Commit").size(HeadlineSize::XSmall)),
+                    .child(Headline::new("커밋 보기").size(HeadlineSize::XSmall)),
             )
             .child(div().px_3().w_full().child(self.editor.clone()))
             .when_some(commit_preview, |el, preview| {
@@ -751,7 +751,7 @@ mod remote_button {
             },
             move |_window, cx| {
                 git_action_tooltip(
-                    "Fetch updates from remote",
+                    "원격에서 업데이트 페치",
                     &git::Fetch,
                     "git fetch",
                     keybinding_target.clone(),
@@ -768,7 +768,7 @@ mod remote_button {
     ) -> SplitButton {
         split_button(
             id,
-            "Push",
+            "푸시",
             ahead as usize,
             0,
             None,
@@ -778,7 +778,7 @@ mod remote_button {
             },
             move |_window, cx| {
                 git_action_tooltip(
-                    "Push committed changes to remote",
+                    "커밋된 변경 사항을 원격으로 푸시",
                     &git::Push,
                     "git push",
                     keybinding_target.clone(),
@@ -796,7 +796,7 @@ mod remote_button {
     ) -> SplitButton {
         split_button(
             id,
-            "Pull",
+            "풀",
             ahead as usize,
             behind as usize,
             None,
@@ -806,7 +806,7 @@ mod remote_button {
             },
             move |_window, cx| {
                 git_action_tooltip(
-                    "Pull",
+                    "풀",
                     &git::Pull,
                     "git pull",
                     keybinding_target.clone(),
@@ -822,7 +822,7 @@ mod remote_button {
     ) -> SplitButton {
         split_button(
             id,
-            "Publish",
+            "게시",
             0,
             0,
             Some(IconName::ExpandUp),
@@ -832,7 +832,7 @@ mod remote_button {
             },
             move |_window, cx| {
                 git_action_tooltip(
-                    "Publish branch to remote",
+                    "브랜치를 원격에 게시",
                     &git::Push,
                     "git push --set-upstream",
                     keybinding_target.clone(),
@@ -848,7 +848,7 @@ mod remote_button {
     ) -> SplitButton {
         split_button(
             id,
-            "Republish",
+            "다시 게시",
             0,
             0,
             Some(IconName::ExpandUp),
@@ -858,7 +858,7 @@ mod remote_button {
             },
             move |_window, cx| {
                 git_action_tooltip(
-                    "Re-publish branch to remote",
+                    "브랜치를 원격에 다시 게시",
                     &git::Push,
                     "git push --set-upstream",
                     keybinding_target.clone(),
@@ -906,14 +906,14 @@ mod remote_button {
                         .when_some(keybinding_target.clone(), |el, keybinding_target| {
                             el.context(keybinding_target)
                         })
-                        .action("Fetch", git::Fetch.boxed_clone())
-                        .action("Fetch From", git::FetchFrom.boxed_clone())
-                        .action("Pull", git::Pull.boxed_clone())
-                        .action("Pull (Rebase)", git::PullRebase.boxed_clone())
+                        .action("페치", git::Fetch.boxed_clone())
+                        .action("페치 위치 지정", git::FetchFrom.boxed_clone())
+                        .action("풀", git::Pull.boxed_clone())
+                        .action("풀 (리베이스)", git::PullRebase.boxed_clone())
                         .separator()
-                        .action("Push", git::Push.boxed_clone())
-                        .action("Push To", git::PushTo.boxed_clone())
-                        .action("Force Push", git::ForcePush.boxed_clone())
+                        .action("푸시", git::Push.boxed_clone())
+                        .action("푸시 위치 지정", git::PushTo.boxed_clone())
+                        .action("강제 푸시", git::ForcePush.boxed_clone())
                 }))
             })
             .anchor(Anchor::TopRight)
@@ -1085,7 +1085,7 @@ impl GitCloneModal {
     pub fn show(panel: Entity<GitPanel>, window: &mut Window, cx: &mut Context<Self>) -> Self {
         let repo_input = cx.new(|cx| {
             let mut editor = Editor::single_line(window, cx);
-            editor.set_placeholder_text("Enter repository URL…", window, cx);
+            editor.set_placeholder_text("저장소 URL 입력…", window, cx);
             editor
         });
         let focus_handle = repo_input.focus_handle(cx);
@@ -1129,12 +1129,12 @@ impl Render for GitCloneModal {
                     .rounded_b_sm()
                     .bg(cx.theme().colors().editor_background)
                     .child(
-                        Label::new("Clone a repository from GitHub or other sources.")
+                        Label::new("GitHub 등에서 저장소를 클론합니다.")
                             .color(Color::Muted)
                             .size(LabelSize::Small),
                     )
                     .child(
-                        Button::new("learn-more", "Learn More")
+                        Button::new("learn-more", "자세히 보기")
                             .label_size(LabelSize::Small)
                             .end_icon(Icon::new(IconName::ArrowUpRight).size(IconSize::XSmall))
                             .on_click(|_, _, cx| {

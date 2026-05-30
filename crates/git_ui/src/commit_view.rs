@@ -132,7 +132,7 @@ impl Addon for CommitDiffAddon {
         menu.when_some(file_to_open, |menu, file| {
             let commit_view = self.commit_view.clone();
             menu.entry(
-                "Open File in Project",
+                "프로젝트에서 파일 열기",
                 Some(Box::new(OpenFileAtHead)),
                 move |window, cx| {
                     commit_view
@@ -631,7 +631,7 @@ impl CommitView {
             )
             .when(self.stash.is_none(), |this| {
                 this.child(
-                    Button::new("sha", "Commit SHA")
+                    Button::new("sha", "커밋 SHA")
                         .start_icon(
                             Icon::new(copy_icon)
                                 .size(IconSize::Small)
@@ -640,7 +640,7 @@ impl CommitView {
                         .tooltip({
                             let commit_sha = commit_sha.clone();
                             move |_, cx| {
-                                Tooltip::with_meta("Copy Commit SHA", None, commit_sha.clone(), cx)
+                                Tooltip::with_meta("커밋 SHA 복사", None, commit_sha.clone(), cx)
                             }
                         })
                         .on_click(move |_, _, cx| {
@@ -1178,7 +1178,7 @@ impl Render for CommitViewToolbar {
                     .icon_size(IconSize::Small)
                     .tooltip(move |_, cx| {
                         Tooltip::for_action(
-                            "Buffer Search",
+                            "버퍼 검색",
                             &zed_actions::buffer_search::Deploy::find(),
                             cx,
                         )
@@ -1194,7 +1194,7 @@ impl Render for CommitViewToolbar {
                 this.child(
                     IconButton::new("show-in-git-graph", IconName::GitGraph)
                         .icon_size(IconSize::Small)
-                        .tooltip(Tooltip::text("Show in Git Graph"))
+                        .tooltip(Tooltip::text("Git 그래프에서 보기"))
                         .on_click(move |_, window, cx| {
                             window.dispatch_action(
                                 Box::new(crate::git_panel::OpenAtCommit {
@@ -1209,7 +1209,7 @@ impl Render for CommitViewToolbar {
 
                     IconButton::new("view_on_provider", icon)
                         .icon_size(IconSize::Small)
-                        .tooltip(Tooltip::text(format!("View on {}", provider_name)))
+                        .tooltip(Tooltip::text(format!("{}에서 보기", provider_name)))
                         .on_click(move |_, _, cx| cx.open_url(&url))
                 }))
             })

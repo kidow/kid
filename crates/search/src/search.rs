@@ -97,12 +97,12 @@ impl SearchOption {
 
     pub fn label(&self) -> &'static str {
         match self {
-            SearchOption::WholeWord => "Match Whole Words",
-            SearchOption::CaseSensitive => "Match Case Sensitivity",
-            SearchOption::IncludeIgnored => "Also search files ignored by configuration",
-            SearchOption::Regex => "Use Regular Expressions",
-            SearchOption::OneMatchPerLine => "One Match Per Line",
-            SearchOption::Backwards => "Search Backwards",
+            SearchOption::WholeWord => "단어 단위로 검색",
+            SearchOption::CaseSensitive => "대소문자 구분",
+            SearchOption::IncludeIgnored => "설정에서 무시한 파일도 검색",
+            SearchOption::Regex => "정규식 사용",
+            SearchOption::OneMatchPerLine => "한 줄에 하나만 검색",
+            SearchOption::Backwards => "역방향 검색",
         }
     }
 
@@ -196,7 +196,7 @@ pub(crate) fn show_no_more_matches(window: &mut Window, cx: &mut App) {
         };
         workspace.update(cx, |workspace, cx| {
             workspace.show_toast(
-                Toast::new(notification_id.clone(), "No more matches").autohide(),
+                Toast::new(notification_id.clone(), "더 이상 일치 항목이 없습니다").autohide(),
                 cx,
             );
         })

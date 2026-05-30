@@ -296,8 +296,8 @@ impl UndoMessage {
             UndoMessage::Changed(_) => {
                 "this is a bug in the manage_undo_and_redo task please report"
             }
-            UndoMessage::Undo => "Undo failed",
-            UndoMessage::Redo => "Redo failed",
+            UndoMessage::Undo => "실행 취소에 실패했습니다",
+            UndoMessage::Redo => "다시 실행에 실패했습니다",
         }
     }
 }

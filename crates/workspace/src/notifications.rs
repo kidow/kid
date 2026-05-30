@@ -163,7 +163,7 @@ impl Workspace {
         E: std::fmt::Debug + std::fmt::Display,
     {
         self.show_notification(workspace_error_notification_id(), cx, |cx| {
-            cx.new(|cx| ErrorMessagePrompt::new(format!("Error: {err}"), cx))
+            cx.new(|cx| ErrorMessagePrompt::new(format!("오류: {err}"), cx))
         });
     }
 
@@ -173,7 +173,7 @@ impl Workspace {
         self.show_notification(NotificationId::unique::<PortalError>(), cx, |cx| {
             cx.new(|cx| {
                 ErrorMessagePrompt::new(err.to_string(), cx).with_link_button(
-                    "See docs",
+                    "문서 보기",
                     "https://zed.dev/docs/linux#i-cant-open-any-files",
                 )
             })
@@ -364,23 +364,23 @@ impl Render for LanguageServerPrompt {
                                             "copy-description",
                                             request.message.clone(),
                                         )
-                                        .tooltip_label("Copy Description"),
+                                        .tooltip_label("설명 복사"),
                                     )
                                     .child(
                                         IconButton::new(close_id, close_icon)
                                             .tooltip(move |_window, cx| {
                                                 if suppress {
                                                     Tooltip::with_meta(
-                                                        "Suppress",
+                                                        "숨기기",
                                                         Some(&SuppressNotification),
-                                                        "Click to close",
+                                                        "클릭하여 닫기",
                                                         cx,
                                                     )
                                                 } else {
                                                     Tooltip::with_meta(
-                                                        "Close",
+                                                        "닫기",
                                                         Some(&menu::Cancel),
-                                                        "Suppress with shift-click",
+                                                        "shift-클릭으로 숨기기",
                                                         cx,
                                                     )
                                                 }
@@ -531,7 +531,7 @@ impl Render for ErrorMessagePrompt {
                                     .gap_1()
                                     .child(
                                         CopyButton::new("copy-error-message", self.message.clone())
-                                            .tooltip_label("Copy Error Message"),
+                                            .tooltip_label("오류 메시지 복사"),
                                     )
                                     .child(
                                         ui::IconButton::new("close", ui::IconName::Close).on_click(
@@ -666,20 +666,20 @@ impl RenderOnce for NotificationFrame {
                                     .tooltip(move |_window, cx| {
                                         if suppress {
                                             Tooltip::with_meta(
-                                                "Suppress",
+                                                "숨기기",
                                                 Some(&SuppressNotification),
-                                                "Click to Close",
+                                                "클릭하여 닫기",
                                                 cx,
                                             )
                                         } else if show_suppress_button {
                                             Tooltip::with_meta(
-                                                "Close",
+                                                "닫기",
                                                 Some(&menu::Cancel),
-                                                "Shift-click to Suppress",
+                                                "Shift-클릭으로 숨기기",
                                                 cx,
                                             )
                                         } else {
-                                            Tooltip::for_action("Close", &menu::Cancel, cx)
+                                            Tooltip::for_action("닫기", &menu::Cancel, cx)
                                         }
                                     })
                                     .on_click({
@@ -1163,7 +1163,7 @@ where
         match self {
             Ok(value) => Some(value),
             Err(err) => {
-                let message: SharedString = format!("Error: {err}").into();
+                let message: SharedString = format!("오류: {err}").into();
                 log::error!("Showing error notification in app: {message}");
                 show_app_notification(workspace_error_notification_id(), cx, {
                     move |cx| {
@@ -1248,7 +1248,7 @@ where
                         display.push('.');
                     }
                     let detail = f(err, window, cx).unwrap_or(display);
-                    window.prompt(PromptLevel::Critical, &msg, Some(&detail), &["Ok"], cx)
+                    window.prompt(PromptLevel::Critical, &msg, Some(&detail), &["확인"], cx)
                 }) {
                     prompt.await.ok();
                 }

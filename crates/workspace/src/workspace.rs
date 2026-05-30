@@ -3446,9 +3446,9 @@ impl Workspace {
                         );
                         window.prompt(
                             PromptLevel::Warning,
-                            "Do you want to save all changes in the following files?",
+                            "다음 파일의 모든 변경 사항을 저장하시겠습니까?",
                             Some(&detail),
-                            &["Save all", "Discard all", "Cancel"],
+                            &["모두 저장", "모두 취소", "취소"],
                             cx,
                         )
                     })?;
@@ -7921,8 +7921,8 @@ fn notify_if_database_failed(window: WindowHandle<MultiWorkspace>, cx: &mut Asyn
                         cx,
                         |cx| {
                             cx.new(|cx| {
-                                MessageNotification::new("Failed to load the database file.", cx)
-                                    .primary_message("File an Issue")
+                                MessageNotification::new("데이터베이스 파일을 불러오지 못했습니다.", cx)
+                                    .primary_message("이슈 등록")
                                     .primary_icon(IconName::Plus)
                                     .primary_on_click(|window, cx| {
                                         window.dispatch_action(Box::new(FileBugReport), cx)
@@ -9341,10 +9341,10 @@ pub fn open_paths(
                     workspace.update(cx, |workspace, cx| {
                         workspace.show_notification(NotificationId::unique::<OpenInWsl>(), cx, move |cx| {
                             let display_path = util::markdown::MarkdownInlineCode(&path.to_string_lossy());
-                            let msg = format!("{display_path} is inside a WSL filesystem, some features may not work unless you open it with WSL remote");
+                            let msg = format!("{display_path} 은(는) WSL 파일 시스템 안에 있습니다. WSL 원격으로 열지 않으면 일부 기능이 동작하지 않을 수 있습니다");
                             cx.new(move |cx| {
                                 MessageNotification::new(msg, cx)
-                                    .primary_message("Open in WSL")
+                                    .primary_message("WSL에서 열기")
                                     .primary_icon(IconName::FolderOpen)
                                     .primary_on_click(move |window, cx| {
                                         window.dispatch_action(Box::new(remote::OpenWslPath {
@@ -9677,9 +9677,9 @@ pub fn reload(cx: &mut App) {
             .update(cx, |_, window, cx| {
                 window.prompt(
                     PromptLevel::Info,
-                    "Are you sure you want to restart?",
+                    "정말 다시 시작하시겠습니까?",
                     None,
-                    &["Restart", "Cancel"],
+                    &["다시 시작", "취소"],
                     cx,
                 )
             })
