@@ -2687,7 +2687,7 @@ fn window_and_layout_page() -> SettingsPage {
 }
 
 fn panels_page() -> SettingsPage {
-    fn project_panel_section() -> [SettingsPageItem; 29] {
+    fn project_panel_section() -> [SettingsPageItem; 14] {
         [
             SettingsPageItem::SectionHeader("Project Panel"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -2742,28 +2742,6 @@ fn panels_page() -> SettingsPage {
                             .project_panel
                             .get_or_insert_default()
                             .hide_gitignore = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Entry Spacing",
-                description: "Spacing between worktree entries in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.entry_spacing"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .entry_spacing
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .entry_spacing = value;
                     },
                 }),
                 metadata: None,
@@ -2872,72 +2850,6 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Starts Open",
-                description: "Whether the project panel should open on startup.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.starts_open"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .starts_open
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .starts_open = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Fold Directories",
-                description: "Whether to fold directories automatically and show compact folders when a directory has only one subdirectory inside.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.auto_fold_dirs"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .auto_fold_dirs
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .auto_fold_dirs = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Bold Folder Labels",
-                description: "Whether to show folder names with bold text in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.bold_folder_labels"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .bold_folder_labels
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .bold_folder_labels = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
                 title: "Show Scrollbar",
                 description: "Show the scrollbar in the project panel.",
                 field: Box::new(SettingField {
@@ -2960,120 +2872,6 @@ fn panels_page() -> SettingsPage {
                             .scrollbar
                             .get_or_insert_default()
                             .show = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Horizontal Scroll",
-                description: "Whether to allow horizontal scrolling in the project panel. When disabled, the view is always locked to the leftmost position and long file names are clipped.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.scrollbar.horizontal_scroll"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .scrollbar
-                            .as_ref()?
-                            .horizontal_scroll
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .scrollbar
-                            .get_or_insert_default()
-                            .horizontal_scroll = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Diagnostics",
-                description: "Which files containing diagnostic errors/warnings to mark in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.show_diagnostics"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .show_diagnostics
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .show_diagnostics = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Diagnostic Badges",
-                description: "Show error and warning count badges next to file names in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.diagnostic_badges"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .diagnostic_badges
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .diagnostic_badges = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Status Indicator",
-                description: "Show a git status indicator next to file names in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.git_status_indicator"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .git_status_indicator
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .git_status_indicator = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Sticky Scroll",
-                description: "Whether to stick parent directories at top of the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.sticky_scroll"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .sticky_scroll
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .sticky_scroll = value;
                     },
                 }),
                 metadata: None,
@@ -3104,68 +2902,6 @@ fn panels_page() -> SettingsPage {
                     },
                 }),
                 metadata: None,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Drag and Drop",
-                description: "Whether to enable drag-and-drop operations in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.drag_and_drop"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .drag_and_drop
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .drag_and_drop = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide Root",
-                description: "Whether to hide the root entry when only one folder is open in the window.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.hide_root"),
-                    pick: |settings_content| {
-                        settings_content.project_panel.as_ref()?.hide_root.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .hide_root = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Hide Hidden",
-                description: "Whether to hide the hidden entries in the project panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.hide_hidden"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .hide_hidden
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .hide_hidden = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
                 title: "Sort Mode",
@@ -3199,84 +2935,6 @@ fn panels_page() -> SettingsPage {
                             .sort_order = value;
                     },
                     json_path: Some("project_panel.sort_order"),
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Open Files On Create",
-                description: "Whether to automatically open newly created files in the editor.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.auto_open.on_create"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .auto_open
-                            .as_ref()?
-                            .on_create
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .auto_open
-                            .get_or_insert_default()
-                            .on_create = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Open Files On Paste",
-                description: "Whether to automatically open files after pasting or duplicating them.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.auto_open.on_paste"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .auto_open
-                            .as_ref()?
-                            .on_paste
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .auto_open
-                            .get_or_insert_default()
-                            .on_paste = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Open Files On Drop",
-                description: "Whether to automatically open files dropped from external sources.",
-                field: Box::new(SettingField {
-                    json_path: Some("project_panel.auto_open.on_drop"),
-                    pick: |settings_content| {
-                        settings_content
-                            .project_panel
-                            .as_ref()?
-                            .auto_open
-                            .as_ref()?
-                            .on_drop
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .project_panel
-                            .get_or_insert_default()
-                            .auto_open
-                            .get_or_insert_default()
-                            .on_drop = value;
-                    },
                 }),
                 metadata: None,
                 files: USER,
@@ -3356,216 +3014,7 @@ fn panels_page() -> SettingsPage {
         ]
     }
 
-    fn outline_panel_section() -> [SettingsPageItem; 11] {
-        [
-            SettingsPageItem::SectionHeader("Outline Panel"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Outline Panel Button",
-                description: "Show the outline panel button in the status bar.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.button"),
-                    pick: |settings_content| {
-                        settings_content.outline_panel.as_ref()?.button.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .button = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Outline Panel Dock",
-                description: "Where to dock the outline panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.dock"),
-                    pick: |settings_content| settings_content.outline_panel.as_ref()?.dock.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.outline_panel.get_or_insert_default().dock = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Outline Panel Default Width",
-                description: "Default width of the outline panel in pixels.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.default_width"),
-                    pick: |settings_content| {
-                        settings_content
-                            .outline_panel
-                            .as_ref()?
-                            .default_width
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .default_width = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "File Icons",
-                description: "Show file icons in the outline panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.file_icons"),
-                    pick: |settings_content| {
-                        settings_content.outline_panel.as_ref()?.file_icons.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .file_icons = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Folder Icons",
-                description: "Whether to show folder icons or chevrons for directories in the outline panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.folder_icons"),
-                    pick: |settings_content| {
-                        settings_content
-                            .outline_panel
-                            .as_ref()?
-                            .folder_icons
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .folder_icons = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Git Status",
-                description: "Show the Git status in the outline panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.git_status"),
-                    pick: |settings_content| {
-                        settings_content.outline_panel.as_ref()?.git_status.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .git_status = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Indent Size",
-                description: "Amount of indentation for nested items.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.indent_size"),
-                    pick: |settings_content| {
-                        settings_content
-                            .outline_panel
-                            .as_ref()?
-                            .indent_size
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .indent_size = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Reveal Entries",
-                description: "Whether to reveal when a corresponding outline entry becomes active.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.auto_reveal_entries"),
-                    pick: |settings_content| {
-                        settings_content
-                            .outline_panel
-                            .as_ref()?
-                            .auto_reveal_entries
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .auto_reveal_entries = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Fold Directories",
-                description: "Whether to fold directories automatically when a directory contains only one subdirectory.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.auto_fold_dirs"),
-                    pick: |settings_content| {
-                        settings_content
-                            .outline_panel
-                            .as_ref()?
-                            .auto_fold_dirs
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .auto_fold_dirs = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                files: USER,
-                title: "Show Indent Guides",
-                description: "When to show indent guides in the outline panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("outline_panel.indent_guides.show"),
-                    pick: |settings_content| {
-                        settings_content
-                            .outline_panel
-                            .as_ref()?
-                            .indent_guides
-                            .as_ref()?
-                            .show
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .outline_panel
-                            .get_or_insert_default()
-                            .indent_guides
-                            .get_or_insert_default()
-                            .show = value;
-                    },
-                }),
-                metadata: None,
-            }),
-        ]
-    }
-
-    fn git_panel_section() -> [SettingsPageItem; 15] {
+    fn git_panel_section() -> [SettingsPageItem; 10] {
         [
             SettingsPageItem::SectionHeader("Git Panel"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -3631,68 +3080,6 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Fallback Branch Name",
-                description: "Default branch name will be when init.defaultbranch is not set in Git.",
-                field: Box::new(SettingField {
-                    json_path: Some("git_panel.fallback_branch_name"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git_panel
-                            .as_ref()?
-                            .fallback_branch_name
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git_panel
-                            .get_or_insert_default()
-                            .fallback_branch_name = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Sort By Path",
-                description: "Enable to sort entries in the panel by path, disable to sort by status.",
-                field: Box::new(SettingField {
-                    json_path: Some("git_panel.sort_by_path"),
-                    pick: |settings_content| {
-                        settings_content.git_panel.as_ref()?.sort_by_path.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git_panel
-                            .get_or_insert_default()
-                            .sort_by_path = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Collapse Untracked Diff",
-                description: "Whether to collapse untracked files in the diff panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("git_panel.collapse_untracked_diff"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git_panel
-                            .as_ref()?
-                            .collapse_untracked_diff
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git_panel
-                            .get_or_insert_default()
-                            .collapse_untracked_diff = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
                 title: "Tree View",
                 description: "Enable to show entries in tree view list, disable to show in flat view list.",
                 field: Box::new(SettingField {
@@ -3744,24 +3131,6 @@ fn panels_page() -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Diff Stats",
-                description: "Whether to show the addition/deletion change count next to each file in the Git panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("git_panel.diff_stats"),
-                    pick: |settings_content| {
-                        settings_content.git_panel.as_ref()?.diff_stats.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git_panel
-                            .get_or_insert_default()
-                            .diff_stats = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
                 title: "Show Count Badge",
                 description: "Whether to show a badge on the git panel icon with the count of uncommitted changes.",
                 field: Box::new(SettingField {
@@ -3778,28 +3147,6 @@ fn panels_page() -> SettingsPage {
                             .git_panel
                             .get_or_insert_default()
                             .show_count_badge = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Commit Title Max Length",
-                description: "Maximum length of the commit message title before a warning is shown. Set to 0 to disable.",
-                field: Box::new(SettingField {
-                    json_path: Some("git_panel.commit_title_max_length"),
-                    pick: |settings_content| {
-                        settings_content
-                            .git_panel
-                            .as_ref()?
-                            .commit_title_max_length
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .git_panel
-                            .get_or_insert_default()
-                            .commit_title_max_length = value;
                     },
                 }),
                 metadata: None,
@@ -3828,93 +3175,6 @@ fn panels_page() -> SettingsPage {
                             .scrollbar
                             .get_or_insert_default()
                             .show = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    fn debugger_panel_section() -> [SettingsPageItem; 2] {
-        [
-            SettingsPageItem::SectionHeader("Debugger Panel"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Debugger Panel Dock",
-                description: "The dock position of the debug panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("debugger.dock"),
-                    pick: |settings_content| settings_content.debugger.as_ref()?.dock.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.debugger.get_or_insert_default().dock = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    fn collaboration_panel_section() -> [SettingsPageItem; 4] {
-        [
-            SettingsPageItem::SectionHeader("Collaboration Panel"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Collaboration Panel Button",
-                description: "Show the collaboration panel button in the status bar.",
-                field: Box::new(SettingField {
-                    json_path: Some("collaboration_panel.button"),
-                    pick: |settings_content| {
-                        settings_content
-                            .collaboration_panel
-                            .as_ref()?
-                            .button
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .collaboration_panel
-                            .get_or_insert_default()
-                            .button = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Collaboration Panel Dock",
-                description: "Where to dock the collaboration panel.",
-                field: Box::new(SettingField {
-                    json_path: Some("collaboration_panel.dock"),
-                    pick: |settings_content| {
-                        settings_content.collaboration_panel.as_ref()?.dock.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .collaboration_panel
-                            .get_or_insert_default()
-                            .dock = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Collaboration Panel Default Width",
-                description: "Default width of the collaboration panel in pixels.",
-                field: Box::new(SettingField {
-                    json_path: Some("collaboration_panel.dock"),
-                    pick: |settings_content| {
-                        settings_content
-                            .collaboration_panel
-                            .as_ref()?
-                            .default_width
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .collaboration_panel
-                            .get_or_insert_default()
-                            .default_width = value;
                     },
                 }),
                 metadata: None,
@@ -4059,10 +3319,7 @@ fn panels_page() -> SettingsPage {
         items: concat_sections![
             project_panel_section(),
             terminal_panel_section(),
-            outline_panel_section(),
             git_panel_section(),
-            debugger_panel_section(),
-            collaboration_panel_section(),
             agent_panel_section(),
         ],
     }
