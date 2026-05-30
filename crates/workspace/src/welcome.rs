@@ -6,6 +6,7 @@ use crate::{
 };
 use agent_settings::AgentSettings;
 use git::Clone as GitClone;
+use settings::Settings as _;
 use gpui::{
     Action, App, Context, Entity, EventEmitter, FocusHandle, Focusable, InteractiveElement,
     ParentElement, Render, Styled, Task, TaskExt, Window, actions,
