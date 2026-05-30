@@ -4,7 +4,7 @@
 # Ad-hoc signed (unsigned dev build) — on first launch, right-click > Open once.
 #
 # Usage:  script/install-mac-app.sh           # release build + install
-#         SKIP_BUILD=1 script/install-mac-app.sh   # reuse existing target/release/zed
+#         SKIP_BUILD=1 script/install-mac-app.sh   # reuse existing target/release-fast/kid
 #
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -13,10 +13,10 @@ APP="/Applications/Kid.app"
 ICON_SRC="crates/zed/resources/app-icon@2x.png"
 
 if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
-  echo "==> Building release binary (cargo build --release -p zed)..."
-  cargo build --release -p zed
+  echo "==> Building binary (cargo build --profile release-fast -p zed)..."
+  cargo build --profile release-fast -p zed
 fi
-[[ -f target/release/kid ]] || { echo "target/release/kid not found — build first"; exit 1; }
+[[ -f target/release-fast/kid ]] || { echo "target/release-fast/kid not found — build first"; exit 1; }
 
 echo "==> Generating icon..."
 work="$(mktemp -d)"
@@ -31,7 +31,7 @@ iconutil -c icns "$iset" -o "$work/kid.icns"
 echo "==> Assembling $APP..."
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp target/release/kid "$APP/Contents/MacOS/kid"
+cp target/release-fast/kid "$APP/Contents/MacOS/kid"
 cp "$work/kid.icns" "$APP/Contents/Resources/kid.icns"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
