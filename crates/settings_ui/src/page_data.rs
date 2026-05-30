@@ -60,7 +60,6 @@ pub(crate) fn settings_data(cx: &App) -> Vec<SettingsPage> {
         search_and_files_page(),
         window_and_layout_page(),
         panels_page(),
-        debugger_page(),
         terminal_page(),
         version_control_page(),
         ai_page(cx),
@@ -1173,7 +1172,7 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
         ]
     }
 
-    fn inline_diagnostics_section() -> [SettingsPageItem; 5] {
+    fn inline_diagnostics_section() -> [SettingsPageItem; 2] {
         [
             SettingsPageItem::SectionHeader("Inline Diagnostics"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -1202,88 +1201,10 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 metadata: None,
                 files: USER,
             }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Update Debounce",
-                description: "The delay in milliseconds to show inline diagnostics after the last diagnostic update.",
-                field: Box::new(SettingField {
-                    json_path: Some("diagnostics.inline.update_debounce_ms"),
-                    pick: |settings_content| {
-                        settings_content
-                            .diagnostics
-                            .as_ref()?
-                            .inline
-                            .as_ref()?
-                            .update_debounce_ms
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .diagnostics
-                            .get_or_insert_default()
-                            .inline
-                            .get_or_insert_default()
-                            .update_debounce_ms = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Padding",
-                description: "The amount of padding between the end of the source line and the start of the inline diagnostic.",
-                field: Box::new(SettingField {
-                    json_path: Some("diagnostics.inline.padding"),
-                    pick: |settings_content| {
-                        settings_content
-                            .diagnostics
-                            .as_ref()?
-                            .inline
-                            .as_ref()?
-                            .padding
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .diagnostics
-                            .get_or_insert_default()
-                            .inline
-                            .get_or_insert_default()
-                            .padding = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Column",
-                description: "The minimum column at which to display inline diagnostics.",
-                field: Box::new(SettingField {
-                    json_path: Some("diagnostics.inline.min_column"),
-                    pick: |settings_content| {
-                        settings_content
-                            .diagnostics
-                            .as_ref()?
-                            .inline
-                            .as_ref()?
-                            .min_column
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .diagnostics
-                            .get_or_insert_default()
-                            .inline
-                            .get_or_insert_default()
-                            .min_column = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
         ]
     }
 
-    fn lsp_pull_diagnostics_section() -> [SettingsPageItem; 3] {
+    fn lsp_pull_diagnostics_section() -> [SettingsPageItem; 2] {
         [
             SettingsPageItem::SectionHeader("LSP Pull Diagnostics"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -1307,54 +1228,6 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                             .lsp_pull_diagnostics
                             .get_or_insert_default()
                             .enabled = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            // todo(settings_ui): Needs unit
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Debounce",
-                description: "Minimum time to wait before pulling diagnostics from the language server(s).",
-                field: Box::new(SettingField {
-                    json_path: Some("diagnostics.lsp_pull_diagnostics.debounce_ms"),
-                    pick: |settings_content| {
-                        settings_content
-                            .diagnostics
-                            .as_ref()?
-                            .lsp_pull_diagnostics
-                            .as_ref()?
-                            .debounce_ms
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .diagnostics
-                            .get_or_insert_default()
-                            .lsp_pull_diagnostics
-                            .get_or_insert_default()
-                            .debounce_ms = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    fn lsp_highlights_section() -> [SettingsPageItem; 2] {
-        [
-            SettingsPageItem::SectionHeader("LSP Highlights"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Debounce",
-                description: "The debounce delay before querying highlights from the language.",
-                field: Box::new(SettingField {
-                    json_path: Some("lsp_highlight_debounce"),
-                    pick: |settings_content| {
-                        settings_content.editor.lsp_highlight_debounce.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content.editor.lsp_highlight_debounce = value;
                     },
                 }),
                 metadata: None,
@@ -1404,7 +1277,6 @@ fn languages_and_tools_page(cx: &App) -> SettingsPage {
                 diagnostics_section(),
                 inline_diagnostics_section(),
                 lsp_pull_diagnostics_section(),
-                lsp_highlights_section(),
                 languages_list_section(cx),
             )
         },
@@ -3258,120 +3130,6 @@ fn panels_page() -> SettingsPage {
             git_panel_section(),
             agent_panel_section(),
         ],
-    }
-}
-
-fn debugger_page() -> SettingsPage {
-    fn general_section() -> [SettingsPageItem; 6] {
-        [
-            SettingsPageItem::SectionHeader("General"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Stepping Granularity",
-                description: "Determines the stepping granularity for debug operations.",
-                field: Box::new(SettingField {
-                    json_path: Some("debugger.stepping_granularity"),
-                    pick: |settings_content| {
-                        settings_content
-                            .debugger
-                            .as_ref()?
-                            .stepping_granularity
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .debugger
-                            .get_or_insert_default()
-                            .stepping_granularity = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Save Breakpoints",
-                description: "Whether breakpoints should be reused across Zed sessions.",
-                field: Box::new(SettingField {
-                    json_path: Some("debugger.save_breakpoints"),
-                    pick: |settings_content| {
-                        settings_content
-                            .debugger
-                            .as_ref()?
-                            .save_breakpoints
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .debugger
-                            .get_or_insert_default()
-                            .save_breakpoints = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Timeout",
-                description: "Time in milliseconds until timeout error when connecting to a TCP debug adapter.",
-                field: Box::new(SettingField {
-                    json_path: Some("debugger.timeout"),
-                    pick: |settings_content| settings_content.debugger.as_ref()?.timeout.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.debugger.get_or_insert_default().timeout = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Log DAP Communications",
-                description: "Whether to log messages between active debug adapters and Zed.",
-                field: Box::new(SettingField {
-                    json_path: Some("debugger.log_dap_communications"),
-                    pick: |settings_content| {
-                        settings_content
-                            .debugger
-                            .as_ref()?
-                            .log_dap_communications
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .debugger
-                            .get_or_insert_default()
-                            .log_dap_communications = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Format DAP Log Messages",
-                description: "Whether to format DAP messages when adding them to debug adapter logger.",
-                field: Box::new(SettingField {
-                    json_path: Some("debugger.format_dap_log_messages"),
-                    pick: |settings_content| {
-                        settings_content
-                            .debugger
-                            .as_ref()?
-                            .format_dap_log_messages
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .debugger
-                            .get_or_insert_default()
-                            .format_dap_log_messages = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    SettingsPage {
-        title: "Debugger",
-        items: concat_sections![general_section()],
     }
 }
 
