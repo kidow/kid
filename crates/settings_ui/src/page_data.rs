@@ -3799,7 +3799,7 @@ fn terminal_page() -> SettingsPage {
             ]
     }
 
-    fn font_section() -> [SettingsPageItem; 6] {
+    fn font_section() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::SectionHeader("Font"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -3843,101 +3843,12 @@ fn terminal_page() -> SettingsPage {
                 metadata: None,
                 files: USER,
             }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Fallbacks",
-                description: "Font fallbacks for terminal text. If not set, defaults to buffer font fallbacks.",
-                field: Box::new(
-                    SettingField {
-                        json_path: Some("terminal.font_fallbacks"),
-                        pick: |settings_content| {
-                            settings_content
-                                .terminal
-                                .as_ref()
-                                .and_then(|terminal| terminal.font_fallbacks.as_ref())
-                                .or(settings_content.theme.buffer_font_fallbacks.as_ref())
-                        },
-                        write: |settings_content, value, _| {
-                            settings_content
-                                .terminal
-                                .get_or_insert_default()
-                                .font_fallbacks = value;
-                        },
-                    }
-                    .unimplemented(),
-                ),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Weight",
-                description: "Font weight for terminal text in CSS weight units (100-900).",
-                field: Box::new(SettingField {
-                    json_path: Some("terminal.font_weight"),
-                    pick: |settings_content| {
-                        settings_content.terminal.as_ref()?.font_weight.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .terminal
-                            .get_or_insert_default()
-                            .font_weight = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Font Features",
-                description: "Font features for terminal text.",
-                field: Box::new(
-                    SettingField {
-                        json_path: Some("terminal.font_features"),
-                        pick: |settings_content| {
-                            settings_content
-                                .terminal
-                                .as_ref()
-                                .and_then(|terminal| terminal.font_features.as_ref())
-                                .or(settings_content.theme.buffer_font_features.as_ref())
-                        },
-                        write: |settings_content, value, _| {
-                            settings_content
-                                .terminal
-                                .get_or_insert_default()
-                                .font_features = value;
-                        },
-                    }
-                    .unimplemented(),
-                ),
-                metadata: None,
-                files: USER,
-            }),
         ]
     }
 
-    fn display_settings_section() -> [SettingsPageItem; 6] {
+    fn display_settings_section() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::SectionHeader("Display Settings"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Line Height",
-                description: "Line height for terminal text.",
-                field: Box::new(
-                    SettingField {
-                        json_path: Some("terminal.line_height"),
-                        pick: |settings_content| {
-                            settings_content.terminal.as_ref()?.line_height.as_ref()
-                        },
-                        write: |settings_content, value, _| {
-                            settings_content
-                                .terminal
-                                .get_or_insert_default()
-                                .line_height = value;
-                        },
-                    }
-                    .unimplemented(),
-                ),
-                metadata: None,
-                files: USER,
-            }),
             SettingsPageItem::SettingItem(SettingItem {
                 title: "Cursor Shape",
                 description: "Default cursor shape for the terminal (bar, block, underline, or hollow).",
@@ -3969,74 +3880,12 @@ fn terminal_page() -> SettingsPage {
                 metadata: None,
                 files: USER,
             }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Alternate Scroll",
-                description: "Whether alternate scroll mode is active by default (converts mouse scroll to arrow keys in apps like Vim).",
-                field: Box::new(SettingField {
-                    json_path: Some("terminal.alternate_scroll"),
-                    pick: |settings_content| {
-                        settings_content
-                            .terminal
-                            .as_ref()?
-                            .alternate_scroll
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .terminal
-                            .get_or_insert_default()
-                            .alternate_scroll = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Minimum Contrast",
-                description: "The minimum APCA perceptual contrast between foreground and background colors (0-106).",
-                field: Box::new(SettingField {
-                    json_path: Some("terminal.minimum_contrast"),
-                    pick: |settings_content| {
-                        settings_content
-                            .terminal
-                            .as_ref()?
-                            .minimum_contrast
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .terminal
-                            .get_or_insert_default()
-                            .minimum_contrast = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
         ]
     }
 
-    fn behavior_settings_section() -> [SettingsPageItem; 5] {
+    fn behavior_settings_section() -> [SettingsPageItem; 3] {
         [
             SettingsPageItem::SectionHeader("Behavior Settings"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Option As Meta",
-                description: "Whether the option key behaves as the meta key.",
-                field: Box::new(SettingField {
-                    json_path: Some("terminal.option_as_meta"),
-                    pick: |settings_content| {
-                        settings_content.terminal.as_ref()?.option_as_meta.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .terminal
-                            .get_or_insert_default()
-                            .option_as_meta = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
             SettingsPageItem::SettingItem(SettingItem {
                 title: "Copy On Select",
                 description: "Whether selecting text in the terminal automatically copies to the system clipboard.",
@@ -4072,19 +3921,6 @@ fn terminal_page() -> SettingsPage {
                             .terminal
                             .get_or_insert_default()
                             .keep_selection_on_copy = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Audible Bell",
-                description: "Whether to play a sound when the BEL character (`\\a`, `0x07`) is printed",
-                field: Box::new(SettingField {
-                    json_path: Some("terminal.bell"),
-                    pick: |settings_content| settings_content.terminal.as_ref()?.bell.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.terminal.get_or_insert_default().bell = value;
                     },
                 }),
                 metadata: None,
