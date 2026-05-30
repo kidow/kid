@@ -1207,7 +1207,7 @@ impl PromptEditor<BufferCodegen> {
 
     fn handle_codegen_changed(
         &mut self,
-        codegen: Entity<BufferCodegen>,
+        _codegen: Entity<BufferCodegen>,
         cx: &mut Context<PromptEditor<BufferCodegen>>,
     ) {
         match self.codegen_status(cx) {
@@ -1377,7 +1377,7 @@ impl PromptEditor<TerminalCodegen> {
         }
     }
 
-    fn handle_codegen_changed(&mut self, codegen: Entity<TerminalCodegen>, cx: &mut Context<Self>) {
+    fn handle_codegen_changed(&mut self, _codegen: Entity<TerminalCodegen>, cx: &mut Context<Self>) {
         match &self.codegen().read(cx).status {
             CodegenStatus::Idle => {
                 self.editor
@@ -1572,7 +1572,7 @@ mod tests {
 
         let session_id = Uuid::new_v4();
         let codegen =
-            cx.update(|_window, cx| cx.new(|_| TerminalCodegen::new(terminal, session_id)));
+            cx.update(|_window, cx| cx.new(|_| TerminalCodegen::new(terminal)));
 
         let prompt_buffer = cx.update(|_window, cx| {
             cx.new(|cx| MultiBuffer::singleton(cx.new(|cx| Buffer::local("", cx)), cx))

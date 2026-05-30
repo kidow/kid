@@ -6275,7 +6275,7 @@ mod tests {
     use anyhow::{Result, anyhow};
     use feature_flags::FeatureFlagAppExt;
     use fs::FakeFs;
-    use gpui::{App, TestAppContext, UpdateGlobal, VisualTestContext};
+    use gpui::{App, TestAppContext, VisualTestContext};
     use parking_lot::Mutex;
     use project::{Project, WorktreePaths};
     use std::any::Any;

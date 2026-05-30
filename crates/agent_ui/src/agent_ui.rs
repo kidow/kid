@@ -62,7 +62,7 @@ use prompt_store::{self, PromptBuilder, rules_to_skills_migration};
 use rope::Point;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use settings::{LanguageModelSelection, Settings as _, SettingsStore, SidebarSide};
+use settings::{LanguageModelSelection, Settings as _, SettingsStore};
 use std::any::TypeId;
 use std::path::{Path, PathBuf};
 use workspace::Workspace;

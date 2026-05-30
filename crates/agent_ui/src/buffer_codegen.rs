@@ -42,7 +42,6 @@ use std::{
     time::Instant,
 };
 use streaming_diff::{CharOperation, LineDiff, LineOperation, StreamingDiff};
-use uuid::Uuid;
 
 /// Use this tool when you cannot or should not make a rewrite. This includes:
 /// - The user's request is unclear, ambiguous, or nonsensical
@@ -114,9 +113,6 @@ impl BufferCodegen {
             .push(cx.subscribe(&codegen, |_, _, event, cx| cx.emit(*event)));
     }
 
-    pub fn active_completion(&self, cx: &App) -> Option<String> {
-        self.active_alternative().read(cx).current_completion()
-    }
 
     pub fn active_alternative(&self) -> &Entity<CodegenAlternative> {
         &self.alternatives[self.active_alternative]
@@ -1484,7 +1480,6 @@ mod tests {
                 range.clone(),
                 true,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
@@ -1546,7 +1541,6 @@ mod tests {
                 range.clone(),
                 true,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
@@ -1610,7 +1604,6 @@ mod tests {
                 range.clone(),
                 true,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
@@ -1674,7 +1667,6 @@ mod tests {
                 range.clone(),
                 true,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
@@ -1726,7 +1718,6 @@ mod tests {
                 range.clone(),
                 false,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
@@ -1785,7 +1776,6 @@ mod tests {
                 range.clone(),
                 true,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
@@ -1829,7 +1819,6 @@ mod tests {
                 range.clone(),
                 true,
                 prompt_builder,
-                Uuid::new_v4(),
                 cx,
             )
         });
