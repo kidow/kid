@@ -13,7 +13,7 @@ use futures::{
 };
 use gpui::{App, AppContext as _, AsyncApp, Context, Entity, EventEmitter, Subscription, Task};
 use language::{
-    Buffer, BufferEditSource, IndentKind, LanguageName, Point, TransactionId, line_diff,
+    Buffer, BufferEditSource, IndentKind, Point, TransactionId, line_diff,
 };
 use language_model::{
     CompletionIntent, LanguageModel, LanguageModelCompletionError, LanguageModelCompletionEvent,
@@ -324,7 +324,8 @@ impl CodegenAlternative {
         }
     }
 
-    pub fn language_name(&self, cx: &App) -> Option<LanguageName> {
+    #[cfg(any(test, feature = "test-support"))]
+    pub fn language_name(&self, cx: &App) -> Option<language::LanguageName> {
         self.old_buffer
             .read(cx)
             .language()
@@ -869,6 +870,7 @@ impl CodegenAlternative {
         })
     }
 
+    #[cfg(any(test, feature = "test-support"))]
     pub fn current_completion(&self) -> Option<String> {
         self.completion.clone()
     }
@@ -883,6 +885,7 @@ impl CodegenAlternative {
         self.failure.clone()
     }
 
+    #[cfg(any(test, feature = "test-support"))]
     pub fn selected_text(&self) -> Option<&str> {
         self.selected_text.as_deref()
     }
