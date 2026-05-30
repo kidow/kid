@@ -515,9 +515,6 @@ fn maybe_propagate_worktree_trust(
     cx: &mut AsyncWindowContext,
 ) {
     cx.update(|_, cx| {
-        if ProjectSettings::get_global(cx).session.trust_all_worktrees {
-            return;
-        }
         let source_is_trusted = source_workspace
             .upgrade()
             .map(|workspace| {

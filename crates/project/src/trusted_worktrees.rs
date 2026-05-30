@@ -8,7 +8,7 @@
 //! The implementation can synchronize trust information with the remote hosts: currently, WSL and SSH.
 //! Docker and Collab remotes do not employ trust mechanism, as manage that themselves.
 //!
-//! Unless `trust_all_worktrees` auto trust is enabled, does not trust anything that was not persisted before.
+//! Restricted Mode is disabled in this fork: [`TrustedWorktreesStore::can_trust`] always returns true, so every worktree is trusted.
 //! When dealing with "restricted" and other related concepts in the API, it means all explicitly restricted, after any of the [`TrustedWorktreesStore::can_trust`] and [`TrustedWorktreesStore::can_trust_global`] calls.
 //!
 //! Zed does not consider invisible, `worktree.is_visible() == false` worktrees in Zed, as those are programmatically created inside Zed for internal needs, e.g. a tmp dir for `keymap_editor.rs` needs.
@@ -46,14 +46,14 @@ use gpui::{
 };
 use remote::RemoteConnectionOptions;
 use rpc::{AnyProtoClient, proto};
-use settings::{Settings as _, WorktreeId};
+use settings::WorktreeId;
 use std::{
     path::{Path, PathBuf},
     sync::Arc,
 };
 use util::debug_panic;
 
-use crate::{project_settings::ProjectSettings, worktree_store::WorktreeStore};
+use crate::worktree_store::WorktreeStore;
 
 pub fn init(db_trusted_paths: DbTrustedPaths, cx: &mut App) {
     if TrustedWorktrees::try_get_global(cx).is_none() {
@@ -143,7 +143,6 @@ pub struct TrustedWorktreesStore {
 #[derive(Debug, Default)]
 struct StoreData {
     upstream_client: Option<(AnyProtoClient, ProjectId)>,
-    downstream_client: Option<(AnyProtoClient, ProjectId)>,
     host: Option<RemoteHostLocation>,
 }
 
@@ -456,101 +455,17 @@ impl TrustedWorktreesStore {
         self.db_trusted_paths.clear();
     }
 
-    /// Checks whether a certain worktree is trusted (or on a larger trust level).
-    /// If not, emits [`TrustedWorktreesEvent::Restricted`] event if for the first time and not trusted, or no corresponding worktree store was found.
+    /// Checks whether a certain worktree is trusted.
     ///
-    /// No events or data adjustment happens when `trust_all_worktrees` auto trust is enabled.
+    /// Restricted Mode is disabled in this fork, so every worktree is always trusted.
     pub fn can_trust(
         &mut self,
-        worktree_store: &Entity<WorktreeStore>,
-        worktree_id: WorktreeId,
-        cx: &mut Context<Self>,
+        _worktree_store: &Entity<WorktreeStore>,
+        _worktree_id: WorktreeId,
+        _cx: &mut Context<Self>,
     ) -> bool {
-        if ProjectSettings::get_global(cx).session.trust_all_worktrees {
-            return true;
-        }
-
-        let weak_worktree_store = worktree_store.downgrade();
-        let Some(worktree) = worktree_store.read(cx).worktree_for_id(worktree_id, cx) else {
-            return false;
-        };
-        let worktree_path = worktree.read(cx).abs_path();
-        // Zed opened an "internal" directory: e.g. a tmp dir for `keymap_editor.rs` needs.
-        if !worktree.read(cx).is_visible() {
-            log::debug!("Skipping worktree trust checks for not visible {worktree_path:?}");
-            return true;
-        }
-
-        let is_file = worktree.read(cx).is_single_file();
-        if self
-            .restricted
-            .get(&weak_worktree_store)
-            .is_some_and(|restricted_worktrees| restricted_worktrees.contains(&worktree_id))
-        {
-            return false;
-        }
-
-        if self
-            .trusted_paths
-            .get(&weak_worktree_store)
-            .is_some_and(|trusted_paths| trusted_paths.contains(&PathTrust::Worktree(worktree_id)))
-        {
-            return true;
-        }
-
-        // * Single files are auto-approved when something else (not a single file) was approved on this host already.
-        // * If parent path is trusted already, this worktree is stusted also.
-        //
-        // See module documentation for details on trust level.
-        if let Some(trusted_paths) = self.trusted_paths.get(&weak_worktree_store) {
-            let auto_trusted = worktree_store.read_with(cx, |worktree_store, cx| {
-                trusted_paths.iter().any(|trusted_path| match trusted_path {
-                    PathTrust::Worktree(worktree_id) => worktree_store
-                        .worktree_for_id(*worktree_id, cx)
-                        .is_some_and(|worktree| {
-                            let worktree = worktree.read(cx);
-                            worktree_path.starts_with(&worktree.abs_path())
-                                || (is_file && !worktree.is_single_file())
-                        }),
-                    PathTrust::AbsPath(trusted_path) => {
-                        is_file || worktree_path.starts_with(trusted_path)
-                    }
-                })
-            });
-            if auto_trusted {
-                return true;
-            }
-        }
-
-        self.restricted
-            .entry(weak_worktree_store.clone())
-            .or_default()
-            .insert(worktree_id);
-        log::info!("Worktree {worktree_path:?} is not trusted");
-        if let Some(store_data) = self.worktree_stores.get(&weak_worktree_store) {
-            if let Some((downstream_client, downstream_project_id)) = &store_data.downstream_client
-            {
-                downstream_client
-                    .send(proto::RestrictWorktrees {
-                        project_id: downstream_project_id.0,
-                        worktree_ids: vec![worktree_id.to_proto()],
-                    })
-                    .ok();
-            }
-            if let Some((upstream_client, upstream_project_id)) = &store_data.upstream_client {
-                upstream_client
-                    .send(proto::RestrictWorktrees {
-                        project_id: upstream_project_id.0,
-                        worktree_ids: vec![worktree_id.to_proto()],
-                    })
-                    .ok();
-            }
-        }
-        cx.emit(TrustedWorktreesEvent::Restricted(
-            weak_worktree_store,
-            HashSet::from_iter([PathTrust::Worktree(worktree_id)]),
-        ));
-        false
+        // Restricted Mode is disabled in this fork: all worktrees are always trusted.
+        true
     }
 
     /// Lists all explicitly restricted worktrees (via [`TrustedWorktreesStore::can_trust`] method calls) for a particular worktree store on a particular host.
@@ -653,7 +568,7 @@ impl TrustedWorktreesStore {
         &mut self,
         worktree_store: Entity<WorktreeStore>,
         remote_host: Option<RemoteHostLocation>,
-        downstream_client: Option<(AnyProtoClient, ProjectId)>,
+        _downstream_client: Option<(AnyProtoClient, ProjectId)>,
         upstream_client: Option<(AnyProtoClient, ProjectId)>,
         cx: &mut Context<Self>,
     ) {
@@ -664,7 +579,6 @@ impl TrustedWorktreesStore {
             weak_worktree_store.clone(),
             StoreData {
                 host: remote_host.clone(),
-                downstream_client,
                 upstream_client,
             },
         );

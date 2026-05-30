@@ -196,84 +196,6 @@ fn general_page(cx: &App) -> SettingsPage {
                 metadata: None,
                 files: USER,
             }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Redact Private Values",
-                description: "Hide the values of variables in private files.",
-                field: Box::new(SettingField {
-                    json_path: Some("redact_private_values"),
-                    pick: |settings_content| settings_content.editor.redact_private_values.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.editor.redact_private_values = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Private Files",
-                description: "Globs to match against file paths to determine if a file is private.",
-                field: Box::new(
-                    SettingField {
-                        json_path: Some("worktree.private_files"),
-                        pick: |settings_content| {
-                            settings_content.project.worktree.private_files.as_ref()
-                        },
-                        write: |settings_content, value, _| {
-                            settings_content.project.worktree.private_files = value;
-                        },
-                    }
-                    .unimplemented(),
-                ),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "CLI Default Open Behavior",
-                description: "How `zed <path>` opens directories when no flag is specified.",
-                field: Box::new(SettingField {
-                    json_path: Some("cli_default_open_behavior"),
-                    pick: |settings_content| {
-                        settings_content
-                            .workspace
-                            .cli_default_open_behavior
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content.workspace.cli_default_open_behavior = value;
-                    },
-                }),
-                metadata: Some(Box::new(SettingsFieldMetadata {
-                    should_do_titlecase: Some(false),
-                    ..Default::default()
-                })),
-                files: USER,
-            }),
-        ]
-    }
-    fn security_section() -> [SettingsPageItem; 2] {
-        [
-            SettingsPageItem::SectionHeader("Security"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Trust All Projects By Default",
-                description: "When opening Zed, avoid Restricted Mode by auto-trusting all projects, enabling use of all features without having to give permission to each new project.",
-                field: Box::new(SettingField {
-                    json_path: Some("session.trust_all_projects"),
-                    pick: |settings_content| {
-                        settings_content
-                            .session
-                            .as_ref()
-                            .and_then(|session| session.trust_all_worktrees.as_ref())
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .session
-                            .get_or_insert_default()
-                            .trust_all_worktrees = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
         ]
     }
 
@@ -317,91 +239,12 @@ fn general_page(cx: &App) -> SettingsPage {
         ]
     }
 
-    fn scoped_settings_section() -> [SettingsPageItem; 3] {
-        [
-            SettingsPageItem::SectionHeader("Scoped Settings"),
-            SettingsPageItem::SettingItem(SettingItem {
-                files: USER,
-                title: "Preview Channel",
-                description: "Which settings should be activated only in Preview build of Zed.",
-                field: Box::new(
-                    SettingField {
-                        json_path: Some("preview_channel_settings"),
-                        pick: |settings_content| Some(settings_content),
-                        write: |_settings_content, _value, _| {},
-                    }
-                    .unimplemented(),
-                ),
-                metadata: None,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                files: USER,
-                title: "Settings Profiles",
-                description: "Any number of settings profiles that are temporarily applied on top of your existing user settings.",
-                field: Box::new(
-                    SettingField {
-                        json_path: Some("settings_profiles"),
-                        pick: |settings_content| Some(settings_content),
-                        write: |_settings_content, _value, _| {},
-                    }
-                    .unimplemented(),
-                ),
-                metadata: None,
-            }),
-        ]
-    }
-
-    fn privacy_section() -> [SettingsPageItem; 3] {
-        [
-            SettingsPageItem::SectionHeader("Privacy"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Telemetry Diagnostics",
-                description: "Send debug information like crash reports.",
-                field: Box::new(SettingField {
-                    json_path: Some("telemetry.diagnostics"),
-                    pick: |settings_content| {
-                        settings_content
-                            .telemetry
-                            .as_ref()
-                            .and_then(|telemetry| telemetry.diagnostics.as_ref())
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .telemetry
-                            .get_or_insert_default()
-                            .diagnostics = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Telemetry Metrics",
-                description: "Send anonymized usage data like what languages you're using Zed with.",
-                field: Box::new(SettingField {
-                    json_path: Some("telemetry.metrics"),
-                    pick: |settings_content| {
-                        settings_content
-                            .telemetry
-                            .as_ref()
-                            .and_then(|telemetry| telemetry.metrics.as_ref())
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content.telemetry.get_or_insert_default().metrics = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
     fn auto_update_section() -> [SettingsPageItem; 2] {
         [
-            SettingsPageItem::SectionHeader("Auto Update"),
+            SettingsPageItem::SectionHeader("Updates"),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Auto Update",
-                description: "Whether or not to automatically check for updates.",
+                title: "Check For Updates",
+                description: "Whether to periodically check for newer upstream Zed releases and notify you when one is available.",
                 field: Box::new(SettingField {
                     json_path: Some("auto_update"),
                     pick: |settings_content| settings_content.auto_update.as_ref(),
@@ -420,10 +263,7 @@ fn general_page(cx: &App) -> SettingsPage {
         items: concat_sections!(
             @vec,
             general_settings_section(cx),
-            security_section(),
             workspace_restoration_section(),
-            scoped_settings_section(),
-            privacy_section(),
             auto_update_section(),
         )
         .into(),

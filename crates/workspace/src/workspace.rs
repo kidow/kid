@@ -98,7 +98,6 @@ use project::{
     DirectoryLister, Project, ProjectEntryId, ProjectPath, ResolvedPath, Worktree, WorktreeId,
     WorktreeSettings,
     debugger::{breakpoint_store::BreakpointStoreEvent, session::ThreadStatus},
-    project_settings::ProjectSettings,
     toolchain_store::ToolchainStoreEvent,
     trusted_worktrees::{RemoteHostLocation, TrustedWorktrees, TrustedWorktreesEvent},
 };
@@ -110,7 +109,7 @@ use schemars::JsonSchema;
 use serde::Deserialize;
 use session::AppSession;
 use settings::{
-    CenteredPaddingSettings, Settings, SettingsLocation, SettingsStore, update_settings_file,
+    CenteredPaddingSettings, Settings, SettingsLocation, update_settings_file,
 };
 
 use sqlez::{
@@ -1463,36 +1462,19 @@ impl Workspace {
         if let Some(trusted_worktrees) = TrustedWorktrees::try_get_global(cx) {
             cx.subscribe(&trusted_worktrees, |_, worktrees_store, e, cx| {
                 if let TrustedWorktreesEvent::Trusted(..) = e {
-                    // Do not persist auto trusted worktrees
-                    if !ProjectSettings::get_global(cx).session.trust_all_worktrees {
-                        worktrees_store.update(cx, |worktrees_store, cx| {
-                            worktrees_store.schedule_serialization(
-                                cx,
-                                |new_trusted_worktrees, cx| {
-                                    let timeout =
-                                        cx.background_executor().timer(SERIALIZATION_THROTTLE_TIME);
-                                    let db = WorkspaceDb::global(cx);
-                                    cx.background_spawn(async move {
-                                        timeout.await;
-                                        db.save_trusted_worktrees(new_trusted_worktrees)
-                                            .await
-                                            .log_err();
-                                    })
-                                },
-                            )
-                        });
-                    }
-                }
-            })
-            .detach();
-
-            cx.observe_global::<SettingsStore>(|_, cx| {
-                if ProjectSettings::get_global(cx).session.trust_all_worktrees {
-                    if let Some(trusted_worktrees) = TrustedWorktrees::try_get_global(cx) {
-                        trusted_worktrees.update(cx, |trusted_worktrees, cx| {
-                            trusted_worktrees.auto_trust_all(cx);
+                    worktrees_store.update(cx, |worktrees_store, cx| {
+                        worktrees_store.schedule_serialization(cx, |new_trusted_worktrees, cx| {
+                            let timeout =
+                                cx.background_executor().timer(SERIALIZATION_THROTTLE_TIME);
+                            let db = WorkspaceDb::global(cx);
+                            cx.background_spawn(async move {
+                                timeout.await;
+                                db.save_trusted_worktrees(new_trusted_worktrees)
+                                    .await
+                                    .log_err();
+                            })
                         })
-                    }
+                    });
                 }
             })
             .detach();

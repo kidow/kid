@@ -7,7 +7,6 @@ use collections::HashMap;
 use fs::Fs;
 use gpui::{Action, Animation, AnimationExt, App, Entity, IntoElement, TaskExt, pulsating_between};
 use project::agent_server_store::AllAgentServersSettings;
-use project::project_settings::ProjectSettings;
 use project::{AgentRegistryStore, RegistryAgent};
 use settings::{
     BaseKeymap, CustomAgentServerSettings, Settings, SettingsStore, update_settings_file,
@@ -16,7 +15,7 @@ use theme::{Appearance, SystemAppearance, ThemeRegistry};
 use theme_settings::{ThemeAppearanceMode, ThemeName, ThemeSelection, ThemeSettings};
 use ui::{
     AgentSetupButton, Divider, StatefulInteractiveElement, SwitchField, TintColor,
-    ToggleButtonGroup, ToggleButtonGroupSize, ToggleButtonSimple, ToggleButtonWithIcon, Tooltip,
+    ToggleButtonGroup, ToggleButtonGroupSize, ToggleButtonSimple, ToggleButtonWithIcon,
     prelude::*,
 };
 use vim_mode_setting::VimModeSetting;
@@ -369,43 +368,6 @@ fn render_vim_mode_switch(tab_index: &mut isize, cx: &mut App) -> impl IntoEleme
     })
 }
 
-fn render_worktree_auto_trust_switch(tab_index: &mut isize, cx: &mut App) -> impl IntoElement {
-    let toggle_state = if ProjectSettings::get_global(cx).session.trust_all_worktrees {
-        ui::ToggleState::Selected
-    } else {
-        ui::ToggleState::Unselected
-    };
-
-    let tooltip_description = "Zed can only allow services like language servers, project settings, and MCP servers to run after you mark a new project as trusted.";
-
-    SwitchField::new(
-        "onboarding-auto-trust-worktrees",
-        Some("Trust All Projects By Default"),
-        Some("Automatically mark all new projects as trusted to unlock all Zed's features".into()),
-        toggle_state,
-        {
-            let fs = <dyn Fs>::global(cx);
-            move |&selection, _, cx| {
-                let trust = match selection {
-                    ToggleState::Selected => true,
-                    ToggleState::Unselected => false,
-                    ToggleState::Indeterminate => {
-                        return;
-                    }
-                };
-                update_settings_file(fs.clone(), cx, move |setting, _| {
-                    setting.session.get_or_insert_default().trust_all_worktrees = Some(trust);
-                });
-            }
-        },
-    )
-    .tab_index({
-        *tab_index += 1;
-        *tab_index - 1
-    })
-    .tooltip(Tooltip::text(tooltip_description))
-}
-
 fn render_setting_import_button(
     tab_index: isize,
     label: SharedString,
@@ -645,7 +607,6 @@ pub(crate) fn render_basics_page(user_store: &Entity<UserStore>, cx: &mut App) -
         .child(render_ai_section(user_store, cx))
         .child(render_import_settings_section(&mut tab_index, cx))
         .child(render_vim_mode_switch(&mut tab_index, cx))
-        .child(render_worktree_auto_trust_switch(&mut tab_index, cx))
         .child(Divider::horizontal().color(ui::DividerColor::BorderVariant))
         .child(render_telemetry_section(&mut tab_index, cx))
 }
