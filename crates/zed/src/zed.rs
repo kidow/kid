@@ -1,4 +1,5 @@
 mod app_menus;
+pub mod edit_prediction_registry;
 #[cfg(target_os = "macos")]
 pub(crate) mod mac_only_instance;
 mod migrate;
@@ -14,6 +15,8 @@ pub mod visual_tests;
 #[cfg(target_os = "windows")]
 pub(crate) mod windows_only_instance;
 
+use agent_settings::{UserAgentsMdState, init_user_agents_md};
+use agent_ui::AgentDiffToolbar;
 use anyhow::Context as _;
 pub use app_menus::*;
 use assets::Assets;
@@ -53,7 +56,7 @@ use paths::{
     local_debug_file_relative_path, local_settings_file_relative_path,
     local_tasks_file_relative_path,
 };
-use project::{DirectoryLister, ProjectItem};
+use project::{DirectoryLister, DisableAiSettings, ProjectItem};
 use project_panel::ProjectPanel;
 use quick_action_bar::QuickActionBar;
 use recent_projects::open_remote_project;
@@ -66,6 +69,7 @@ use settings::{
     initial_local_debug_tasks_content, initial_project_settings_content, initial_tasks_content,
     update_settings_file,
 };
+use sidebar::Sidebar;
 
 use std::{
     borrow::Cow,
@@ -444,6 +448,51 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
                 .unwrap_or(true)
         });
 
+        let window_handle = window.window_handle();
+        let multi_workspace_handle = cx.entity();
+        cx.subscribe_in(
+            &multi_workspace_handle,
+            window,
+            |this, _multi_workspace, event: &workspace::MultiWorkspaceEvent, window, cx| {
+                let workspace::MultiWorkspaceEvent::ActiveWorkspaceChanged { source_workspace } =
+                    event
+                else {
+                    return;
+                };
+
+                let active_workspace = this.workspace().clone();
+                let source_workspace = source_workspace.clone();
+                active_workspace.update(cx, |workspace, cx| {
+                    if let Some(ref source) = source_workspace {
+                        if let Some(panel) = workspace.panel::<agent_ui::AgentPanel>(cx) {
+                            panel.update(cx, |panel, cx| {
+                                panel.initialize_from_source_workspace_if_needed(
+                                    source.clone(),
+                                    window,
+                                    cx,
+                                );
+                            });
+                        }
+                    }
+
+                    ensure_agent_panel_for_workspace(workspace, source_workspace, window, cx)
+                        .detach_and_log_err(cx);
+                });
+            },
+        )
+        .detach();
+
+        cx.defer(move |cx| {
+            window_handle
+                .update(cx, |_, window, cx| {
+                    let sidebar =
+                        cx.new(|cx| Sidebar::new(multi_workspace_handle.clone(), window, cx));
+                    multi_workspace_handle.update(cx, |multi_workspace, cx| {
+                        multi_workspace.register_sidebar(sidebar, cx);
+                    });
+                })
+                .ok();
+        });
     })
     .detach();
 
@@ -481,6 +530,22 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
                 crashes::set_gpu_info(&crash_client.0, specs);
             }
         }
+
+        let edit_prediction_menu_handle = PopoverMenuHandle::default();
+        let edit_prediction_ui = cx.new(|cx| {
+            edit_prediction_ui::EditPredictionButton::new(
+                app_state.fs.clone(),
+                app_state.user_store.clone(),
+                edit_prediction_menu_handle.clone(),
+                workspace.project().clone(),
+                cx,
+            )
+        });
+        workspace.register_action({
+            move |_, _: &edit_prediction_ui::ToggleMenu, window, cx| {
+                edit_prediction_menu_handle.toggle(window, cx);
+            }
+        });
 
         let search_button = cx.new(|_| search::search_status_button::SearchButton::new());
         let diagnostic_summary =
@@ -522,6 +587,7 @@ pub fn initialize_workspace(app_state: Arc<AppState>, cx: &mut App) {
             status_bar.add_left_item(active_file_name, window, cx);
             status_bar.add_left_item(merge_conflict_indicator, window, cx);
             status_bar.add_left_item(activity_indicator, window, cx);
+            status_bar.add_right_item(edit_prediction_ui, window, cx);
             status_bar.add_right_item(active_buffer_encoding, window, cx);
             status_bar.add_right_item(active_buffer_language, window, cx);
             status_bar.add_right_item(active_toolchain_language, window, cx);
@@ -672,10 +738,105 @@ fn initialize_panels(window: &mut Window, cx: &mut Context<Workspace>) -> Task<a
             add_panel_when_ready(git_panel, workspace_handle.clone(), cx.clone()),
             add_panel_when_ready(debug_panel, workspace_handle.clone(), cx.clone()),
             add_panel_when_ready(browser_panel, workspace_handle.clone(), cx.clone()),
+            initialize_agent_panel(workspace_handle, cx.clone()).map(|r| r.log_err()),
         );
 
         anyhow::Ok(())
     })
+}
+
+fn setup_or_teardown_ai_panel<P: Panel>(
+    workspace: &mut Workspace,
+    window: &mut Window,
+    cx: &mut Context<Workspace>,
+    load_panel: impl FnOnce(
+        WeakEntity<Workspace>,
+        AsyncWindowContext,
+    ) -> Task<anyhow::Result<Entity<P>>>
+    + 'static,
+) -> Task<anyhow::Result<()>> {
+    let disable_ai = SettingsStore::global(cx)
+        .get::<DisableAiSettings>(None)
+        .disable_ai
+        || cfg!(test);
+    let existing_panel = workspace.panel::<P>(cx);
+    match (disable_ai, existing_panel) {
+        (false, None) => cx.spawn_in(window, async move |workspace, cx| {
+            let panel = load_panel(workspace.clone(), cx.clone()).await?;
+            workspace.update_in(cx, |workspace, window, cx| {
+                let disable_ai = SettingsStore::global(cx)
+                    .get::<DisableAiSettings>(None)
+                    .disable_ai;
+                let have_panel = workspace.panel::<P>(cx).is_some();
+                if !disable_ai && !have_panel {
+                    workspace.add_panel(panel, window, cx);
+                }
+            })
+        }),
+        (true, Some(existing_panel)) => {
+            workspace.remove_panel::<P>(&existing_panel, window, cx);
+            Task::ready(Ok(()))
+        }
+        _ => Task::ready(Ok(())),
+    }
+}
+
+fn ensure_agent_panel_for_workspace(
+    workspace: &mut Workspace,
+    source_workspace: Option<WeakEntity<Workspace>>,
+    window: &mut Window,
+    cx: &mut Context<Workspace>,
+) -> Task<anyhow::Result<()>> {
+    let task = setup_or_teardown_ai_panel(workspace, window, cx, move |workspace, cx| {
+        agent_ui::AgentPanel::load(workspace, cx)
+    });
+
+    cx.spawn_in(window, async move |workspace, cx| {
+        task.await?;
+        workspace.update_in(cx, |workspace, window, cx| {
+            if let Some(source_workspace) = source_workspace.clone()
+                && let Some(panel) = workspace.panel::<agent_ui::AgentPanel>(cx)
+            {
+                panel.update(cx, |panel, cx| {
+                    panel.initialize_from_source_workspace_if_needed(source_workspace, window, cx);
+                });
+            }
+        })
+    })
+}
+
+async fn initialize_agent_panel(
+    workspace_handle: WeakEntity<Workspace>,
+    mut cx: AsyncWindowContext,
+) -> anyhow::Result<()> {
+    workspace_handle
+        .update_in(&mut cx, |workspace, window, cx| {
+            ensure_agent_panel_for_workspace(workspace, None, window, cx)
+        })?
+        .await?;
+
+    workspace_handle.update_in(&mut cx, |workspace, window, cx| {
+        cx.observe_global_in::<SettingsStore>(window, move |workspace, window, cx| {
+            ensure_agent_panel_for_workspace(workspace, None, window, cx).detach_and_log_err(cx);
+        })
+        .detach();
+
+        // Register the actions that are shared between `assistant` and `assistant2`.
+        //
+        // We need to do this here instead of within the individual `init`
+        // functions so that we only register the actions once.
+        //
+        // Once we ship `assistant2` we can push this back down into `agent::agent_panel::init`.
+        if !cfg!(test) {
+            workspace
+                .register_action(agent_ui::AgentPanel::toggle_focus)
+                .register_action(agent_ui::AgentPanel::focus)
+                .register_action(agent_ui::AgentPanel::toggle)
+                .register_action(agent_ui::InlineAssistant::inline_assist);
+        }
+    })?;
+
+    anyhow::Ok(())
 }
 
 fn register_actions(
@@ -1104,6 +1265,8 @@ fn register_actions(
             }
         });
     }
+
+    workspace.register_action(sidebar::dump_workspace_info);
 }
 
 fn initialize_pane(
@@ -1138,6 +1301,8 @@ fn initialize_pane(
             toolbar.add_item(lsp_log_item, window, cx);
             let dap_log_item = cx.new(|_| debugger_tools::DapLogToolbarItemView::new());
             toolbar.add_item(dap_log_item, window, cx);
+            let acp_tools_item = cx.new(|_| acp_tools::AcpToolsToolbarItemView::new());
+            toolbar.add_item(acp_tools_item, window, cx);
             let telemetry_log_item =
                 cx.new(|cx| telemetry_log::TelemetryLogToolbarItemView::new(window, cx));
             toolbar.add_item(telemetry_log_item, window, cx);
@@ -1155,6 +1320,8 @@ fn initialize_pane(
             toolbar.add_item(branch_diff_toolbar, window, cx);
             let commit_view_toolbar = cx.new(|_| CommitViewToolbar::new());
             toolbar.add_item(commit_view_toolbar, window, cx);
+            let agent_diff_toolbar = cx.new(AgentDiffToolbar::new);
+            toolbar.add_item(agent_diff_toolbar, window, cx);
             let basedpyright_banner = cx.new(|cx| BasedPyrightBanner::new(workspace, cx));
             toolbar.add_item(basedpyright_banner, window, cx);
             let image_view_toolbar = cx.new(|_| image_viewer::ImageViewToolbarControls::new());
@@ -1685,6 +1852,32 @@ fn init_cursor_hide_mode(cx: &mut App) {
     let apply = |cx: &mut App| cx.set_cursor_hide_mode(CursorHideModeSetting::get_global(cx).0);
     apply(cx);
     cx.observe_global::<SettingsStore>(apply).detach();
+}
+
+/// Starts watching `~/.config/zed/AGENTS.md` (or the platform equivalent) and
+/// surfaces any read errors using the same notification UI as settings errors.
+///
+/// The file itself is loaded into [`agent_settings::UserAgentsMd`] for inclusion
+/// in prompts.
+pub fn watch_user_agents_md(fs: Arc<dyn fs::Fs>, cx: &mut App) {
+    struct UserAgentsMdParseError;
+    let notification_id = NotificationId::unique::<UserAgentsMdParseError>();
+
+    init_user_agents_md(fs, cx, move |state, cx| match state {
+        UserAgentsMdState::Loaded(_) | UserAgentsMdState::Empty => {
+            dismiss_app_notification(&notification_id, cx);
+        }
+        UserAgentsMdState::Error(message) => {
+            let path = paths::agents_file().display().to_string();
+            log::error!("Failed to load user AGENTS.md from {path}: {message}");
+            let body = format!("Failed to load {path}\n{message}");
+            let notification_id = notification_id.clone();
+            show_app_notification(notification_id, cx, move |cx| {
+                let body = body.clone();
+                cx.new(|cx| MessageNotification::new(body, cx))
+            });
+        }
+    });
 }
 
 pub fn watch_settings_files(fs: Arc<dyn fs::Fs>, cx: &mut App) {
@@ -2332,6 +2525,7 @@ mod tests {
     use languages::{markdown_lang, rust_lang};
     use pretty_assertions::{assert_eq, assert_ne};
     use project::{Project, ProjectPath};
+    use prompt_store::PromptBuilder;
     use semver::Version;
     use serde_json::json;
     use settings::{SaturatingBool, SettingsStore, watch_config_file};
@@ -4919,6 +5113,7 @@ mod tests {
                 "assistant2",
                 "auto_update",
                 "branch_picker",
+                "bedrock",
                 "branches",
                 "browser_panel",
                 "buffer_search",
@@ -4928,11 +5123,13 @@ mod tests {
                 "command_palette",
                 "console",
                 "context_server",
+                "copilot",
                 "csv",
                 "debug_panel",
                 "debugger",
                 "dev",
                 "diagnostics",
+                "edit_prediction",
                 "editor",
                 "encoding_selector",
                 "feedback",
@@ -4946,6 +5143,7 @@ mod tests {
                 "highlights_tree_view",
                 "icon_theme_selector",
                 "image_viewer",
+                "inline_assistant",
                 "journal",
                 "keymap_editor",
                 "keystroke_input",
@@ -4974,6 +5172,7 @@ mod tests {
                 "search",
                 "settings_editor",
                 "settings_profile_selector",
+                "skill_creator",
                 "snippets",
                 "stash_picker",
                 "svg",
@@ -5171,8 +5370,37 @@ mod tests {
             project_panel::init(cx);
             outline_panel::init(cx);
             terminal_view::init(cx);
+            copilot_chat::init(
+                app_state.fs.clone(),
+                app_state.client.http_client(),
+                copilot_chat::CopilotChatConfiguration::default(),
+                cx,
+            );
             image_viewer::init(cx);
+            language_model::init(cx);
+            client::RefreshLlmTokenListener::register(
+                app_state.client.clone(),
+                app_state.user_store.clone(),
+                cx,
+            );
+            language_models::init(app_state.user_store.clone(), app_state.client.clone(), cx);
+            web_search::init(cx);
             git_graph::init(cx);
+            web_search_providers::init(app_state.client.clone(), app_state.user_store.clone(), cx);
+            let prompt_builder = PromptBuilder::load(app_state.fs.clone(), false, cx);
+            project::AgentRegistryStore::init_global(
+                cx,
+                app_state.fs.clone(),
+                app_state.client.http_client(),
+            );
+            agent_ui::init(
+                app_state.fs.clone(),
+                prompt_builder,
+                app_state.languages.clone(),
+                true,
+                false,
+                cx,
+            );
 
             repl::init(app_state.fs.clone(), cx);
             repl::notebook::init(cx);

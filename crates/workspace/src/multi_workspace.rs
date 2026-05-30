@@ -7,12 +7,11 @@ use gpui::{
     Window, WindowId, actions, deferred, px,
 };
 pub use project::ProjectGroupKey;
-use project::Project;
+use project::{DisableAiSettings, Project};
 use remote::RemoteConnectionOptions;
 use settings::Settings;
 pub use settings::SidebarSide;
 use std::future::Future;
-use std::sync::Arc;
 
 use std::path::PathBuf;
 use ui::prelude::*;
@@ -20,7 +19,7 @@ use util::ResultExt;
 use util::path_list::PathList;
 use zed_actions::agents_sidebar::ToggleThreadSwitcher;
 
-use crate::WorkspaceSettings;
+use agent_settings::AgentSettings;
 use settings::SidebarDockPosition;
 use ui::{ContextMenu, right_click_menu};
 
@@ -67,7 +66,7 @@ pub fn sidebar_side_context_menu(
     id: impl Into<ElementId>,
     cx: &App,
 ) -> ui::RightClickMenu<ContextMenu> {
-    let current_position = WorkspaceSettings::get_global(cx).sidebar_side;
+    let current_position = AgentSettings::get_global(cx).sidebar_side;
     right_click_menu(id).menu(move |window, cx| {
         let fs = <dyn fs::Fs>::global(cx);
         ContextMenu::build(window, cx, move |mut menu, _, _cx| {
@@ -95,115 +94,6 @@ pub fn sidebar_side_context_menu(
             menu
         })
     })
-}
-
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct PanelLayout {
-    agent_dock: Option<settings::DockPosition>,
-    project_panel_dock: Option<settings::DockSide>,
-    outline_panel_dock: Option<settings::DockSide>,
-    collaboration_panel_dock: Option<settings::DockPosition>,
-    git_panel_dock: Option<settings::DockPosition>,
-}
-
-impl PanelLayout {
-    const EDITOR: Self = Self {
-        agent_dock: Some(settings::DockPosition::Right),
-        project_panel_dock: Some(settings::DockSide::Left),
-        outline_panel_dock: Some(settings::DockSide::Left),
-        collaboration_panel_dock: Some(settings::DockPosition::Left),
-        git_panel_dock: Some(settings::DockPosition::Left),
-    };
-
-    pub fn is_editor_layout(&self) -> bool {
-        *self == Self::EDITOR
-    }
-
-    fn read_from(content: &settings::SettingsContent) -> Self {
-        Self {
-            agent_dock: content.agent.as_ref().and_then(|a| a.dock),
-            project_panel_dock: content.project_panel.as_ref().and_then(|p| p.dock),
-            outline_panel_dock: content.outline_panel.as_ref().and_then(|p| p.dock),
-            collaboration_panel_dock: content.collaboration_panel.as_ref().and_then(|p| p.dock),
-            git_panel_dock: content.git_panel.as_ref().and_then(|p| p.dock),
-        }
-    }
-
-    fn write_to(&self, settings: &mut settings::SettingsContent) {
-        settings.agent.get_or_insert_default().dock = self.agent_dock;
-        settings.project_panel.get_or_insert_default().dock = self.project_panel_dock;
-        settings.outline_panel.get_or_insert_default().dock = self.outline_panel_dock;
-        settings.collaboration_panel.get_or_insert_default().dock = self.collaboration_panel_dock;
-        settings.git_panel.get_or_insert_default().dock = self.git_panel_dock;
-    }
-
-    fn write_diff_to(&self, current_merged: &PanelLayout, settings: &mut settings::SettingsContent) {
-        if self.agent_dock != current_merged.agent_dock {
-            settings.agent.get_or_insert_default().dock = self.agent_dock;
-        }
-        if self.project_panel_dock != current_merged.project_panel_dock {
-            settings.project_panel.get_or_insert_default().dock = self.project_panel_dock;
-        }
-        if self.outline_panel_dock != current_merged.outline_panel_dock {
-            settings.outline_panel.get_or_insert_default().dock = self.outline_panel_dock;
-        }
-        if self.collaboration_panel_dock != current_merged.collaboration_panel_dock {
-            settings.collaboration_panel.get_or_insert_default().dock =
-                self.collaboration_panel_dock;
-        }
-        if self.git_panel_dock != current_merged.git_panel_dock {
-            settings.git_panel.get_or_insert_default().dock = self.git_panel_dock;
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum WindowLayout {
-    Editor(Option<PanelLayout>),
-    Custom(PanelLayout),
-}
-
-impl WindowLayout {
-    pub fn editor() -> Self {
-        Self::Editor(None)
-    }
-
-    pub fn get_layout(cx: &App) -> WindowLayout {
-        let store = cx.global::<settings::SettingsStore>();
-        let merged = store.merged_settings();
-        let user_layout = store
-            .raw_user_settings()
-            .map(|u| PanelLayout::read_from(u.content.as_ref()))
-            .unwrap_or_default();
-        let merged_layout = PanelLayout::read_from(merged);
-
-        if merged_layout.is_editor_layout() {
-            return WindowLayout::Editor(Some(user_layout));
-        }
-
-        WindowLayout::Custom(user_layout)
-    }
-
-    pub fn set_layout(
-        layout: WindowLayout,
-        fs: Arc<dyn Fs>,
-        cx: &App,
-    ) -> futures::channel::oneshot::Receiver<anyhow::Result<()>> {
-        let merged = PanelLayout::read_from(cx.global::<settings::SettingsStore>().merged_settings());
-
-        match layout {
-            WindowLayout::Editor(None) => {
-                settings::update_settings_file_with_completion(fs, cx, move |settings, _cx| {
-                    PanelLayout::EDITOR.write_diff_to(&merged, settings);
-                })
-            }
-            WindowLayout::Editor(Some(saved)) | WindowLayout::Custom(saved) => {
-                settings::update_settings_file_with_completion(fs, cx, move |settings, _cx| {
-                    saved.write_to(settings);
-                })
-            }
-        }
-    }
 }
 
 pub enum MultiWorkspaceEvent {
@@ -429,7 +319,9 @@ impl MultiWorkspace {
         });
         let quit_subscription = cx.on_app_quit(Self::app_will_quit);
         let settings_subscription = cx.observe_global_in::<settings::SettingsStore>(window, {
-            let mut previous_multi_workspace_enabled = false;
+            let mut previous_multi_workspace_enabled = !DisableAiSettings::get_global(cx)
+                .disable_ai
+                && AgentSettings::get_global(cx).enabled;
             move |this, window, cx| {
                 let multi_workspace_enabled = this.multi_workspace_enabled(cx);
                 if previous_multi_workspace_enabled && !multi_workspace_enabled {
@@ -501,8 +393,8 @@ impl MultiWorkspace {
             .map_or(false, |s| s.is_threads_list_view_active(cx))
     }
 
-    pub fn multi_workspace_enabled(&self, _cx: &App) -> bool {
-        false
+    pub fn multi_workspace_enabled(&self, cx: &App) -> bool {
+        !DisableAiSettings::get_global(cx).disable_ai && AgentSettings::get_global(cx).enabled
     }
 
     pub fn toggle_sidebar(&mut self, window: &mut Window, cx: &mut Context<Self>) {

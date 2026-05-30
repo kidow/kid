@@ -1,5 +1,6 @@
 use std::sync::Arc;
 
+use agent_skills::GLOBAL_SKILLS_DIR_DISPLAY;
 use auto_update::{AutoUpdater, release_notes_url};
 use client::zed_urls;
 use db::kvp::Dismissable;
@@ -9,6 +10,7 @@ use gpui::{
     prelude::*,
 };
 use markdown_preview::markdown_preview_view::{MarkdownPreviewMode, MarkdownPreviewView};
+use prompt_store::rules_to_skills_migration;
 use release_channel::{AppVersion, ReleaseChannel};
 use semver::Version;
 use serde::Deserialize;
@@ -205,8 +207,22 @@ fn announcement_for_version(version: &Version, cx: &App) -> Option<AnnouncementC
     };
 
     if *version >= version_with_skills && !SkillsAnnouncement::dismissed(cx) {
-        let mut bullet_items: Vec<SharedString> = Vec::with_capacity(1);
+        // Only mention the Rules → Skills migration if the user actually
+        // had Rules that got migrated. New users (and existing users who
+        // never created a Rule) would otherwise be confused by a bullet
+        // referring to "your rules" that don't exist.
+        let migrated_anything =
+            rules_to_skills_migration::migration_result().is_some_and(|result| !result.is_empty());
+
+        let mut bullet_items: Vec<SharedString> = Vec::with_capacity(3);
+        bullet_items
+            .push(format!("Skills live in {GLOBAL_SKILLS_DIR_DISPLAY}/<name>/SKILL.md").into());
         bullet_items.push("Type / to manually invoke a skill".into());
+        if migrated_anything {
+            bullet_items.push(
+                "The Rules Library is making way for skills: your default rules are now in a global AGENTS.md, and your other rules have been converted to skills".into(),
+            );
+        }
 
         Some(AnnouncementContent {
             heading: "Introducing Skills Support".into(),

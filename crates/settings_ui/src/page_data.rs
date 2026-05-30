@@ -12,7 +12,10 @@ use ui::IntoElement;
 use crate::{
     ActionLink, DynamicItem, PROJECT, SettingField, SettingItem, SettingsFieldMetadata,
     SettingsPage, SettingsPageItem, SubPageLink, USER, active_language, all_language_names,
-    pages::open_audio_test_window,
+    pages::{
+        open_audio_test_window, render_edit_prediction_setup_page, render_skills_setup_page,
+        render_tool_permissions_setup_page,
+    },
 };
 
 const DEFAULT_STRING: String = String::new();
@@ -7483,6 +7486,24 @@ fn ai_page(cx: &App) -> SettingsPage {
     fn agent_configuration_section(_cx: &App) -> Box<[SettingsPageItem]> {
         let mut items = vec![
             SettingsPageItem::SectionHeader("Agent Configuration"),
+            SettingsPageItem::SubPageLink(SubPageLink {
+                title: "Skills".into(),
+                r#type: Default::default(),
+                json_path: Some("agent.skills"),
+                description: Some("View and manage agent skills installed globally or in project worktrees.".into()),
+                in_json: false,
+                files: USER | PROJECT,
+                render: render_skills_setup_page,
+            }),
+            SettingsPageItem::SubPageLink(SubPageLink {
+                title: "Tool Permissions".into(),
+                r#type: Default::default(),
+                json_path: Some("agent.tool_permissions"),
+                description: Some("Set up regex patterns to auto-allow, auto-deny, or always request confirmation, for specific tool inputs.".into()),
+                in_json: true,
+                files: USER,
+                render: render_tool_permissions_setup_page,
+            }),
         ];
 
         items.extend([
@@ -9538,9 +9559,18 @@ fn non_editor_language_settings_data() -> Box<[SettingsPageItem]> {
     )
 }
 
-fn edit_prediction_language_settings_section() -> [SettingsPageItem; 4] {
+fn edit_prediction_language_settings_section() -> [SettingsPageItem; 5] {
     [
         SettingsPageItem::SectionHeader("Edit Predictions"),
+        SettingsPageItem::SubPageLink(SubPageLink {
+            title: "Configure Providers".into(),
+            r#type: Default::default(),
+            json_path: Some("edit_predictions.providers"),
+            description: Some("Set up different edit prediction providers in complement to Zed's built-in Zeta model.".into()),
+            in_json: false,
+            files: USER,
+            render: render_edit_prediction_setup_page
+        }),
         SettingsPageItem::SettingItem(SettingItem {
             title: "Data Collection",
             description: "Controls whether Zed may collect training data when using Zed's Edit Predictions. Data is only collected for files in projects detected as open source. The default value uses the preference previously set via the status-bar toggle, or false if no preference has been stored.",
