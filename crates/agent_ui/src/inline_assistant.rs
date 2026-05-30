@@ -406,14 +406,6 @@ impl InlineAssistant {
             codegen_ranges.push(anchor_range);
 
             if let Some(model) = LanguageModelRegistry::read_global(cx).inline_assistant_model() {
-                telemetry::event!(
-                    "Assistant Invoked",
-                    kind = "inline",
-                    phase = "invoked",
-                    model = model.model.telemetry_id(),
-                    model_provider = model.provider.id().to_string(),
-                    language_name = buffer.language().map(|language| language.name().to_proto())
-                );
 
                 report_anthropic_event(
                     &model.model,
@@ -1014,16 +1006,6 @@ impl InlineAssistant {
                     )
                 };
 
-                telemetry::event!(
-                    event_type,
-                    phase,
-                    session_id = session_id.to_string(),
-                    kind = "inline",
-                    model = model_telemetry_id,
-                    model_provider = model_provider_id,
-                    language_name = language_name,
-                    message_id = message_id.as_deref(),
-                );
 
                 report_anthropic_event(
                     &model.model,

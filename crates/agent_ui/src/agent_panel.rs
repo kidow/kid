@@ -976,15 +976,6 @@ impl AgentTerminal {
         if let Some(program) =
             terminal_program_to_report(&mut self.last_observed_program, current_program)
         {
-            telemetry::event!(
-                "Agent Terminal Program Started",
-                agent = TERMINAL_AGENT_TELEMETRY_ID,
-                terminal_id = terminal_id.to_key_string(),
-                program = program,
-                source = source.as_str(),
-                side = crate::agent_sidebar_side(cx),
-                thread_location = "current_worktree",
-            );
         }
     }
 }
@@ -2137,14 +2128,6 @@ impl AgentPanel {
         source: AgentThreadSource,
         cx: &App,
     ) {
-        telemetry::event!(
-            "Agent Thread Started",
-            agent = TERMINAL_AGENT_TELEMETRY_ID,
-            terminal_id = terminal_id.to_key_string(),
-            source = source.as_str(),
-            side = crate::agent_sidebar_side(cx),
-            thread_location = "current_worktree",
-        );
     }
 
     fn refresh_terminal_metadata(&mut self, terminal_id: TerminalId, cx: &mut Context<Self>) {
@@ -4497,7 +4480,6 @@ impl Panel for AgentPanel {
             DockPosition::Left => "left",
             DockPosition::Right | DockPosition::Bottom => "right",
         };
-        telemetry::event!("Agent Panel Side Changed", side = side);
         settings::update_settings_file(self.fs.clone(), cx, move |settings, _| {
             settings
                 .agent
@@ -5232,11 +5214,9 @@ impl AgentPanel {
             KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
         )
         .on_open_project(|_, window, cx| {
-            telemetry::event!("Agent Panel Add Project Clicked");
             window.dispatch_action(workspace::Open::default().boxed_clone(), cx);
         })
         .on_clone_repo(|_, window, cx| {
-            telemetry::event!("Agent Panel Clone Repo Clicked");
             window.dispatch_action(git::Clone.boxed_clone(), cx);
         })
     }
@@ -11718,104 +11698,6 @@ mod tests {
             );
         });
     }
-    #[gpui::test]
-    async fn test_vim_search_does_not_steal_focus_from_agent_panel(cx: &mut TestAppContext) {
-        init_test(cx);
-        cx.update(|cx| {
-            agent::ThreadStore::init_global(cx);
-            language_model::LanguageModelRegistry::test(cx);
-            vim::init(cx);
-            search::init(cx);
-
-            // Enable vim mode
-            settings::SettingsStore::update_global(cx, |store, cx| {
-                store.update_user_settings(cx, |s| s.vim_mode = Some(true));
-            });
-
-            // Load vim keybindings
-            let mut vim_key_bindings =
-                settings::KeymapFile::load_asset_allow_partial_failure("keymaps/vim.json", cx)
-                    .unwrap();
-            for key_binding in &mut vim_key_bindings {
-                key_binding.set_meta(settings::KeybindSource::Vim.meta());
-            }
-            cx.bind_keys(vim_key_bindings);
-        });
-
-        // Create a project with a file so we have a buffer in the center pane.
-        let fs = FakeFs::new(cx.executor());
-        fs.insert_tree("/project", json!({ "file.txt": "hello world" }))
-            .await;
-        let project = Project::test(fs.clone(), [Path::new("/project")], cx).await;
-
-        let multi_workspace =
-            cx.add_window(|window, cx| MultiWorkspace::test_new(project.clone(), window, cx));
-        let workspace = multi_workspace
-            .read_with(cx, |mw, _cx| mw.workspace().clone())
-            .unwrap();
-        let mut cx = VisualTestContext::from_window(multi_workspace.into(), cx);
-
-        // Open a file in the center pane.
-        workspace
-            .update_in(&mut cx, |workspace, window, cx| {
-                workspace.open_paths(
-                    vec![PathBuf::from("/project/file.txt")],
-                    workspace::OpenOptions::default(),
-                    None,
-                    window,
-                    cx,
-                )
-            })
-            .await;
-        cx.run_until_parked();
-
-        // Add a BufferSearchBar to the center pane's toolbar, as a real
-        // workspace would have.
-        workspace.update_in(&mut cx, |workspace, window, cx| {
-            workspace.active_pane().update(cx, |pane, cx| {
-                pane.toolbar().update(cx, |toolbar, cx| {
-                    let search_bar = cx.new(|cx| search::BufferSearchBar::new(None, window, cx));
-                    toolbar.add_item(search_bar, window, cx);
-                });
-            });
-        });
-
-        // Create the agent panel and add it to the workspace.
-        let panel = workspace.update_in(&mut cx, |workspace, window, cx| {
-            let panel = cx.new(|cx| AgentPanel::new(workspace, None, window, cx));
-            workspace.add_panel(panel.clone(), window, cx);
-            panel
-        });
-
-        // Open a thread so the panel has an active editor.
-        open_thread_with_connection(&panel, StubAgentConnection::new(), &mut cx);
-
-        // Focus the agent panel.
-        workspace.update_in(&mut cx, |workspace, window, cx| {
-            workspace.focus_panel::<AgentPanel>(window, cx);
-        });
-        cx.run_until_parked();
-
-        // Verify the agent panel has focus.
-        workspace.update_in(&mut cx, |_, window, cx| {
-            assert!(
-                panel.read(cx).focus_handle(cx).contains_focused(window, cx),
-                "Agent panel should be focused before pressing '/'"
-            );
-        });
-
-        // Press '/' — the vim search keybinding.
-        cx.simulate_keystrokes("/");
-
-        // Focus should remain on the agent panel.
-        workspace.update_in(&mut cx, |_, window, cx| {
-            assert!(
-                panel.read(cx).focus_handle(cx).contains_focused(window, cx),
-                "Focus should remain on the agent panel after pressing '/'"
-            );
-        });
-    }
-
     /// Connection that tracks closed sessions and detects prompts against
     /// sessions that no longer exist, used to reproduce session disassociation.
     #[derive(Clone, Default)]

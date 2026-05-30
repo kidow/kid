@@ -583,15 +583,6 @@ impl<T: 'static> PromptEditor<T> {
             PromptEditorMode::Terminal { .. } => ("inline_terminal", None),
         };
 
-        telemetry::event!(
-            "Assistant Started",
-            session_id = self.session_state.session_id.to_string(),
-            kind = kind,
-            phase = "started",
-            model = model_telemetry_id,
-            model_provider = model_provider_id,
-            language_name = language_name,
-        );
     }
 
     fn thumbs_up(&mut self, _: &ThumbsUpResult, _window: &mut Window, cx: &mut Context<Self>) {
@@ -638,17 +629,6 @@ impl<T: 'static> PromptEditor<T> {
                     PromptEditorMode::Terminal { .. } => "inline_terminal",
                 };
 
-                telemetry::event!(
-                    "Inline Assistant Rated",
-                    rating = "positive",
-                    session_id = self.session_state.session_id.to_string(),
-                    kind = kind,
-                    model = model_id,
-                    prompt = prompt,
-                    completion = completion_text,
-                    selected_text = selected_text,
-                    use_streaming_tools
-                );
 
                 self.session_state.completion = CompletionState::Rated;
 
@@ -701,17 +681,6 @@ impl<T: 'static> PromptEditor<T> {
                     PromptEditorMode::Terminal { .. } => "inline_terminal",
                 };
 
-                telemetry::event!(
-                    "Inline Assistant Rated",
-                    rating = "negative",
-                    session_id = self.session_state.session_id.to_string(),
-                    kind = kind,
-                    model = model_telemetry_id,
-                    prompt = prompt,
-                    completion = completion_text,
-                    selected_text = selected_text,
-                    use_streaming_tools
-                );
 
                 self.session_state.completion = CompletionState::Rated;
 

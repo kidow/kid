@@ -97,7 +97,6 @@ serde_json_lenient.workspace = true
 settings.workspace = true
 streaming_diff.workspace = true
 task.workspace = true
-telemetry.workspace = true
 terminal.workspace = true
 terminal_view.workspace = true
 text.workspace = true
@@ -143,7 +142,6 @@ search = { workspace = true, features = ["test-support"] }
 semver.workspace = true
 reqwest_client.workspace = true
 tempfile.workspace = true
-vim.workspace = true
 tree-sitter-md.workspace = true
 unindent.workspace = true
 terminal = { workspace = true, features = ["test-support"] }

@@ -1289,12 +1289,6 @@ impl ThreadView {
 
         self.last_token_limit_telemetry = Some(ratio);
 
-        telemetry::event!(
-            "Agent Token Limit Warning",
-            agent = agent_telemetry_id,
-            session_id = session_id,
-            kind = kind,
-        );
     }
 
     // sending
@@ -1502,15 +1496,6 @@ impl ThreadView {
                 });
                 drop(guard);
 
-                telemetry::event!(
-                    "Agent Message Sent",
-                    agent = agent_telemetry_id,
-                    session = session_id,
-                    parent_session_id = parent_session_id.as_ref().map(|id| id.to_string()),
-                    model = model_id,
-                    mode = mode_id,
-                    side = side
-                );
 
                 thread.send(contents, cx)
             })?;
@@ -1529,17 +1514,6 @@ impl ThreadView {
             } else {
                 "failure"
             };
-            telemetry::event!(
-                "Agent Turn Completed",
-                agent = agent_telemetry_id,
-                session = session_id,
-                parent_session_id = parent_session_id.as_ref().map(|id| id.to_string()),
-                model = model_id,
-                mode = mode_id,
-                status,
-                turn_time_ms,
-                side = side
-            );
             res.map(|_| ())
         });
 
@@ -1707,15 +1681,6 @@ impl ThreadView {
             .parent_session_id()
             .map(|id| id.to_string());
 
-        telemetry::event!(
-            "Agent Panel Error Shown",
-            agent = agent_telemetry_id,
-            session_id = session_id,
-            parent_session_id = parent_session_id,
-            kind = error_kind,
-            acp_error_code = acp_error_code,
-            message = message,
-        );
     }
 
     pub fn cancel_generation(&mut self, cx: &mut Context<Self>) {
@@ -2530,7 +2495,6 @@ impl ThreadView {
                 .ok();
         }
 
-        telemetry::event!("Follow Agent Selected", following = !following);
     }
 
     // other
@@ -8706,7 +8670,6 @@ impl ThreadView {
                                             }
                                             let expanded =
                                                 this.expanded_tool_calls.contains(&tool_call_id);
-                                            telemetry::event!("Subagent Toggled", expanded);
                                             cx.notify();
                                         }
                                     }))
@@ -8725,7 +8688,6 @@ impl ThreadView {
                                     |this, thread| {
                                         this.on_click(cx.listener(
                                             move |_this, _event, _window, cx| {
-                                                telemetry::event!("Subagent Stopped");
                                                 thread.update(cx, |thread, cx| {
                                                     thread.cancel(cx).detach();
                                                 });
@@ -8763,7 +8725,6 @@ impl ThreadView {
                     )
                     .tooltip(Tooltip::text("Make Subagent Full Screen"))
                     .on_click(cx.listener(move |this, _event, window, cx| {
-                        telemetry::event!("Subagent Maximized");
                         this.server_view
                             .update(cx, |this, cx| {
                                 this.navigate_to_thread(nav_session_id.clone(), window, cx);

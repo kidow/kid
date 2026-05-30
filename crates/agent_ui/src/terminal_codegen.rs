@@ -84,18 +84,6 @@ impl TerminalCodegen {
 
                         let error_message = result.as_ref().err().map(|error| error.to_string());
 
-                        telemetry::event!(
-                            "Assistant Responded",
-                            session_id = session_id.to_string(),
-                            kind = "inline_terminal",
-                            phase = "response",
-                            model = model_telemetry_id,
-                            model_provider = model_provider_id,
-                            language_name = Option::<&str>::None,
-                            message_id = message_id,
-                            response_latency = response_latency,
-                            error_message = error_message,
-                        );
 
                         anthropic_reporter.report(AnthropicEventData {
                             completion_type: AnthropicCompletionType::Terminal,

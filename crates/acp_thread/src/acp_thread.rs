@@ -2016,13 +2016,6 @@ impl AcpThread {
             } else {
                 "failed"
             };
-            telemetry::event!(
-                "Agent Tool Call Completed",
-                agent_telemetry_id,
-                session,
-                parent_session_id,
-                status
-            );
         }
 
         if let Some(ix) = self.index_for_tool_call(&id) {

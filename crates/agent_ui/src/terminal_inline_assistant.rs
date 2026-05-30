@@ -323,15 +323,6 @@ impl TerminalInlineAssistant {
                 };
 
                 // Fire Zed telemetry
-                telemetry::event!(
-                    event_type,
-                    kind = "inline_terminal",
-                    phase = phase,
-                    model = model_telemetry_id,
-                    model_provider = model_provider_id,
-                    message_id = message_id,
-                    session_id = session_id,
-                );
 
                 report_anthropic_event(
                     &model,
