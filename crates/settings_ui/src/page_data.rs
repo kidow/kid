@@ -608,61 +608,7 @@ fn keymap_page() -> SettingsPage {
         ]
     }
 
-    fn base_keymap_section() -> [SettingsPageItem; 2] {
-        [
-            SettingsPageItem::SectionHeader("Base Keymap"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Base Keymap",
-                description: "The name of a base set of key bindings to use.",
-                field: Box::new(SettingField {
-                    json_path: Some("base_keymap"),
-                    pick: |settings_content| settings_content.base_keymap.as_ref(),
-                    write: |settings_content, value, _| {
-                        settings_content.base_keymap = value;
-                    },
-                }),
-                metadata: Some(Box::new(SettingsFieldMetadata {
-                    should_do_titlecase: Some(false),
-                    ..Default::default()
-                })),
-                files: USER,
-            }),
-        ]
-    }
-
-    fn modal_editing_section() -> [SettingsPageItem; 3] {
-        [
-            SettingsPageItem::SectionHeader("Modal Editing"),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Vim Mode",
-                description: "Enable Vim mode and key bindings.",
-                field: Box::new(SettingField {
-                    json_path: Some("vim_mode"),
-                    pick: |settings_content| settings_content.vim_mode.as_ref(),
-                    write: write_vim_mode,
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Helix Mode",
-                description: "Enable Helix mode and key bindings.",
-                field: Box::new(SettingField {
-                    json_path: Some("helix_mode"),
-                    pick: |settings_content| settings_content.helix_mode.as_ref(),
-                    write: write_helix_mode,
-                }),
-                metadata: None,
-                files: USER,
-            }),
-        ]
-    }
-
-    let items: Box<[SettingsPageItem]> = concat_sections!(
-        keybindings_section(),
-        base_keymap_section(),
-        modal_editing_section(),
-    );
+    let items: Box<[SettingsPageItem]> = concat_sections!(keybindings_section());
 
     SettingsPage {
         title: "Keymap",
@@ -8926,12 +8872,7 @@ where
     <<T as strum::IntoDiscriminant>::Discriminant as strum::VariantArray>::VARIANTS
 }
 
-/// Updates the `vim_mode` setting, disabling `helix_mode` if present and
-/// `vim_mode` is being enabled.
-fn write_vim_mode(settings: &mut SettingsContent, value: Option<bool>, _: &App) {
-    write_vim_mode_inner(settings, value);
-}
-
+#[cfg(test)]
 fn write_vim_mode_inner(settings: &mut SettingsContent, value: Option<bool>) {
     if value == Some(true) && settings.helix_mode == Some(true) {
         settings.helix_mode = Some(false);
@@ -8939,12 +8880,7 @@ fn write_vim_mode_inner(settings: &mut SettingsContent, value: Option<bool>) {
     settings.vim_mode = value;
 }
 
-/// Updates the `helix_mode` setting, disabling `vim_mode` if present and
-/// `helix_mode` is being enabled.
-fn write_helix_mode(settings: &mut SettingsContent, value: Option<bool>, _: &App) {
-    write_helix_mode_inner(settings, value);
-}
-
+#[cfg(test)]
 fn write_helix_mode_inner(settings: &mut SettingsContent, value: Option<bool>) {
     if value == Some(true) && settings.vim_mode == Some(true) {
         settings.vim_mode = Some(false);
