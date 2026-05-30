@@ -20,5 +20,18 @@ rustflags = [
 [target.aarch64-unknown-linux-gnu]
 rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
+# Use lld for much faster linking on macOS (Apple Silicon).
+# NOTE: a [target.*] rustflags table REPLACES (does not merge with) [build].rustflags,
+# so the symbol-mangling + tokio_unstable flags from [build] are repeated here.
+[target.aarch64-apple-darwin]
+rustflags = [
+    "-C",
+    "symbol-mangling-version=v0",
+    "--cfg",
+    "tokio_unstable",
+    "-C",
+    "link-arg=-fuse-ld=/opt/homebrew/opt/lld/bin/ld64.lld",
+]
+
 [env]
 MACOSX_DEPLOYMENT_TARGET = "10.15.7"

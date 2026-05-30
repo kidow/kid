@@ -5,7 +5,7 @@
 ## 0. 최초 1회 — 빌드 환경 준비 (macOS)
 
 ```sh
-brew install cmake                                            # 확장/wasmtime 빌드에 필요
+brew install cmake lld                                        # cmake: wasmtime 빌드 / lld: 빠른 링크 (.cargo/config.toml에서 사용)
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 sudo xcodebuild -license accept
 xcodebuild -downloadComponent MetalToolchain                 # gpui Metal 셰이더 컴파일용 (macOS 15+)
