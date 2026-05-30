@@ -21,11 +21,11 @@ Rust 툴체인은 `rust-toolchain.toml`로 자동 고정됨(별도 설치 불필
 이미 빌드된 바이너리를 **직접 실행** → 즉시 창이 뜸. `cargo run`보다 빠름.
 
 ```sh
-./target/release/zed                       # 빈 창
-./target/release/zed ~/path/to/project     # 폴더 열기
+./target/release/kid                       # 빈 창
+./target/release/kid ~/path/to/project     # 폴더 열기
 ```
 
-- debug 바이너리가 있으면: `./target/debug/zed`
+- debug 바이너리가 있으면: `./target/debug/kid`
 - 바이너리가 없으면(아직 한 번도 안 빌드했으면) → 아래 2번으로 먼저 빌드.
 
 ---
@@ -42,7 +42,7 @@ SKIP_BUILD=1 script/install-mac-app.sh   # 이미 빌드돼 있으면 (재빌드
 - Spotlight에서 "Kid" 검색 / Launchpad / Applications에서 더블클릭으로 실행.
 - **첫 실행**: 서명 안 된 dev 빌드라 Gatekeeper 경고 → Kid.app 우클릭 > 열기 (1회만).
 - 번들 ID `dev.kid.Kid` (공식 Zed.app `dev.zed.Zed`와 분리) → Dock/Launchpad 충돌 없음.
-- release 코드 바꾼 뒤 갱신: 스크립트 다시 실행 (또는 `cp target/release/zed /Applications/Kid.app/Contents/MacOS/zed`).
+- release 코드 바꾼 뒤 갱신: 스크립트 다시 실행 (또는 `cp target/release/kid /Applications/Kid.app/Contents/MacOS/zed`).
 - ⚠️ `APP_NAME`이 아직 "Zed"라 공식 Zed.app과 데이터 폴더·단일 인스턴스 소켓 공유 → **둘 다 동시에 켜지 말 것**. (zed→kid 이름변경 완료하면 해소.)
 
 ---
@@ -54,13 +54,13 @@ SKIP_BUILD=1 script/install-mac-app.sh   # 이미 빌드돼 있으면 (재빌드
 **개발 반복은 debug 사용 (빠름):**
 ```sh
 cargo run -p zed                           # 빌드 + 실행 (한 번에)
-cargo build -p zed && ./target/debug/zed   # 빌드와 실행 분리
+cargo build -p zed && ./target/debug/kid   # 빌드와 실행 분리
 ```
 
 **배포/성능 측정만 release (느림, 최적화):**
 ```sh
 cargo run --release -p zed
-cargo build --release -p zed && ./target/release/zed
+cargo build --release -p zed && ./target/release/kid
 ```
 
 빌드 속도 (lld 링커 + debug 기준, `.cargo/config.toml`에 설정됨):
@@ -120,7 +120,7 @@ git log --oneline -10
 
 | 증상 | 원인 / 해결 |
 |------|------------|
-| `cargo run`이 너무 느림 | `--release` 말고 `cargo run -p zed`(debug). 코드 안 바꿨으면 `./target/release/zed` 또는 `./target/debug/zed` 직접 실행 |
+| `cargo run`이 너무 느림 | `--release` 말고 `cargo run -p zed`(debug). 코드 안 바꿨으면 `./target/release/kid` 또는 `./target/debug/kid` 직접 실행 |
 | 링크 에러 `ld64.lld ... No such file` 등 | lld 미설치 → `brew install lld` (`.cargo/config.toml`이 lld 경로 참조) |
 | `unable to find utility "metal"` | Metal 툴체인 미설치 → `xcodebuild -downloadComponent MetalToolchain` |
 | `failed to spawn cmake` | `brew install cmake` |

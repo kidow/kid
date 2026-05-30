@@ -16,7 +16,7 @@ if [[ "${SKIP_BUILD:-0}" != "1" ]]; then
   echo "==> Building release binary (cargo build --release -p zed)..."
   cargo build --release -p zed
 fi
-[[ -f target/release/zed ]] || { echo "target/release/zed not found — build first"; exit 1; }
+[[ -f target/release/kid ]] || { echo "target/release/kid not found — build first"; exit 1; }
 
 echo "==> Generating icon..."
 work="$(mktemp -d)"
@@ -31,7 +31,7 @@ iconutil -c icns "$iset" -o "$work/kid.icns"
 echo "==> Assembling $APP..."
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp target/release/zed "$APP/Contents/MacOS/zed"
+cp target/release/kid "$APP/Contents/MacOS/kid"
 cp "$work/kid.icns" "$APP/Contents/Resources/kid.icns"
 
 cat > "$APP/Contents/Info.plist" <<'PLIST'
@@ -42,7 +42,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundleName</key><string>Kid</string>
     <key>CFBundleDisplayName</key><string>Kid</string>
     <key>CFBundleIdentifier</key><string>dev.kid.Kid</string>
-    <key>CFBundleExecutable</key><string>zed</string>
+    <key>CFBundleExecutable</key><string>kid</string>
     <key>CFBundleIconFile</key><string>kid.icns</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>1.6.0</string>
