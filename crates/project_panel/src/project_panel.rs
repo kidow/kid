@@ -867,15 +867,15 @@ impl ProjectPanel {
                                     true,
                                     window, cx,
                                 )
-                                .detach_and_prompt_err("Failed to open file", window, cx, move |e, _, _| {
+                                .detach_and_prompt_err("파일 열기에 실패했습니다", window, cx, move |e, _, _| {
                                     match e.error_code() {
                                         ErrorCode::Disconnected => if is_via_ssh {
-                                            Some("Disconnected from SSH host".to_string())
+                                            Some("SSH 호스트와의 연결이 끊어졌습니다".to_string())
                                         } else {
-                                            Some("Disconnected from remote project".to_string())
+                                            Some("원격 프로젝트와의 연결이 끊어졌습니다".to_string())
                                         },
                                         ErrorCode::UnsharedItem => Some(format!(
-                                            "{} is not shared by the host. This could be because it has been marked as `private`",
+                                            "{}은(는) 호스트에서 공유되지 않습니다. `private`로 표시되어 있기 때문일 수 있습니다",
                                             file_path.display(path_style)
                                         )),
                                         // See note in worktree.rs where this error originates. Returning Some in this case prevents
@@ -1075,11 +1075,11 @@ impl ProjectPanel {
                 menu.context(self.focus_handle.clone()).map(|menu| {
                     if is_read_only {
                         menu.when(is_dir, |menu| {
-                            menu.action("Search Inside", Box::new(NewSearchInDirectory))
+                            menu.action("내부 검색", Box::new(NewSearchInDirectory))
                         })
                     } else {
-                        menu.action("New File", Box::new(NewFile))
-                            .action("New Folder", Box::new(NewDirectory))
+                        menu.action("새 파일", Box::new(NewFile))
+                            .action("새 폴더", Box::new(NewDirectory))
                             .separator()
                             .when(is_local, |menu| {
                                 menu.action(
@@ -1088,91 +1088,91 @@ impl ProjectPanel {
                                 )
                             })
                             .when(is_local, |menu| {
-                                menu.action("Open in Default App", Box::new(OpenWithSystem))
+                                menu.action("기본 앱으로 열기", Box::new(OpenWithSystem))
                             })
-                            .action("Open in Terminal", Box::new(OpenInTerminal))
+                            .action("터미널에서 열기", Box::new(OpenInTerminal))
                             .when(is_dir, |menu| {
                                 menu.separator()
-                                    .action("Find in Folder…", Box::new(NewSearchInDirectory))
+                                    .action("폴더에서 찾기…", Box::new(NewSearchInDirectory))
                             })
                             .when(is_unfoldable, |menu| {
-                                menu.action("Unfold Directory", Box::new(UnfoldDirectory))
+                                menu.action("디렉터리 펼치기", Box::new(UnfoldDirectory))
                             })
                             .when(is_foldable, |menu| {
-                                menu.action("Fold Directory", Box::new(FoldDirectory))
+                                menu.action("디렉터리 접기", Box::new(FoldDirectory))
                             })
                             .when(should_show_compare, |menu| {
                                 menu.separator()
-                                    .action("Compare Marked Files", Box::new(CompareMarkedFiles))
+                                    .action("표시된 파일 비교", Box::new(CompareMarkedFiles))
                             })
                             .separator()
-                            .action("Cut", Box::new(Cut))
-                            .action("Copy", Box::new(Copy))
-                            .action("Duplicate", Box::new(Duplicate))
+                            .action("잘라내기", Box::new(Cut))
+                            .action("복사", Box::new(Copy))
+                            .action("복제", Box::new(Duplicate))
                             // TODO: Paste should always be visible, cbut disabled when clipboard is empty
-                            .action_disabled_when(!has_pasteable_content, "Paste", Box::new(Paste))
+                            .action_disabled_when(!has_pasteable_content, "붙여넣기", Box::new(Paste))
                             .when(cx.has_flag::<ProjectPanelUndoRedoFeatureFlag>(), |menu| {
                                 menu.action_disabled_when(
                                     !self.undo_manager.can_undo(),
-                                    "Undo",
+                                    "실행 취소",
                                     Box::new(Undo),
                                 )
                                 .action_disabled_when(
                                     !self.undo_manager.can_redo(),
-                                    "Redo",
+                                    "다시 실행",
                                     Box::new(Redo),
                                 )
                             })
                             .when(is_remote, |menu| {
                                 menu.separator()
-                                    .action("Download...", Box::new(DownloadFromRemote))
+                                    .action("다운로드...", Box::new(DownloadFromRemote))
                             })
                             .separator()
-                            .action("Copy Path", Box::new(zed_actions::workspace::CopyPath))
+                            .action("경로 복사", Box::new(zed_actions::workspace::CopyPath))
                             .action(
-                                "Copy Relative Path",
+                                "상대 경로 복사",
                                 Box::new(zed_actions::workspace::CopyRelativePath),
                             )
                             .when(has_git_repo, |menu| {
                                 menu.separator()
                                     .when(!is_dir && self.has_git_changes(entry_id), |menu| {
                                         menu.action(
-                                            "Restore File",
+                                            "파일 복원",
                                             Box::new(git::RestoreFile { skip_prompt: false }),
                                         )
                                     })
-                                    .action("Add to .gitignore", Box::new(git::AddToGitignore))
+                                    .action(".gitignore에 추가", Box::new(git::AddToGitignore))
                                     .when(has_history, |menu| {
-                                        menu.action("View History", Box::new(git::FileHistory))
+                                        menu.action("히스토리 보기", Box::new(git::FileHistory))
                                     })
                             })
                             .when(!should_hide_rename, |menu| {
-                                menu.separator().action("Rename", Box::new(Rename))
+                                menu.separator().action("이름 변경", Box::new(Rename))
                             })
                             .when(!is_root && !is_remote, |menu| {
-                                menu.action("Trash", Box::new(Trash { skip_prompt: false }))
+                                menu.action("휴지통으로 이동", Box::new(Trash { skip_prompt: false }))
                             })
                             .when(!is_root, |menu| {
-                                menu.action("Delete", Box::new(Delete { skip_prompt: false }))
+                                menu.action("삭제", Box::new(Delete { skip_prompt: false }))
                             })
                             .when(!is_collab && is_root, |menu| {
                                 menu.separator()
                                     .action(
-                                        "Add Folders to Project…",
+                                        "프로젝트에 폴더 추가…",
                                         Box::new(workspace::AddFolderToProject),
                                     )
-                                    .action("Remove from Project", Box::new(RemoveFromProject))
+                                    .action("프로젝트에서 제거", Box::new(RemoveFromProject))
                             })
                             .when(is_dir && !is_root, |menu| {
                                 menu.separator().action(
-                                    "Collapse All",
+                                    "모두 접기",
                                     Box::new(CollapseSelectedEntryAndChildren),
                                 )
                             })
                             .when(is_dir && is_root, |menu| {
                                 let entity = entity.clone();
                                 menu.separator().item(
-                                    ContextMenuEntry::new("Collapse All").handler(
+                                    ContextMenuEntry::new("모두 접기").handler(
                                         move |window, cx| {
                                             entity.update(cx, |this, cx| {
                                                 this.collapse_all_for_root(window, cx);
@@ -1667,7 +1667,7 @@ impl ProjectPanel {
         if !filename.is_empty() {
             if filename.is_empty() {
                 edit_state.validation_state =
-                    ValidationState::Error("File or directory name cannot be empty.".to_string());
+                    ValidationState::Error("파일 또는 디렉터리 이름은 비워 둘 수 없습니다.".to_string());
                 cx.notify();
                 return;
             }
@@ -1675,7 +1675,7 @@ impl ProjectPanel {
             let trimmed_filename = filename.trim();
             if trimmed_filename != filename {
                 edit_state.validation_state = ValidationState::Warning(
-                    "File or directory name contains leading or trailing whitespace.".to_string(),
+                    "파일 또는 디렉터리 이름의 앞이나 뒤에 공백이 있습니다.".to_string(),
                 );
                 cx.notify();
                 return;
@@ -1684,7 +1684,7 @@ impl ProjectPanel {
 
             let Ok(filename) = RelPath::unix(trimmed_filename) else {
                 edit_state.validation_state = ValidationState::Warning(
-                    "File or directory name contains leading or trailing whitespace.".to_string(),
+                    "파일 또는 디렉터리 이름의 앞이나 뒤에 공백이 있습니다.".to_string(),
                 );
                 cx.notify();
                 return;
@@ -1716,7 +1716,7 @@ impl ProjectPanel {
                 };
                 if already_exists {
                     edit_state.validation_state = ValidationState::Error(format!(
-                        "File or directory '{}' already exists at location. Please choose a different name.",
+                        "파일 또는 디렉터리 '{}'이(가) 해당 위치에 이미 있습니다. 다른 이름을 선택하세요.",
                         filename.as_unix_str()
                     ));
                     cx.notify();
@@ -1876,9 +1876,9 @@ impl ProjectPanel {
                                         notification_id: "excluded-directory".into(),
                                         message: format!(
                                             concat!(
-                                                "Created an excluded directory at {:?}.\n",
-                                                "Alter `file_scan_exclusions` in the settings ",
-                                                "to show it in the panel"
+                                                "{:?} 위치에 제외된 디렉터리를 만들었습니다.\n",
+                                                "패널에 표시하려면 설정에서 ",
+                                                "`file_scan_exclusions`를 변경하세요"
                                             ),
                                             abs_path
                                         ),
@@ -2197,8 +2197,8 @@ impl ProjectPanel {
             let file_name = entry.path.file_name()?.to_string();
 
             let answer = if !action.skip_prompt {
-                let prompt = format!("Discard changes to {}?", file_name);
-                Some(window.prompt(PromptLevel::Info, &prompt, None, &["Restore", "Cancel"], cx))
+                let prompt = format!("{}의 변경 사항을 취소하시겠습니까?", file_name);
+                Some(window.prompt(PromptLevel::Info, &prompt, None, &["복원", "취소"], cx))
             } else {
                 None
             };
@@ -2219,7 +2219,7 @@ impl ProjectPanel {
                 if let Err(e) = task.await {
                     panel
                         .update(cx, |panel, cx| {
-                            let message = format!("Failed to restore {}: {}", file_name, e);
+                            let message = format!("{} 복원에 실패했습니다: {}", file_name, e);
                             let toast = StatusToast::new(message, cx, |this, _| {
                                 this.icon(
                                     Icon::new(IconName::XCircle)
@@ -2291,7 +2291,7 @@ impl ProjectPanel {
                 if let Err(e) = receiver.await? {
                     if let Some(workspace) = workspace.upgrade() {
                         cx.update(|cx| {
-                            let message = format!("Failed to add to .gitignore: {}", e);
+                            let message = format!(".gitignore에 추가하는 데 실패했습니다: {}", e);
                             let toast = StatusToast::new(message, cx, |this, _| {
                                 this.icon(Icon::new(IconName::XCircle).color(Color::Error))
                                     .dismiss_button(true)
@@ -2343,22 +2343,22 @@ impl ProjectPanel {
                 return None;
             }
             let answer = if !skip_prompt {
-                let operation = if trash { "Trash" } else { "Delete" };
+                let operation = if trash { "휴지통으로 이동" } else { "삭제" };
                 let message_start = if trash {
-                    "Do you want to trash"
+                    "다음 항목을 휴지통으로 이동하시겠습니까:"
                 } else {
-                    "Are you sure you want to permanently delete"
+                    "다음 항목을 영구적으로 삭제하시겠습니까:"
                 };
                 let prompt = match file_paths.first() {
                     Some((_, _, path)) if file_paths.len() == 1 => {
                         let unsaved_warning = if dirty_buffers > 0 {
-                            "\n\nIt has unsaved changes, which will be lost."
+                            "\n\n저장되지 않은 변경 사항이 있으며, 손실됩니다."
                         } else {
                             ""
                         };
 
                         format!(
-                            "{message_start} {}?{unsaved_warning}",
+                            "{message_start} {}{unsaved_warning}",
                             MarkdownInlineCode(path)
                         )
                     }
@@ -2373,9 +2373,9 @@ impl ProjectPanel {
                                 .collect::<Vec<_>>();
                             paths.truncate(CUTOFF_POINT);
                             if truncated_path_counts == 1 {
-                                paths.push(".. 1 file not shown".into());
+                                paths.push(".. 파일 1개 표시되지 않음".into());
                             } else {
-                                paths.push(format!(".. {} files not shown", truncated_path_counts));
+                                paths.push(format!(".. 파일 {}개 표시되지 않음", truncated_path_counts));
                             }
                             paths
                         } else {
@@ -2387,26 +2387,26 @@ impl ProjectPanel {
                         let unsaved_warning = if dirty_buffers == 0 {
                             String::new()
                         } else if dirty_buffers == 1 {
-                            "\n\n1 of these has unsaved changes, which will be lost.".to_string()
+                            "\n\n이 중 1개에 저장되지 않은 변경 사항이 있으며, 손실됩니다.".to_string()
                         } else {
                             format!(
-                                "\n\n{dirty_buffers} of these have unsaved changes, which will be lost."
+                                "\n\n이 중 {dirty_buffers}개에 저장되지 않은 변경 사항이 있으며, 손실됩니다."
                             )
                         };
 
                         format!(
-                            "{message_start} the following {} files?\n{}{unsaved_warning}",
+                            "{message_start} (파일 {}개)\n{}{unsaved_warning}",
                             file_paths.len(),
                             names.join("\n")
                         )
                     }
                 };
-                let detail = (!trash).then_some("This cannot be undone.");
+                let detail = (!trash).then_some("이 작업은 되돌릴 수 없습니다.");
                 Some(window.prompt(
                     PromptLevel::Info,
                     &prompt,
                     detail,
-                    &[operation, "Cancel"],
+                    &[operation, "취소"],
                     cx,
                 ))
             } else {
@@ -3308,7 +3308,7 @@ impl ProjectPanel {
             files: false,
             directories: true,
             multiple: false,
-            prompt: Some("Download".into()),
+            prompt: Some("다운로드".into()),
         });
 
         let fs = self.fs.clone();
@@ -3323,7 +3323,7 @@ impl ProjectPanel {
                             workspace.show_toast(
                                 workspace::Toast::new(
                                     notification_id.clone(),
-                                    format!("Downloading 0/{} files...", total_files),
+                                    format!("파일 다운로드 중 0/{}...", total_files),
                                 ),
                                 cx,
                             );
@@ -3340,7 +3340,7 @@ impl ProjectPanel {
                                     workspace::Toast::new(
                                         notification_id.clone(),
                                         format!(
-                                            "Downloading {}/{} files...",
+                                            "파일 다운로드 중 {}/{}...",
                                             index + 1,
                                             total_files
                                         ),
@@ -3376,7 +3376,7 @@ impl ProjectPanel {
                             workspace.show_toast(
                                 workspace::Toast::new(
                                     notification_id.clone(),
-                                    format!("Downloaded {} files", total_files),
+                                    format!("파일 {}개 다운로드 완료", total_files),
                                 ),
                                 cx,
                             );
@@ -4323,9 +4323,9 @@ impl ProjectPanel {
                 for (filename, original_path) in &paths_to_replace {
                     let prompt_message = format!(
                         concat!(
-                            "A file or folder with name {} ",
-                            "already exists in the destination folder. ",
-                            "Do you want to replace it?"
+                            "이름이 {}인 파일 또는 폴더가 ",
+                            "대상 폴더에 이미 있습니다. ",
+                            "바꾸시겠습니까?"
                         ),
                         filename
                     );
@@ -4335,7 +4335,7 @@ impl ProjectPanel {
                                 PromptLevel::Info,
                                 &prompt_message,
                                 None,
-                                &["Replace", "Cancel"],
+                                &["바꾸기", "취소"],
                                 cx,
                             )
                         })?
@@ -5742,7 +5742,7 @@ impl ProjectPanel {
                                         Tooltip::with_meta(
                                             path.to_string(),
                                             None,
-                                            "Symbolic Link",
+                                            "심볼릭 링크",
                                             cx,
                                         )
                                     })
@@ -6621,10 +6621,6 @@ impl Render for ProjectPanel {
                 })
                 .size_full()
                 .relative()
-                // On macOS the left dock sits flush with the window top, so the
-                // traffic-light controls overlap the first entries. Offset the
-                // panel contents below them.
-                .when(cfg!(target_os = "macos"), |this| this.pt(px(28.)))
                 .on_modifiers_changed(cx.listener(
                     |this, event: &ModifiersChangedEvent, window, cx| {
                         this.refresh_drag_cursor_style(&event.modifiers, window, cx);
@@ -7108,7 +7104,7 @@ impl Render for ProjectPanel {
                 .size_full()
                 .child(
                     ProjectEmptyState::new(
-                        "Project Panel",
+                        "프로젝트 패널",
                         focus_handle.clone(),
                         KeyBinding::for_action_in(&workspace::Open::default(), &focus_handle, cx),
                     )
@@ -7178,7 +7174,7 @@ impl Render for DraggedProjectEntryView {
                     .bg(cx.theme().colors().background)
                     .map(|this| {
                         if self.selections.len() > 1 && self.selections.contains(&self.selection) {
-                            this.child(Label::new(format!("{} entries", self.selections.len())))
+                            this.child(Label::new(format!("항목 {}개", self.selections.len())))
                         } else {
                             this.child(if let Some(icon) = &self.icon {
                                 div().child(Icon::from_path(icon.clone()))
@@ -7229,7 +7225,7 @@ impl Panel for ProjectPanel {
     }
 
     fn icon_tooltip(&self, _window: &Window, _cx: &App) -> Option<&'static str> {
-        Some("Project Panel")
+        Some("프로젝트 패널")
     }
 
     fn toggle_action(&self) -> Box<dyn Action> {

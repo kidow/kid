@@ -93,7 +93,7 @@ fn build_application() -> Application {
 }
 
 fn files_not_created_on_launch(errors: HashMap<io::ErrorKind, Vec<&Path>>) {
-    let message = "Kid failed to launch";
+    let message = "Kid 실행에 실패했습니다";
     let error_details = errors
         .into_iter()
         .flat_map(|(kind, paths)| {
@@ -110,8 +110,8 @@ fn files_not_created_on_launch(errors: HashMap<io::ErrorKind, Vec<&Path>>) {
             #[cfg(unix)]
             {
                 if kind == io::ErrorKind::PermissionDenied {
-                    error_kind_details.push_str("\n\nConsider using chown and chmod tools for altering the directories permissions if your user has corresponding rights.\
-                        \nFor example, `sudo chown $(whoami):staff ~/.config` and `chmod +uwrx ~/.config`");
+                    error_kind_details.push_str("\n\n사용자에게 권한이 있다면 chown 및 chmod 도구로 디렉터리 권한을 변경해 보세요.\
+                        \n예를 들어 `sudo chown $(whoami):staff ~/.config` 및 `chmod +uwrx ~/.config`");
                 }
             }
 
@@ -132,7 +132,7 @@ fn files_not_created_on_launch(errors: HashMap<io::ErrorKind, Vec<&Path>>) {
                             gpui::PromptLevel::Critical,
                             message,
                             Some(&error_details),
-                            &["Exit"],
+                            &["종료"],
                             cx,
                         );
 
@@ -655,6 +655,7 @@ fn main() {
             cx.background_executor().clone(),
         );
         command_palette::init(cx);
+        title_bar::init(cx);
         let copilot_chat_configuration = copilot_chat::CopilotChatConfiguration {
             enterprise_uri: language::language_settings::all_language_settings(None, cx)
                 .edit_predictions
@@ -1028,7 +1029,7 @@ fn handle_open_request(request: OpenRequest, app_state: Arc<AppState>, cx: &mut 
                                 workspace.show_toast(
                                     Toast::new(
                                         NotificationId::unique::<OpenProjectForSharedThreadToast>(),
-                                        "Open a project to import shared threads",
+                                        "공유된 스레드를 가져오려면 프로젝트를 여세요",
                                     )
                                     .autohide(),
                                     cx,
@@ -1098,7 +1099,7 @@ fn handle_open_request(request: OpenRequest, app_state: Arc<AppState>, cx: &mut 
                             workspace.show_toast(
                                 Toast::new(
                                     NotificationId::unique::<ImportedThreadToast>(),
-                                    format!("Imported shared thread from {}", sharer_username),
+                                    format!("{}님의 공유 스레드를 가져왔습니다", sharer_username),
                                 )
                                 .autohide(),
                                 cx,
@@ -1469,10 +1470,10 @@ pub(crate) async fn restore_or_create_workspace(
 
         if error_count > 0 {
             let message = if error_count == 1 {
-                "Failed to restore 1 workspace. Check logs for details.".to_string()
+                "워크스페이스 1개를 복원하는 데 실패했습니다. 자세한 내용은 로그를 확인하세요.".to_string()
             } else {
                 format!(
-                    "Failed to restore {} workspaces. Check logs for details.",
+                    "워크스페이스 {}개를 복원하는 데 실패했습니다. 자세한 내용은 로그를 확인하세요.",
                     error_count
                 )
             };
