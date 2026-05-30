@@ -1979,7 +1979,7 @@ fn window_and_layout_page() -> SettingsPage {
         ]
     }
 
-    fn title_bar_section() -> [SettingsPageItem; 10] {
+    fn title_bar_section() -> [SettingsPageItem; 6] {
         [
             SettingsPageItem::SectionHeader("Title Bar"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -2043,86 +2043,6 @@ fn window_and_layout_page() -> SettingsPage {
                             .title_bar
                             .get_or_insert_default()
                             .show_project_items = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Onboarding Banner",
-                description: "Show banners announcing new features in the titlebar.",
-                field: Box::new(SettingField {
-                    json_path: Some("title_bar.show_onboarding_banner"),
-                    pick: |settings_content| {
-                        settings_content
-                            .title_bar
-                            .as_ref()?
-                            .show_onboarding_banner
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .title_bar
-                            .get_or_insert_default()
-                            .show_onboarding_banner = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show Sign In",
-                description: "Show the sign in button in the titlebar.",
-                field: Box::new(SettingField {
-                    json_path: Some("title_bar.show_sign_in"),
-                    pick: |settings_content| {
-                        settings_content.title_bar.as_ref()?.show_sign_in.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .title_bar
-                            .get_or_insert_default()
-                            .show_sign_in = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show User Menu",
-                description: "Show the user menu button in the titlebar.",
-                field: Box::new(SettingField {
-                    json_path: Some("title_bar.show_user_menu"),
-                    pick: |settings_content| {
-                        settings_content.title_bar.as_ref()?.show_user_menu.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .title_bar
-                            .get_or_insert_default()
-                            .show_user_menu = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Show User Picture",
-                description: "Show user picture in the titlebar.",
-                field: Box::new(SettingField {
-                    json_path: Some("title_bar.show_user_picture"),
-                    pick: |settings_content| {
-                        settings_content
-                            .title_bar
-                            .as_ref()?
-                            .show_user_picture
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .title_bar
-                            .get_or_insert_default()
-                            .show_user_picture = value;
                     },
                 }),
                 metadata: None,
@@ -2469,7 +2389,7 @@ fn window_and_layout_page() -> SettingsPage {
         ]
     }
 
-    fn preview_tabs_section() -> [SettingsPageItem; 8] {
+    fn preview_tabs_section() -> [SettingsPageItem; 2] {
         [
             SettingsPageItem::SectionHeader("Preview Tabs"),
             SettingsPageItem::SettingItem(SettingItem {
@@ -2485,138 +2405,6 @@ fn window_and_layout_page() -> SettingsPage {
                             .preview_tabs
                             .get_or_insert_default()
                             .enabled = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview From Project Panel",
-                description: "Whether to open tabs in preview mode when opened from the project panel with a single click.",
-                field: Box::new(SettingField {
-                    json_path: Some("preview_tabs.enable_preview_from_project_panel"),
-                    pick: |settings_content| {
-                        settings_content
-                            .preview_tabs
-                            .as_ref()?
-                            .enable_preview_from_project_panel
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .preview_tabs
-                            .get_or_insert_default()
-                            .enable_preview_from_project_panel = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview From File Finder",
-                description: "Whether to open tabs in preview mode when selected from the file finder.",
-                field: Box::new(SettingField {
-                    json_path: Some("preview_tabs.enable_preview_from_file_finder"),
-                    pick: |settings_content| {
-                        settings_content
-                            .preview_tabs
-                            .as_ref()?
-                            .enable_preview_from_file_finder
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .preview_tabs
-                            .get_or_insert_default()
-                            .enable_preview_from_file_finder = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview From Multibuffer",
-                description: "Whether to open tabs in preview mode when opened from a multibuffer.",
-                field: Box::new(SettingField {
-                    json_path: Some("preview_tabs.enable_preview_from_multibuffer"),
-                    pick: |settings_content| {
-                        settings_content
-                            .preview_tabs
-                            .as_ref()?
-                            .enable_preview_from_multibuffer
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .preview_tabs
-                            .get_or_insert_default()
-                            .enable_preview_from_multibuffer = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview Multibuffer From Code Navigation",
-                description: "Whether to open tabs in preview mode when code navigation is used to open a multibuffer.",
-                field: Box::new(SettingField {
-                    json_path: Some("preview_tabs.enable_preview_multibuffer_from_code_navigation"),
-                    pick: |settings_content| {
-                        settings_content
-                            .preview_tabs
-                            .as_ref()?
-                            .enable_preview_multibuffer_from_code_navigation
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .preview_tabs
-                            .get_or_insert_default()
-                            .enable_preview_multibuffer_from_code_navigation = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Preview File From Code Navigation",
-                description: "Whether to open tabs in preview mode when code navigation is used to open a single file.",
-                field: Box::new(SettingField {
-                    json_path: Some("preview_tabs.enable_preview_file_from_code_navigation"),
-                    pick: |settings_content| {
-                        settings_content
-                            .preview_tabs
-                            .as_ref()?
-                            .enable_preview_file_from_code_navigation
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .preview_tabs
-                            .get_or_insert_default()
-                            .enable_preview_file_from_code_navigation = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Keep Preview On Code Navigation",
-                description: "Whether to keep tabs in preview mode when code navigation is used to navigate away from them. If `enable_preview_file_from_code_navigation` or `enable_preview_multibuffer_from_code_navigation` is also true, the new tab may replace the existing one.",
-                field: Box::new(SettingField {
-                    json_path: Some("preview_tabs.enable_keep_preview_on_code_navigation"),
-                    pick: |settings_content| {
-                        settings_content
-                            .preview_tabs
-                            .as_ref()?
-                            .enable_keep_preview_on_code_navigation
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .preview_tabs
-                            .get_or_insert_default()
-                            .enable_keep_preview_on_code_navigation = value;
                     },
                 }),
                 metadata: None,
