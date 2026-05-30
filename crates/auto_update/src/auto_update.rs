@@ -3,96 +3,30 @@ use client::Client;
 use db::kvp::KeyValueStore;
 use futures_lite::StreamExt;
 use gpui::{
-    App, AppContext as _, AsyncApp, BackgroundExecutor, Context, Entity, Global, Task, TaskExt,
-    Window, actions,
+    App, AppContext as _, AsyncApp, Context, Entity, Global, Task, TaskExt, Window, actions,
 };
-use http_client::{HttpClient, HttpClientWithUrl};
+use http_client::{AsyncBody, HttpClient, HttpClientWithUrl, Method, Request};
 use paths::remote_servers_dir;
 use release_channel::{AppCommitSha, ReleaseChannel};
 use semver::Version;
 use serde::{Deserialize, Serialize};
 use settings::{RegisterSetting, Settings, SettingsStore};
 use smol::fs::File;
-use smol::{fs, io::AsyncReadExt};
-use std::mem;
+use smol::io::AsyncReadExt;
 use std::{
-    env::{
-        self,
-        consts::{ARCH, OS},
-    },
+    env,
     ffi::OsStr,
-    ffi::OsString,
     path::{Path, PathBuf},
     sync::Arc,
     time::{Duration, SystemTime},
 };
-use util::command::new_command;
 use workspace::Workspace;
 
 const SHOULD_SHOW_UPDATE_NOTIFICATION_KEY: &str = "auto-updater-should-show-updated-notification";
 
-#[derive(Debug)]
-struct MissingDependencyError(String);
-
-impl std::fmt::Display for MissingDependencyError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl std::error::Error for MissingDependencyError {}
 const POLL_INTERVAL: Duration = Duration::from_secs(60 * 60);
 const NIGHTLY_POLL_INTERVAL: Duration = Duration::from_secs(15 * 60);
 const REMOTE_SERVER_CACHE_LIMIT: usize = 5;
-
-#[cfg(target_os = "linux")]
-fn linux_rsync_install_hint() -> &'static str {
-    let os_release = match std::fs::read_to_string("/etc/os-release") {
-        Ok(os_release) => os_release,
-        Err(_) => return "Please install rsync using your package manager",
-    };
-
-    let mut distribution_ids = Vec::new();
-    for line in os_release.lines() {
-        let trimmed = line.trim();
-        if let Some(value) = trimmed.strip_prefix("ID=") {
-            distribution_ids.push(value.trim_matches('"').to_ascii_lowercase());
-        } else if let Some(value) = trimmed.strip_prefix("ID_LIKE=") {
-            for id in value.trim_matches('"').split_whitespace() {
-                distribution_ids.push(id.to_ascii_lowercase());
-            }
-        }
-    }
-
-    let package_manager_hint = if distribution_ids
-        .iter()
-        .any(|distribution_id| distribution_id == "arch")
-    {
-        Some("Install it with: sudo pacman -S rsync")
-    } else if distribution_ids
-        .iter()
-        .any(|distribution_id| distribution_id == "debian" || distribution_id == "ubuntu")
-    {
-        Some("Install it with: sudo apt install rsync")
-    } else if distribution_ids.iter().any(|distribution_id| {
-        distribution_id == "fedora"
-            || distribution_id == "rhel"
-            || distribution_id == "centos"
-            || distribution_id == "rocky"
-            || distribution_id == "almalinux"
-    }) {
-        Some("Install it with: sudo dnf install rsync")
-    } else if distribution_ids
-        .iter()
-        .any(|distribution_id| distribution_id == "nixos")
-    {
-        Some("Install pkgs.rsync from nixpkgs")
-    } else {
-        None
-    };
-
-    package_manager_hint.unwrap_or("Please install rsync using your package manager")
-}
 
 actions!(
     auto_update,
@@ -178,38 +112,15 @@ pub struct ReleaseAsset {
     pub url: String,
 }
 
-struct MacOsUnmounter<'a> {
-    mount_path: PathBuf,
-    background_executor: &'a BackgroundExecutor,
-}
+const UPSTREAM_LATEST_RELEASE_API: &str =
+    "https://api.github.com/repos/zed-industries/zed/releases/latest";
 
-impl Drop for MacOsUnmounter<'_> {
-    fn drop(&mut self) {
-        let mount_path = mem::take(&mut self.mount_path);
-        self.background_executor
-            .spawn(async move {
-                let unmount_output = new_command("hdiutil")
-                    .args(["detach", "-force"])
-                    .arg(&mount_path)
-                    .output()
-                    .await;
-                match unmount_output {
-                    Ok(output) if output.status.success() => {
-                        log::info!("Successfully unmounted the disk image");
-                    }
-                    Ok(output) => {
-                        log::error!(
-                            "Failed to unmount disk image: {:?}",
-                            String::from_utf8_lossy(&output.stderr)
-                        );
-                    }
-                    Err(error) => {
-                        log::error!("Error while trying to unmount disk image: {:?}", error);
-                    }
-                }
-            })
-            .detach();
-    }
+/// Public page listing upstream Zed releases, opened when a newer release is found.
+pub const UPSTREAM_RELEASES_URL: &str = "https://github.com/zed-industries/zed/releases";
+
+#[derive(Deserialize)]
+struct GitHubRelease {
+    tag_name: String,
 }
 
 #[derive(Clone, Copy, Debug, RegisterSetting)]
@@ -334,46 +245,6 @@ pub fn view_release_notes(_: &ViewReleaseNotes, cx: &mut App) -> Option<()> {
     None
 }
 
-#[cfg(not(target_os = "windows"))]
-struct InstallerDir(tempfile::TempDir);
-
-#[cfg(not(target_os = "windows"))]
-impl InstallerDir {
-    async fn new() -> Result<Self> {
-        Ok(Self(
-            tempfile::Builder::new()
-                .prefix("zed-auto-update")
-                .tempdir()?,
-        ))
-    }
-
-    fn path(&self) -> &Path {
-        self.0.path()
-    }
-}
-
-#[cfg(target_os = "windows")]
-struct InstallerDir(PathBuf);
-
-#[cfg(target_os = "windows")]
-impl InstallerDir {
-    async fn new() -> Result<Self> {
-        let installer_dir = std::env::current_exe()?
-            .parent()
-            .context("No parent dir for Zed.exe")?
-            .join("updates");
-        if smol::fs::metadata(&installer_dir).await.is_ok() {
-            smol::fs::remove_dir_all(&installer_dir).await?;
-        }
-        smol::fs::create_dir(&installer_dir).await?;
-        Ok(Self(installer_dir))
-    }
-
-    fn path(&self) -> &Path {
-        self.0.as_path()
-    }
-}
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum UpdateCheckType {
     Automatic,
@@ -464,22 +335,14 @@ impl AutoUpdater {
             this.update(cx, |this, cx| {
                 this.pending_poll = None;
                 if let Err(error) = result {
-                    let is_missing_dependency =
-                        error.downcast_ref::<MissingDependencyError>().is_some();
                     this.status = match check_type {
-                        UpdateCheckType::Automatic if is_missing_dependency => {
-                            log::warn!("auto-update: {}", error);
-                            AutoUpdateStatus::Errored {
-                                error: Arc::new(error),
-                            }
-                        }
                         // Be quiet if the check was automated (e.g. when offline)
                         UpdateCheckType::Automatic => {
-                            log::info!("auto-update check failed: error:{:?}", error);
+                            log::info!("update check failed: error:{:?}", error);
                             AutoUpdateStatus::Idle
                         }
                         UpdateCheckType::Manual => {
-                            log::error!("auto-update failed: error:{:?}", error);
+                            log::error!("update check failed: error:{:?}", error);
                             AutoUpdateStatus::Errored {
                                 error: Arc::new(error),
                             }
@@ -655,7 +518,7 @@ impl AutoUpdater {
     }
 
     async fn update(this: Entity<Self>, cx: &mut AsyncApp) -> Result<()> {
-        let (client, installed_version, previous_status, release_channel) =
+        let (http_client, installed_version, previous_status, release_channel) =
             this.read_with(cx, |this, cx| {
                 (
                     this.client.http_client(),
@@ -665,17 +528,13 @@ impl AutoUpdater {
                 )
             });
 
-        Self::check_dependencies()?;
-
         this.update(cx, |this, cx| {
             this.status = AutoUpdateStatus::Checking;
-            log::info!("Auto Update: checking for updates");
+            log::info!("Auto Update: checking for upstream Zed releases");
             cx.notify();
         });
 
-        let fetched_release_data =
-            Self::get_release_asset(&this, release_channel, None, "zed", OS, ARCH, cx).await?;
-        let fetched_version = fetched_release_data.clone().version;
+        let fetched_version = Self::fetch_latest_upstream_version(http_client).await?;
         let app_commit_sha = Ok(cx.update(|cx| AppCommitSha::try_global(cx).map(|sha| sha.full())));
         let newer_version = Self::check_if_fetched_version_is_newer(
             release_channel,
@@ -697,35 +556,10 @@ impl AutoUpdater {
             return Ok(());
         };
 
-        this.update(cx, |this, cx| {
-            this.status = AutoUpdateStatus::Downloading {
-                version: newer_version.clone(),
-            };
-            cx.notify();
-        });
-
-        let installer_dir = InstallerDir::new()
-            .await
-            .context("Failed to create installer dir")?;
-        let target_path = Self::target_path(&installer_dir).await?;
-        download_release(&target_path, fetched_release_data, client)
-            .await
-            .with_context(|| format!("Failed to download update to {}", target_path.display()))?;
-
-        this.update(cx, |this, cx| {
-            this.status = AutoUpdateStatus::Installing {
-                version: newer_version.clone(),
-            };
-            cx.notify();
-        });
-
-        let new_binary_path = Self::install_release(installer_dir, &target_path, cx)
-            .await
-            .with_context(|| format!("Failed to install update at: {}", target_path.display()))?;
-        if let Some(new_binary_path) = new_binary_path {
-            cx.update(|cx| cx.set_restart_path(new_binary_path));
-        }
-
+        // This fork does not install updates; it only notifies the user that a
+        // newer upstream Zed release exists. The notification is surfaced via the
+        // `Updated` status and the title bar update button (which opens the
+        // upstream releases page).
         this.update(cx, |this, cx| {
             this.set_should_show_update_notification(true, cx)
                 .detach_and_log_err(cx);
@@ -735,6 +569,32 @@ impl AutoUpdater {
             cx.notify();
         });
         Ok(())
+    }
+
+    async fn fetch_latest_upstream_version(http_client: Arc<HttpClientWithUrl>) -> Result<String> {
+        let request = Request::builder()
+            .method(Method::GET)
+            .uri(UPSTREAM_LATEST_RELEASE_API)
+            .header("User-Agent", "zed")
+            .header("Accept", "application/vnd.github+json")
+            .body(AsyncBody::empty())?;
+        let mut response = http_client.send(request).await?;
+        let mut body = Vec::new();
+        response.body_mut().read_to_end(&mut body).await?;
+
+        anyhow::ensure!(
+            response.status().is_success(),
+            "failed to fetch latest upstream release: {:?}",
+            String::from_utf8_lossy(&body),
+        );
+
+        let release: GitHubRelease = serde_json::from_slice(&body).with_context(|| {
+            format!(
+                "error deserializing latest upstream release {:?}",
+                String::from_utf8_lossy(&body),
+            )
+        })?;
+        Ok(release.tag_name.trim_start_matches('v').to_string())
     }
 
     fn check_if_fetched_version_is_newer(
@@ -786,55 +646,6 @@ impl AutoUpdater {
                 installed_version,
                 parsed_fetched_version?,
             ),
-        }
-    }
-
-    fn check_dependencies() -> Result<()> {
-        #[cfg(target_os = "linux")]
-        if which::which("rsync").is_err() {
-            let install_hint = linux_rsync_install_hint();
-            return Err(MissingDependencyError(format!(
-                "rsync is required for auto-updates but is not installed. {install_hint}"
-            ))
-            .into());
-        }
-
-        #[cfg(target_os = "macos")]
-        anyhow::ensure!(
-            which::which("rsync").is_ok(),
-            "Could not auto-update because the required rsync utility was not found."
-        );
-
-        Ok(())
-    }
-
-    async fn target_path(installer_dir: &InstallerDir) -> Result<PathBuf> {
-        let filename = match OS {
-            "macos" => anyhow::Ok("Zed.dmg"),
-            "linux" => Ok("zed.tar.gz"),
-            "windows" => Ok("Zed.exe"),
-            unsupported_os => anyhow::bail!("not supported: {unsupported_os}"),
-        }?;
-
-        Ok(installer_dir.path().join(filename))
-    }
-
-    async fn install_release(
-        installer_dir: InstallerDir,
-        target_path: &Path,
-        cx: &AsyncApp,
-    ) -> Result<Option<PathBuf>> {
-        #[cfg(test)]
-        if let Some(test_install) =
-            cx.try_read_global::<tests::InstallOverride, _>(|g, _| g.0.clone())
-        {
-            return test_install(target_path, cx);
-        }
-        match OS {
-            "macos" => install_release_macos(&installer_dir, target_path, cx).await,
-            "linux" => install_release_linux(&installer_dir, target_path, cx).await,
-            "windows" => install_release_windows(target_path).await,
-            unsupported_os => anyhow::bail!("not supported: {unsupported_os}"),
         }
     }
 
@@ -956,148 +767,6 @@ async fn cleanup_remote_server_cache(
     Ok(())
 }
 
-async fn download_release(
-    target_path: &Path,
-    release: ReleaseAsset,
-    client: Arc<HttpClientWithUrl>,
-) -> Result<()> {
-    let mut target_file = File::create(&target_path).await?;
-
-    let mut response = client.get(&release.url, Default::default(), true).await?;
-    anyhow::ensure!(
-        response.status().is_success(),
-        "failed to download update: {:?}",
-        response.status()
-    );
-    smol::io::copy(response.body_mut(), &mut target_file).await?;
-    log::info!("downloaded update. path:{:?}", target_path);
-
-    Ok(())
-}
-
-async fn install_release_linux(
-    temp_dir: &InstallerDir,
-    downloaded_tar_gz: &Path,
-    cx: &AsyncApp,
-) -> Result<Option<PathBuf>> {
-    let channel = cx.update(|cx| ReleaseChannel::global(cx).dev_name());
-    let home_dir = PathBuf::from(env::var("HOME").context("no HOME env var set")?);
-    let running_app_path = cx.update(|cx| cx.app_path())?;
-
-    let extracted = temp_dir.path().join("zed");
-    fs::create_dir_all(&extracted)
-        .await
-        .context("failed to create directory into which to extract update")?;
-
-    let mut cmd = new_command("tar");
-    cmd.arg("-xzf")
-        .arg(&downloaded_tar_gz)
-        .arg("-C")
-        .arg(&extracted);
-    let output = cmd
-        .output()
-        .await
-        .with_context(|| "failed to extract: {cmd}")?;
-
-    anyhow::ensure!(
-        output.status.success(),
-        "failed to extract {:?} to {:?}: {:?}",
-        downloaded_tar_gz,
-        extracted,
-        String::from_utf8_lossy(&output.stderr)
-    );
-
-    let suffix = if channel != "stable" {
-        format!("-{}", channel)
-    } else {
-        String::default()
-    };
-    let app_folder_name = format!("zed{}.app", suffix);
-
-    let from = extracted.join(&app_folder_name);
-    let mut to = home_dir.join(".local");
-
-    let expected_suffix = format!("{}/libexec/zed-editor", app_folder_name);
-
-    if let Some(prefix) = running_app_path
-        .to_str()
-        .and_then(|str| str.strip_suffix(&expected_suffix))
-    {
-        to = PathBuf::from(prefix);
-    }
-
-    let mut cmd = new_command("rsync");
-    cmd.args(["-av", "--delete"]).arg(&from).arg(&to);
-    let output = cmd
-        .output()
-        .await
-        .with_context(|| "failed to rsync: {cmd}")?;
-
-    anyhow::ensure!(
-        output.status.success(),
-        "failed to copy Zed update from {:?} to {:?}: {:?}",
-        from,
-        to,
-        String::from_utf8_lossy(&output.stderr)
-    );
-
-    Ok(Some(to.join(expected_suffix)))
-}
-
-async fn install_release_macos(
-    temp_dir: &InstallerDir,
-    downloaded_dmg: &Path,
-    cx: &AsyncApp,
-) -> Result<Option<PathBuf>> {
-    let running_app_path = cx.update(|cx| cx.app_path())?;
-    let running_app_filename = running_app_path
-        .file_name()
-        .with_context(|| format!("invalid running app path {running_app_path:?}"))?;
-
-    let mount_path = temp_dir.path().join("Zed");
-    let mut mounted_app_path: OsString = mount_path.join(running_app_filename).into();
-
-    mounted_app_path.push("/");
-    let mut cmd = new_command("hdiutil");
-    cmd.args(["attach", "-nobrowse"])
-        .arg(&downloaded_dmg)
-        .arg("-mountroot")
-        .arg(temp_dir.path());
-    let output = cmd
-        .output()
-        .await
-        .with_context(|| "failed to mount: {cmd}")?;
-
-    anyhow::ensure!(
-        output.status.success(),
-        "failed to mount: {:?}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-
-    // Create an MacOsUnmounter that will be dropped (and thus unmount the disk) when this function exits
-    let _unmounter = MacOsUnmounter {
-        mount_path: mount_path.clone(),
-        background_executor: cx.background_executor(),
-    };
-
-    let mut cmd = new_command("rsync");
-    cmd.args(["-av", "--delete", "--exclude", "Icon?"])
-        .arg(&mounted_app_path)
-        .arg(&running_app_path);
-    let output = cmd
-        .output()
-        .await
-        .with_context(|| "failed to rsync: {cmd}")?;
-
-    anyhow::ensure!(
-        output.status.success(),
-        "failed to copy app: {:?}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-
-    Ok(None)
-}
-
 async fn cleanup_windows() -> Result<()> {
     let parent = std::env::current_exe()?
         .parent()
@@ -1110,28 +779,6 @@ async fn cleanup_windows() -> Result<()> {
     _ = smol::fs::remove_dir(parent.join("old")).await;
 
     Ok(())
-}
-
-async fn install_release_windows(downloaded_installer: &Path) -> Result<Option<PathBuf>> {
-    let mut cmd = new_command(downloaded_installer);
-    cmd.arg("/verysilent")
-        .arg("/update=true")
-        .arg("/MERGETASKS=!desktopicon");
-    let output = cmd.output().await?;
-    anyhow::ensure!(
-        output.status.success(),
-        "failed to start installer: {:?}",
-        String::from_utf8_lossy(&output.stderr)
-    );
-    // We return the path to the update helper program, because it will
-    // perform the final steps of the update process, copying the new binary,
-    // deleting the old one, and launching the new binary.
-    let helper_path = std::env::current_exe()?
-        .parent()
-        .context("No parent dir for Zed.exe")?
-        .join("tools")
-        .join("auto_update_helper.exe");
-    Ok(Some(helper_path))
 }
 
 pub async fn finalize_auto_update_on_quit() {
@@ -1160,20 +807,8 @@ pub async fn finalize_auto_update_on_quit() {
 
 #[cfg(test)]
 mod tests {
-    use client::Client;
-    use clock::FakeSystemClock;
-    use futures::channel::oneshot;
     use gpui::TestAppContext;
-    use http_client::{FakeHttpClient, Response};
     use settings::default_settings;
-    use std::{
-        rc::Rc,
-        sync::{
-            Arc,
-            atomic::{self, AtomicBool},
-        },
-    };
-    use tempfile::tempdir;
 
     #[ctor::ctor(unsafe)]
     fn init_logger() {
@@ -1181,9 +816,6 @@ mod tests {
     }
 
     use super::*;
-
-    pub(super) struct InstallOverride(pub Rc<dyn Fn(&Path, &AsyncApp) -> Result<Option<PathBuf>>>);
-    impl Global for InstallOverride {}
 
     #[gpui::test]
     fn test_auto_update_defaults_to_true(cx: &mut TestAppContext) {
@@ -1198,115 +830,6 @@ mod tests {
             cx.set_global(store);
             assert!(AutoUpdateSetting::get_global(cx).0);
         });
-    }
-
-    #[gpui::test]
-    async fn test_auto_update_downloads(cx: &mut TestAppContext) {
-        cx.background_executor.allow_parking();
-        zlog::init_test();
-        let release_available = Arc::new(AtomicBool::new(false));
-
-        let (dmg_tx, dmg_rx) = oneshot::channel::<String>();
-
-        cx.update(|cx| {
-            settings::init(cx);
-
-            let current_version = semver::Version::new(0, 100, 0);
-            release_channel::init_test(current_version, ReleaseChannel::Stable, cx);
-
-            let clock = Arc::new(FakeSystemClock::new());
-            let release_available = Arc::clone(&release_available);
-            let dmg_rx = Arc::new(parking_lot::Mutex::new(Some(dmg_rx)));
-            let fake_client_http = FakeHttpClient::create(move |req| {
-                let release_available = release_available.load(atomic::Ordering::Relaxed);
-                let dmg_rx = dmg_rx.clone();
-                async move {
-                if req.uri().path() == "/releases/stable/latest/asset" {
-                    if release_available {
-                        return Ok(Response::builder().status(200).body(
-                            r#"{"version":"0.100.1","url":"https://test.example/new-download"}"#.into()
-                        ).unwrap());
-                    } else {
-                        return Ok(Response::builder().status(200).body(
-                            r#"{"version":"0.100.0","url":"https://test.example/old-download"}"#.into()
-                        ).unwrap());
-                    }
-                } else if req.uri().path() == "/new-download" {
-                    return Ok(Response::builder().status(200).body({
-                        let dmg_rx = dmg_rx.lock().take().unwrap();
-                        dmg_rx.await.unwrap().into()
-                    }).unwrap());
-                }
-                Ok(Response::builder().status(404).body("".into()).unwrap())
-                }
-            });
-            let client = Client::new(clock, fake_client_http, cx);
-            crate::init(client, cx);
-        });
-
-        let auto_updater = cx.update(|cx| AutoUpdater::get(cx).expect("auto updater should exist"));
-
-        cx.background_executor.run_until_parked();
-
-        auto_updater.read_with(cx, |updater, _| {
-            assert_eq!(updater.status(), AutoUpdateStatus::Idle);
-            assert_eq!(updater.current_version(), semver::Version::new(0, 100, 0));
-        });
-
-        release_available.store(true, atomic::Ordering::SeqCst);
-        cx.background_executor.advance_clock(POLL_INTERVAL);
-        cx.background_executor.run_until_parked();
-
-        loop {
-            cx.background_executor.timer(Duration::from_millis(0)).await;
-            cx.run_until_parked();
-            let status = auto_updater.read_with(cx, |updater, _| updater.status());
-            if !matches!(status, AutoUpdateStatus::Idle) {
-                break;
-            }
-        }
-        let status = auto_updater.read_with(cx, |updater, _| updater.status());
-        assert_eq!(
-            status,
-            AutoUpdateStatus::Downloading {
-                version: VersionCheckType::Semantic(semver::Version::new(0, 100, 1))
-            }
-        );
-
-        dmg_tx.send("<fake-zed-update>".to_owned()).unwrap();
-
-        let tmp_dir = Arc::new(tempdir().unwrap());
-
-        cx.update(|cx| {
-            let tmp_dir = tmp_dir.clone();
-            cx.set_global(InstallOverride(Rc::new(move |target_path, _cx| {
-                let tmp_dir = tmp_dir.clone();
-                let dest_path = tmp_dir.path().join("zed");
-                std::fs::copy(&target_path, &dest_path)?;
-                Ok(Some(dest_path))
-            })));
-        });
-
-        loop {
-            cx.background_executor.timer(Duration::from_millis(0)).await;
-            cx.run_until_parked();
-            let status = auto_updater.read_with(cx, |updater, _| updater.status());
-            if !matches!(status, AutoUpdateStatus::Downloading { .. }) {
-                break;
-            }
-        }
-        let status = auto_updater.read_with(cx, |updater, _| updater.status());
-        assert_eq!(
-            status,
-            AutoUpdateStatus::Updated {
-                version: VersionCheckType::Semantic(semver::Version::new(0, 100, 1))
-            }
-        );
-        let will_restart = cx.expect_restart();
-        cx.update(|cx| cx.restart());
-        let path = will_restart.await.unwrap().unwrap();
-        assert_eq!(path, tmp_dir.path().join("zed"));
-        assert_eq!(std::fs::read_to_string(path).unwrap(), "<fake-zed-update>");
     }
 
     #[test]

@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use anyhow::anyhow;
-use auto_update::{AutoUpdateStatus, AutoUpdater, UpdateCheckType, VersionCheckType};
+use auto_update::{
+    AutoUpdateStatus, AutoUpdater, UPSTREAM_RELEASES_URL, UpdateCheckType, VersionCheckType,
+};
 use gpui::{Empty, Render};
 use semver::Version;
 use ui::{UpdateButton, prelude::*};
@@ -96,7 +98,7 @@ impl Render for UpdateVersion {
                 let version = Self::version_tooltip_message(&version);
                 UpdateButton::updated(version)
                     .on_click(|_, _, cx| {
-                        workspace::reload(cx);
+                        cx.open_url(UPSTREAM_RELEASES_URL);
                     })
                     .on_dismiss(cx.listener(|this, _, _window, cx| {
                         this.dismissed = true;
