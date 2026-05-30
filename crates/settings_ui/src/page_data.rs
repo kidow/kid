@@ -1631,7 +1631,7 @@ fn search_and_files_page() -> SettingsPage {
         ]
     }
 
-    fn file_finder_section() -> [SettingsPageItem; 5] {
+    fn file_finder_section() -> [SettingsPageItem; 4] {
         [
             SettingsPageItem::SectionHeader("File Finder"),
             // todo: null by default
@@ -1692,28 +1692,6 @@ fn search_and_files_page() -> SettingsPage {
                             .file_finder
                             .get_or_insert_default()
                             .modal_max_width = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Skip Focus For Active In Search",
-                description: "Whether the file finder should skip focus for the active file in search results.",
-                field: Box::new(SettingField {
-                    json_path: Some("file_finder.skip_focus_for_active_in_search"),
-                    pick: |settings_content| {
-                        settings_content
-                            .file_finder
-                            .as_ref()?
-                            .skip_focus_for_active_in_search
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .file_finder
-                            .get_or_insert_default()
-                            .skip_focus_for_active_in_search = value;
                     },
                 }),
                 metadata: None,
