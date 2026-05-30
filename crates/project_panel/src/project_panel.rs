@@ -6621,6 +6621,10 @@ impl Render for ProjectPanel {
                 })
                 .size_full()
                 .relative()
+                // On macOS the left dock sits flush with the window top, so the
+                // traffic-light controls overlap the first entries. Offset the
+                // panel contents below them.
+                .when(cfg!(target_os = "macos"), |this| this.pt(px(28.)))
                 .on_modifiers_changed(cx.listener(
                     |this, event: &ModifiersChangedEvent, window, cx| {
                         this.refresh_drag_cursor_style(&event.modifiers, window, cx);
