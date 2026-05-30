@@ -4398,24 +4398,6 @@ fn ai_page(cx: &App) -> SettingsPage {
                 files: USER,
             }),
             SettingsPageItem::SettingItem(SettingItem {
-                title: "Enable Feedback",
-                description: "Show voting thumbs up/down icon buttons for feedback on agent edits.",
-                field: Box::new(SettingField {
-                    json_path: Some("agent.enable_feedback"),
-                    pick: |settings_content| {
-                        settings_content.agent.as_ref()?.enable_feedback.as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .agent
-                            .get_or_insert_default()
-                            .enable_feedback = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
                 title: "Notify When Agent Waiting",
                 description: "Where to show notifications when the agent has completed its response or needs confirmation before running a tool action.",
                 field: Box::new(SettingField {
@@ -4560,28 +4542,6 @@ fn ai_page(cx: &App) -> SettingsPage {
                             .agent
                             .get_or_insert_default()
                             .use_modifier_to_send = value;
-                    },
-                }),
-                metadata: None,
-                files: USER,
-            }),
-            SettingsPageItem::SettingItem(SettingItem {
-                title: "Message Editor Min Lines",
-                description: "Minimum number of lines to display in the agent message editor.",
-                field: Box::new(SettingField {
-                    json_path: Some("agent.message_editor_min_lines"),
-                    pick: |settings_content| {
-                        settings_content
-                            .agent
-                            .as_ref()?
-                            .message_editor_min_lines
-                            .as_ref()
-                    },
-                    write: |settings_content, value, _| {
-                        settings_content
-                            .agent
-                            .get_or_insert_default()
-                            .message_editor_min_lines = value;
                     },
                 }),
                 metadata: None,
