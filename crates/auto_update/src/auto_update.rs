@@ -204,13 +204,63 @@ pub fn check(_: &Check, window: &mut Window, cx: &mut App) {
         .map(|channel| channel.poll_for_updates())
         .unwrap_or(false)
     {
-        drop(window.prompt(
-            gpui::PromptLevel::Info,
-            "업데이트 확인을 사용할 수 없습니다",
-            Some("이 빌드에서는 자동 업데이트 확인을 지원하지 않습니다."),
-            &["Ok"],
-            cx,
-        ));
+        let Some(updater) = AutoUpdater::get(cx) else {
+            drop(window.prompt(
+                gpui::PromptLevel::Info,
+                "Could not check for updates",
+                Some("Auto-updates disabled for non-bundled app."),
+                &["Ok"],
+                cx,
+            ));
+            return;
+        };
+
+        let current_version = updater.read(cx).current_version.clone();
+        let http_client = updater.read(cx).client.http_client();
+
+        window
+            .spawn(cx, async move |cx| {
+                let result = AutoUpdater::fetch_latest_upstream_version(http_client).await;
+                match result {
+                    Ok(latest_tag) => {
+                        let latest_version = semver::Version::parse(&latest_tag).ok();
+                        let message = match latest_version {
+                            Some(latest) if latest > current_version => format!(
+                                "새 버전이 있습니다: v{latest}\n현재 버전: v{current_version}\n\n최신 버전으로 업데이트하려면 소스를 직접 빌드하세요.",
+                            ),
+                            Some(_) => format!(
+                                "최신 버전입니다.\n현재 버전: v{current_version}",
+                            ),
+                            None => format!(
+                                "버전 정보를 파싱할 수 없습니다.\n현재 버전: v{current_version}\n최신 태그: {latest_tag}",
+                            ),
+                        };
+                        cx.update(|window, cx| {
+                            drop(window.prompt(
+                                gpui::PromptLevel::Info,
+                                "업데이트 확인",
+                                Some(&message),
+                                &["Ok"],
+                                cx,
+                            ));
+                        })
+                        .ok();
+                    }
+                    Err(error) => {
+                        cx.update(|window, cx| {
+                            drop(window.prompt(
+                                gpui::PromptLevel::Info,
+                                "업데이트 확인 실패",
+                                Some(&format!("최신 버전을 가져올 수 없습니다: {error}")),
+                                &["Ok"],
+                                cx,
+                            ));
+                        })
+                        .ok();
+                    }
+                }
+            })
+            .detach();
         return;
     }
 
