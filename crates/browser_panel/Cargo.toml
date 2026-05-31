@@ -12,6 +12,9 @@ workspace = true
 path = "src/browser_panel.rs"
 doctest = false
 
+[features]
+devtools = ["wry/devtools"]
+
 [dependencies]
 anyhow.workspace = true
 editor.workspace = true

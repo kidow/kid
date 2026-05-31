@@ -16,8 +16,8 @@ use gpui::{
     GlobalElementId, InspectorElementId, IntoElement, LayoutId, Pixels, Render, Style, Window,
     actions, point, px,
 };
-use ui::prelude::*;
 use ui::Tooltip;
+use ui::prelude::*;
 use util::ResultExt as _;
 use workspace::Workspace;
 use workspace::dock::{DockPosition, Panel, PanelEvent};
@@ -27,17 +27,21 @@ const DEFAULT_URL: &str = "http://localhost:3000";
 actions!(
     browser_panel,
     [
+        /// Opens the browser panel's developer tools.
+        OpenDevTools,
         /// Toggles focus on the browser panel.
         ToggleFocus
     ]
 );
 
 pub fn init(cx: &mut App) {
-    cx.observe_new(|workspace: &mut Workspace, _window, _: &mut Context<Workspace>| {
-        workspace.register_action(|workspace, _: &ToggleFocus, window, cx| {
-            workspace.toggle_panel_focus::<BrowserPanel>(window, cx);
-        });
-    })
+    cx.observe_new(
+        |workspace: &mut Workspace, _window, _: &mut Context<Workspace>| {
+            workspace.register_action(|workspace, _: &ToggleFocus, window, cx| {
+                workspace.toggle_panel_focus::<BrowserPanel>(window, cx);
+            });
+        },
+    )
     .detach();
 }
 
@@ -124,6 +128,21 @@ impl BrowserPanel {
         cx.notify();
     }
 
+    fn open_devtools(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        #[cfg(any(debug_assertions, feature = "devtools"))]
+        {
+            if let Some(webview) = self.ensure_webview(window) {
+                webview.open_devtools();
+            }
+            cx.notify();
+        }
+
+        #[cfg(not(any(debug_assertions, feature = "devtools")))]
+        {
+            let _ = (window, cx);
+        }
+    }
+
     fn confirm(&mut self, _: &menu::Confirm, window: &mut Window, cx: &mut Context<Self>) {
         self.load_url(window, cx);
     }
@@ -201,6 +220,9 @@ impl Render for BrowserPanel {
             .key_context("BrowserPanel")
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(Self::confirm))
+            .on_action(cx.listener(|this, _: &OpenDevTools, window, cx| {
+                this.open_devtools(window, cx);
+            }))
             .size_full()
             .child(
                 h_flex()
@@ -217,16 +239,20 @@ impl Render for BrowserPanel {
                             .on_click(cx.listener(|this, _, window, cx| {
                                 this.reload(window, cx);
                             })),
-                    ),
-            )
-            .child(
-                div()
-                    .flex_1()
-                    .w_full()
-                    .when_some(webview, |this, webview| {
-                        this.child(WebViewElement::new(webview))
+                    )
+                    .when(cfg!(any(debug_assertions, feature = "devtools")), |this| {
+                        this.child(
+                            IconButton::new("browser-devtools", IconName::Debug)
+                                .tooltip(Tooltip::text("Open DevTools"))
+                                .on_click(cx.listener(|this, _, window, cx| {
+                                    this.open_devtools(window, cx);
+                                })),
+                        )
                     }),
             )
+            .child(div().flex_1().w_full().when_some(webview, |this, webview| {
+                this.child(WebViewElement::new(webview))
+            }))
     }
 }
 
@@ -301,19 +327,23 @@ impl Element for WebViewElement {
             origin: point(px(0.), px(0.)),
             size: viewport,
         };
-        let visible = bounds.intersects(&viewport_bounds) && bounds.size.width > px(0.);
+        let clipped_bounds = bounds.intersect(&window.content_mask().bounds);
+        let visible = clipped_bounds.intersects(&viewport_bounds)
+            && clipped_bounds.size.width > px(0.)
+            && clipped_bounds.size.height > px(0.)
+            && !window.has_pending_tooltip();
 
         if visible {
             self.webview
                 .set_bounds(wry::Rect {
                     position: wry::dpi::LogicalPosition::new(
-                        bounds.origin.x.to_f64(),
-                        bounds.origin.y.to_f64(),
+                        clipped_bounds.origin.x.to_f64(),
+                        clipped_bounds.origin.y.to_f64(),
                     )
                     .into(),
                     size: wry::dpi::LogicalSize::new(
-                        bounds.size.width.to_f64(),
-                        bounds.size.height.to_f64(),
+                        clipped_bounds.size.width.to_f64(),
+                        clipped_bounds.size.height.to_f64(),
                     )
                     .into(),
                 })
@@ -324,6 +354,16 @@ impl Element for WebViewElement {
             self.webview.set_visible(visible).log_err();
             self.last_visible.set(visible);
         }
+
+        let webview = self.webview.clone();
+        let last_visible = self.last_visible.clone();
+        window.update_native_view_visibility(move |native_views_visible| {
+            let visible = visible && native_views_visible;
+            if last_visible.get() != visible {
+                webview.set_visible(visible).log_err();
+                last_visible.set(visible);
+            }
+        });
     }
 
     fn paint(

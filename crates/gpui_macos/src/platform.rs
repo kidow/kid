@@ -445,6 +445,76 @@ impl MacPlatform {
         }
     }
 
+    unsafe fn remove_unwanted_edit_menu_items(main_menu: id) {
+        unsafe {
+            let item_count: NSInteger = msg_send![main_menu, numberOfItems];
+            for item_index in 0..item_count {
+                let item: id = msg_send![main_menu, itemAtIndex: item_index];
+                let title: id = msg_send![item, title];
+                if ns_string_to_string(title).as_deref() != Some("편집")
+                    && ns_string_to_string(title).as_deref() != Some("Edit")
+                {
+                    continue;
+                }
+
+                let submenu: id = msg_send![item, submenu];
+                if submenu.is_null() {
+                    continue;
+                }
+
+                Self::remove_items_matching(submenu, |item| {
+                    let title: id = msg_send![item, title];
+                    let action: Sel = msg_send![item, action];
+                    let title = ns_string_to_string(title);
+
+                    matches!(
+                        title.as_deref(),
+                        Some("Writing Tools")
+                            | Some("AutoFill")
+                            | Some("Start Dictation…")
+                            | Some("Start Dictation...")
+                            | Some("Emoji & Symbols")
+                    ) || action == sel!(startDictation:)
+                        || action == sel!(orderFrontCharacterPalette:)
+                });
+                Self::remove_trailing_separators(submenu);
+                break;
+            }
+        }
+    }
+
+    unsafe fn remove_items_matching(menu: id, mut predicate: impl FnMut(id) -> bool) {
+        unsafe {
+            let mut item_index: NSInteger = msg_send![menu, numberOfItems];
+            while item_index > 0 {
+                item_index -= 1;
+                let item: id = msg_send![menu, itemAtIndex: item_index];
+                if predicate(item) {
+                    let _: () = msg_send![menu, removeItem: item];
+                }
+            }
+        }
+    }
+
+    unsafe fn remove_trailing_separators(menu: id) {
+        unsafe {
+            loop {
+                let item_count: NSInteger = msg_send![menu, numberOfItems];
+                if item_count == 0 {
+                    break;
+                }
+
+                let item: id = msg_send![menu, itemAtIndex: item_count - 1];
+                let is_separator: BOOL = msg_send![item, isSeparatorItem];
+                if is_separator == NO {
+                    break;
+                }
+
+                let _: () = msg_send![menu, removeItem: item];
+            }
+        }
+    }
+
     fn os_version() -> Version {
         let version = unsafe {
             let process_info = NSProcessInfo::processInfo(nil);
@@ -952,6 +1022,7 @@ impl Platform for MacPlatform {
             let menu = self.create_menu_bar(&menus, NSWindow::delegate(app), actions, keymap);
             drop(state);
             app.setMainMenu_(menu);
+            Self::remove_unwanted_edit_menu_items(menu);
         }
         self.0.lock().menus = Some(menus.into_iter().map(|menu| menu.owned()).collect());
     }
@@ -1373,6 +1444,19 @@ unsafe fn ns_url_to_path(url: id) -> Result<PathBuf> {
     Ok(PathBuf::from(OsStr::from_bytes(unsafe {
         CStr::from_ptr(path).to_bytes()
     })))
+}
+
+unsafe fn ns_string_to_string(value: id) -> Option<String> {
+    if value.is_null() {
+        return None;
+    }
+
+    let bytes: *const c_char = unsafe { msg_send![value, UTF8String] };
+    if bytes.is_null() {
+        return None;
+    }
+
+    Some(unsafe { CStr::from_ptr(bytes).to_string_lossy().into_owned() })
 }
 
 #[link(name = "Carbon", kind = "framework")]

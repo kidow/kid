@@ -547,6 +547,7 @@ impl<M: Focusable + EventEmitter<DismissEvent> + Render> ManagedView for M {}
 pub struct DismissEvent;
 
 type FrameCallback = Box<dyn FnOnce(&mut Window, &mut App)>;
+type NativeViewVisibilityUpdate = Box<dyn FnOnce(bool)>;
 
 pub(crate) type AnyMouseListener =
     Box<dyn FnMut(&dyn Any, DispatchPhase, &mut Window, &mut App) + 'static>;
@@ -805,6 +806,7 @@ pub(crate) struct Frame {
     pub(crate) deferred_draws: Vec<DeferredDraw>,
     pub(crate) input_handlers: Vec<Option<PlatformInputHandler>>,
     pub(crate) tooltip_requests: Vec<Option<TooltipRequest>>,
+    native_view_visibility_updates: Vec<NativeViewVisibilityUpdate>,
     pub(crate) cursor_styles: Vec<CursorStyleRequest>,
     #[cfg(any(test, feature = "test-support"))]
     pub(crate) debug_bounds: FxHashMap<String, Bounds<Pixels>>,
@@ -851,6 +853,7 @@ impl Frame {
             deferred_draws: Vec::new(),
             input_handlers: Vec::new(),
             tooltip_requests: Vec::new(),
+            native_view_visibility_updates: Vec::new(),
             cursor_styles: Vec::new(),
 
             #[cfg(any(test, feature = "test-support"))]
@@ -873,6 +876,7 @@ impl Frame {
         self.scene.clear();
         self.input_handlers.clear();
         self.tooltip_requests.clear();
+        self.native_view_visibility_updates.clear();
         self.cursor_styles.clear();
         self.hitboxes.clear();
         self.window_control_hitboxes.clear();
@@ -2756,6 +2760,12 @@ impl Window {
             tooltip_element = self.prepaint_tooltip(cx);
         }
 
+        let native_views_visible =
+            prompt_element.is_none() && active_drag_element.is_none() && tooltip_element.is_none();
+        for update_visibility in self.next_frame.native_view_visibility_updates.drain(..) {
+            update_visibility(native_views_visible);
+        }
+
         self.mouse_hit_test = self.next_frame.hit_test(self.mouse_position);
 
         // Now actually paint the elements.
@@ -3136,6 +3146,19 @@ impl Window {
             .tooltip_requests
             .push(Some(TooltipRequest { id, tooltip }));
         id
+    }
+
+    /// Returns whether a tooltip is visible or scheduled to be rendered this frame.
+    pub fn has_pending_tooltip(&self) -> bool {
+        self.tooltip_bounds.is_some()
+            || self.next_frame.tooltip_requests.iter().any(Option::is_some)
+    }
+
+    /// Registers a native child view that should be hidden while GPUI draws an overlay.
+    pub fn update_native_view_visibility(&mut self, update: impl FnOnce(bool) + 'static) {
+        self.next_frame
+            .native_view_visibility_updates
+            .push(Box::new(update));
     }
 
     /// Invoke the given function with the given content mask after intersecting it
