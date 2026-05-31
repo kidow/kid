@@ -27,7 +27,7 @@ const DEFAULT_URL: &str = "http://localhost:3000";
 actions!(
     browser_panel,
     [
-        /// Opens the browser panel's developer tools.
+        /// Toggles the browser panel's developer tools.
         OpenDevTools,
         /// Toggles focus on the browser panel.
         ToggleFocus
@@ -128,11 +128,15 @@ impl BrowserPanel {
         cx.notify();
     }
 
-    fn open_devtools(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+    fn toggle_devtools(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         #[cfg(any(debug_assertions, feature = "devtools"))]
         {
             if let Some(webview) = self.ensure_webview(window) {
-                webview.open_devtools();
+                if webview.is_devtools_open() {
+                    webview.close_devtools();
+                } else {
+                    webview.open_devtools();
+                }
             }
             cx.notify();
         }
@@ -221,7 +225,7 @@ impl Render for BrowserPanel {
             .track_focus(&self.focus_handle)
             .on_action(cx.listener(Self::confirm))
             .on_action(cx.listener(|this, _: &OpenDevTools, window, cx| {
-                this.open_devtools(window, cx);
+                this.toggle_devtools(window, cx);
             }))
             .size_full()
             .child(
@@ -243,9 +247,9 @@ impl Render for BrowserPanel {
                     .when(cfg!(any(debug_assertions, feature = "devtools")), |this| {
                         this.child(
                             IconButton::new("browser-devtools", IconName::Debug)
-                                .tooltip(Tooltip::text("Open DevTools"))
+                                .tooltip(Tooltip::text("Toggle DevTools"))
                                 .on_click(cx.listener(|this, _, window, cx| {
-                                    this.open_devtools(window, cx);
+                                    this.toggle_devtools(window, cx);
                                 })),
                         )
                     }),
