@@ -324,24 +324,28 @@ impl ConfigOptionSelector {
 
     fn current_value_name(&self) -> String {
         let Some(option) = self.current_option() else {
-            return "Unknown".to_string();
+            return localized_config_option_text("Unknown").to_string();
         };
 
         match &option.kind {
             acp::SessionConfigKind::Select(select) => {
                 find_option_name(&select.options, &select.current_value)
-                    .unwrap_or_else(|| "Unknown".to_string())
+                    .map(|name| localized_config_option_text(&name).to_string())
+                    .unwrap_or_else(|| localized_config_option_text("Unknown").to_string())
             }
-            _ => "Unknown".to_string(),
+            _ => localized_config_option_text("Unknown").to_string(),
         }
     }
 
     fn render_trigger_button(&self, _window: &mut Window, _cx: &mut Context<Self>) -> Button {
         let Some(option) = self.current_option() else {
-            return Button::new("config-option-trigger", "Unknown")
-                .label_size(LabelSize::Small)
-                .color(Color::Muted)
-                .disabled(true);
+            return Button::new(
+                "config-option-trigger",
+                localized_config_option_text("Unknown"),
+            )
+            .label_size(LabelSize::Small)
+            .color(Color::Muted)
+            .disabled(true);
         };
 
         let icon = if self.picker_handle.is_deployed() {
@@ -369,8 +373,10 @@ impl Render for ConfigOptionSelector {
 
         let trigger_button = self.render_trigger_button(window, cx);
 
-        let option_name = option.name.clone();
-        let option_description: Option<SharedString> = option.description.map(Into::into);
+        let option_name = localized_config_option_text(&option.name).to_string();
+        let option_description: Option<SharedString> = option
+            .description
+            .map(|description| localized_config_option_text(&description).into());
 
         let tooltip = Tooltip::element(move |_window, _cx| {
             let mut content = v_flex().gap_1().child(Label::new(option_name.clone()));
@@ -504,7 +510,7 @@ impl PickerDelegate for ConfigOptionPickerDelegate {
     }
 
     fn placeholder_text(&self, _window: &mut Window, _cx: &mut App) -> Arc<str> {
-        "Select an option…".into()
+        "옵션 선택…".into()
     }
 
     fn update_matches(
@@ -611,8 +617,11 @@ impl PickerDelegate for ConfigOptionPickerDelegate {
 
                 let is_favorite = self.favorites.contains(&option.value);
 
-                let option_name = option.name.clone();
-                let description = option.description.clone();
+                let option_name = localized_config_option_text(&option.name).to_string();
+                let description = option
+                    .description
+                    .as_ref()
+                    .map(|description| localized_config_option_text(description).to_string());
 
                 Some(
                     div()
@@ -640,9 +649,9 @@ impl PickerDelegate for ConfigOptionPickerDelegate {
                                 }))
                                 .end_slot_on_hover(div().pr_1p5().child({
                                     let (icon, color, tooltip) = if is_favorite {
-                                        (IconName::StarFilled, Color::Accent, "Unfavorite")
+                                        (IconName::StarFilled, Color::Accent, "즐겨찾기 해제")
                                     } else {
-                                        (IconName::Star, Color::Default, "Favorite")
+                                        (IconName::Star, Color::Default, "즐겨찾기")
                                     };
 
                                     let config_id = self.config_id.clone();
@@ -712,8 +721,11 @@ fn extract_options(
                 .iter()
                 .map(|opt| ConfigOptionValue {
                     value: opt.value.clone(),
-                    name: opt.name.clone(),
-                    description: opt.description.clone(),
+                    name: localized_config_option_text(&opt.name).to_string(),
+                    description: opt
+                        .description
+                        .as_ref()
+                        .map(|description| localized_config_option_text(description).to_string()),
                     group: None,
                 })
                 .collect(),
@@ -722,9 +734,11 @@ fn extract_options(
                 .flat_map(|group| {
                     group.options.iter().map(|opt| ConfigOptionValue {
                         value: opt.value.clone(),
-                        name: opt.name.clone(),
-                        description: opt.description.clone(),
-                        group: Some(group.name.clone()),
+                        name: localized_config_option_text(&opt.name).to_string(),
+                        description: opt.description.as_ref().map(|description| {
+                            localized_config_option_text(description).to_string()
+                        }),
+                        group: Some(localized_config_option_text(&group.name).to_string()),
                     })
                 })
                 .collect(),
@@ -763,7 +777,7 @@ fn options_to_picker_entries(
     }
 
     if !favorite_options.is_empty() {
-        entries.push(ConfigOptionPickerEntry::Separator("Favorites".into()));
+        entries.push(ConfigOptionPickerEntry::Separator("즐겨찾기".into()));
         for option in favorite_options {
             entries.push(ConfigOptionPickerEntry::Option(option));
         }
@@ -773,7 +787,7 @@ fn options_to_picker_entries(
         if let Some(option) = options.first()
             && option.group.is_none()
         {
-            entries.push(ConfigOptionPickerEntry::Separator("All Options".into()));
+            entries.push(ConfigOptionPickerEntry::Separator("모든 옵션".into()));
         }
     }
 
@@ -791,6 +805,19 @@ fn options_to_picker_entries(
     }
 
     entries
+}
+
+fn localized_config_option_text(text: &str) -> &str {
+    match text {
+        "Default" => "기본값",
+        "Accept Edits" => "편집 허용",
+        "Plan Mode" => "계획 모드",
+        "Don't Ask" => "묻지 않음",
+        "Bypass Permissions" => "권한 우회",
+        "Auto-accept file edit operations" => "파일 편집 작업 자동 승인",
+        "Unknown" => "알 수 없음",
+        _ => text,
+    }
 }
 
 async fn fuzzy_search_options(
