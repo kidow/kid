@@ -1,3 +1,5 @@
+[English](./README.md) | [한국어](./README.ko.md)
+
 # kid
 
 A lightweight, single-player fork of [Zed](https://github.com/zed-industries/zed) focused on
