@@ -25,9 +25,9 @@ use client::{Client, UserStore, zed_urls};
 use cloud_api_types::Plan;
 
 use gpui::{
-    Action, Anchor, AnyElement, App, Context, Element, Entity, Focusable,
-    InteractiveElement, IntoElement, MouseButton, ParentElement, Render,
-    StatefulInteractiveElement, Styled, Subscription, WeakEntity, Window, actions, div,
+    Action, Anchor, AnyElement, App, Context, Element, Entity, Focusable, InteractiveElement,
+    IntoElement, MouseButton, ParentElement, Render, StatefulInteractiveElement, Styled,
+    Subscription, WeakEntity, Window, actions, div,
 };
 use onboarding_banner::OnboardingBanner;
 use project::{
@@ -47,8 +47,7 @@ use ui::{
 use update_version::UpdateVersion;
 use util::ResultExt;
 use workspace::{
-    MultiWorkspace, ToggleWorktreeSecurity, Workspace,
-    notifications::NotifyTaskExt as _,
+    MultiWorkspace, ToggleWorktreeSecurity, Workspace, notifications::NotifyTaskExt as _,
 };
 
 use zed_actions::OpenRemote;
@@ -287,7 +286,7 @@ impl Render for TitleBar {
         children.push(
             h_flex()
                 .map(|this| {
-                    if signed_in {
+                    if signed_in && title_bar_settings.show_user_menu {
                         this.pr_1p5()
                     } else {
                         this.pr_1()
@@ -297,6 +296,9 @@ impl Render for TitleBar {
                 .on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation())
                 .children(self.render_connection_status(status, cx))
                 .child(self.update_version.clone())
+                .when(title_bar_settings.show_user_menu, |this| {
+                    this.child(self.render_user_menu_button(cx))
+                })
                 .into_any_element(),
         );
 
@@ -1019,6 +1021,7 @@ impl TitleBar {
                     | Some(AutoUpdateStatus::Downloading { .. })
                     | Some(AutoUpdateStatus::Checking) => "업데이트 중...",
                     Some(AutoUpdateStatus::Idle)
+                    | Some(AutoUpdateStatus::UpToDate)
                     | Some(AutoUpdateStatus::Errored { .. })
                     | None => "공동 작업하려면 Zed를 업데이트하세요",
                 };
@@ -1151,7 +1154,10 @@ impl TitleBar {
                                     .w_full()
                                     .gap_1()
                                     .justify_between()
-                                    .child(Label::new("Zed 업데이트를 위해 재시작").color(Color::Accent))
+                                    .child(
+                                        Label::new("Zed 업데이트를 위해 재시작")
+                                            .color(Color::Accent),
+                                    )
                                     .child(
                                         Icon::new(IconName::Download)
                                             .size(IconSize::Small)
@@ -1229,14 +1235,12 @@ impl TitleBar {
                         "아이콘 테마…",
                         zed_actions::icon_theme_selector::Toggle::default().boxed_clone(),
                     )
-                    .action(
-                        "확장",
-                        zed_actions::Extensions::default().boxed_clone(),
-                    )
+                    .action("확장", zed_actions::Extensions::default().boxed_clone())
                     .when(ai_enabled, |menu| {
                         let fs = fs.clone();
-                        menu.separator()
-                            .submenu("패널 레이아웃", move |menu, _window, _cx| {
+                        menu.separator().submenu(
+                            "패널 레이아웃",
+                            move |menu, _window, _cx| {
                                 let fs = fs.clone();
                                 menu.toggleable_entry(
                                     "클래식",
@@ -1254,16 +1258,22 @@ impl TitleBar {
                                         }
                                     },
                                 )
-                                .toggleable_entry("에이전트", is_agent, IconPosition::Start, None, {
-                                    let fs = fs.clone();
-                                    move |_window, cx| {
-                                        drop(AgentSettings::set_layout(
-                                            WindowLayout::Agent(None),
-                                            fs.clone(),
-                                            cx,
-                                        ));
-                                    }
-                                })
+                                .toggleable_entry(
+                                    "에이전트",
+                                    is_agent,
+                                    IconPosition::Start,
+                                    None,
+                                    {
+                                        let fs = fs.clone();
+                                        move |_window, cx| {
+                                            drop(AgentSettings::set_layout(
+                                                WindowLayout::Agent(None),
+                                                fs.clone(),
+                                                cx,
+                                            ));
+                                        }
+                                    },
+                                )
                                 .when(is_custom, |menu| {
                                     menu.item(
                                         ContextMenuEntry::new("사용자 지정")
@@ -1271,7 +1281,8 @@ impl TitleBar {
                                             .disabled(true),
                                     )
                                 })
-                            })
+                            },
+                        )
                     })
                     .when(is_signed_in, |this| {
                         this.separator()

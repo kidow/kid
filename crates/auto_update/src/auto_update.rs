@@ -60,6 +60,7 @@ pub struct AssetQuery<'a> {
 pub enum AutoUpdateStatus {
     Idle,
     Checking,
+    UpToDate,
     Downloading { version: VersionCheckType },
     Installing { version: VersionCheckType },
     Updated { version: VersionCheckType },
@@ -71,6 +72,7 @@ impl PartialEq for AutoUpdateStatus {
         match (self, other) {
             (AutoUpdateStatus::Idle, AutoUpdateStatus::Idle) => true,
             (AutoUpdateStatus::Checking, AutoUpdateStatus::Checking) => true,
+            (AutoUpdateStatus::UpToDate, AutoUpdateStatus::UpToDate) => true,
             (
                 AutoUpdateStatus::Downloading { version: v1 },
                 AutoUpdateStatus::Downloading { version: v2 },
@@ -202,6 +204,13 @@ pub fn check(_: &Check, window: &mut Window, cx: &mut App) {
         .map(|channel| channel.poll_for_updates())
         .unwrap_or(false)
     {
+        drop(window.prompt(
+            gpui::PromptLevel::Info,
+            "업데이트 확인을 사용할 수 없습니다",
+            Some("이 빌드에서는 자동 업데이트 확인을 지원하지 않습니다."),
+            &["Ok"],
+            cx,
+        ));
         return;
     }
 
@@ -518,13 +527,14 @@ impl AutoUpdater {
     }
 
     async fn update(this: Entity<Self>, cx: &mut AsyncApp) -> Result<()> {
-        let (http_client, installed_version, previous_status, release_channel) =
+        let (http_client, installed_version, previous_status, release_channel, update_check_type) =
             this.read_with(cx, |this, cx| {
                 (
                     this.client.http_client(),
                     this.current_version.clone(),
                     this.status.clone(),
                     ReleaseChannel::try_global(cx).unwrap_or(ReleaseChannel::Stable),
+                    this.update_check_type,
                 )
             });
 
@@ -548,6 +558,7 @@ impl AutoUpdater {
             this.update(cx, |this, cx| {
                 let status = match previous_status {
                     AutoUpdateStatus::Updated { .. } => previous_status,
+                    _ if update_check_type.is_manual() => AutoUpdateStatus::UpToDate,
                     _ => AutoUpdateStatus::Idle,
                 };
                 this.status = status;

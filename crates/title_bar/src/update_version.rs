@@ -18,11 +18,12 @@ impl UpdateVersion {
     pub fn new(cx: &mut Context<Self>) -> Self {
         if let Some(auto_updater) = AutoUpdater::get(cx) {
             cx.observe(&auto_updater, |this, auto_update, cx| {
-                this.status = auto_update.read(cx).status();
+                let status = auto_update.read(cx).status();
                 this.update_check_type = auto_update.read(cx).update_check_type();
-                if this.status.is_updated() {
+                if status != this.status && !matches!(status, AutoUpdateStatus::Idle) {
                     this.dismissed = false;
                 }
+                this.status = status;
             })
             .detach();
             Self {
@@ -43,6 +44,9 @@ impl UpdateVersion {
         let next_state = match self.status {
             AutoUpdateStatus::Idle => AutoUpdateStatus::Checking,
             AutoUpdateStatus::Checking => AutoUpdateStatus::Downloading {
+                version: VersionCheckType::Semantic(Version::new(1, 99, 0)),
+            },
+            AutoUpdateStatus::UpToDate => AutoUpdateStatus::Downloading {
                 version: VersionCheckType::Semantic(Version::new(1, 99, 0)),
             },
             AutoUpdateStatus::Downloading { .. } => AutoUpdateStatus::Installing {
@@ -86,6 +90,15 @@ impl Render for UpdateVersion {
             AutoUpdateStatus::Checking if self.update_check_type.is_manual() => {
                 UpdateButton::checking().into_any_element()
             }
+            AutoUpdateStatus::UpToDate => UpdateButton::new(IconName::Check, "최신 버전입니다")
+                .icon_color(Color::Success)
+                .tooltip("사용 가능한 업데이트가 없습니다")
+                .with_dismiss()
+                .on_dismiss(cx.listener(|this, _, _window, cx| {
+                    this.dismissed = true;
+                    cx.notify()
+                }))
+                .into_any_element(),
             AutoUpdateStatus::Downloading { version } => {
                 let version = Self::version_tooltip_message(&version);
                 UpdateButton::downloading(version).into_any_element()
@@ -118,7 +131,7 @@ impl Render for UpdateVersion {
                     }))
                     .into_any_element()
             }
-            AutoUpdateStatus::Idle | AutoUpdateStatus::Checking { .. } => Empty.into_any_element(),
+            AutoUpdateStatus::Idle | AutoUpdateStatus::Checking => Empty.into_any_element(),
         }
     }
 }

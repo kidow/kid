@@ -79,7 +79,7 @@ impl UpdateButton {
     }
 
     pub fn checking() -> Self {
-        Self::new(IconName::LoadCircle, "Checking for Zed Updates…")
+        Self::new(IconName::LoadCircle, "업데이트 확인 중…")
             .icon_animate(true)
             .disabled(true)
     }
